@@ -1,0 +1,26 @@
+# Tệp cấu hình cho view-launcher
+# Đường dẫn: ~/.config/view-launcher/config.toml
+
+[theme]
+# Màu sắc có thể sử dụng tên màu tiêu chuẩn (red, green, yellow, blue, cyan, white, gray, dark_gray...)
+# hoặc mã màu Hex dạng "#RRGGBB" (Ví dụ: "#2d3748").
+
+query_color = "cyan"            # Màu của dấu nhắc lệnh "❯" và tiêu đề
+selection_bg = "#2d3748"         # Màu nền của thanh chọn hiện tại (Sleek slate gray)
+selection_fg = "white"           # Màu chữ của thanh chọn hiện tại
+app_badge_color = "cyan"         # Màu của nhãn ứng dụng [App]
+file_badge_color = "yellow"      # Màu của nhãn tệp tin [File]
+border_color = "#4a5568"         # Màu viền bo góc xung quanh ứng dụng
+
+[search]
+disable_ime = true               # Tắt gõ tiếng việt 
+max_depth = 3                    # Độ sâu tối đa quét tìm kiếm trong thư mục Home
+ignored_dirs = [                 # Danh sách các thư mục bỏ qua không quét để tối ưu hóa hiệu suất
+    ".git",
+    ".cargo",
+    ".cache",
+    "node_modules",
+    "target",
+    "build",
+    "dist"
+]

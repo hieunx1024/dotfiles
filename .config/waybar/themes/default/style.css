@@ -1,0 +1,332 @@
+/* =============================================================================
+ * WAYBAR GRUVBOX DARK STYLESHEET
+ * ============================================================================= */
+
+@define-color bg0         #282828;
+@define-color bg1         #3c3836;
+@define-color bg2         #504945;
+@define-color bg3         #665c54;
+@define-color bg4         #7c6f64;
+@define-color fg          #ebdbb2;
+@define-color red         #fb4934;
+@define-color green       #b8bb26;
+@define-color yellow      #fabd2f;
+@define-color blue        #83a598;
+@define-color purple      #d3869b;
+@define-color aqua        #8ec07c;
+@define-color orange      #fe8019;
+@define-color gray        #928374;
+
+* {
+    font-family: "JetBrainsMono Nerd Font", "JetBrainsMono Nerd Font Propo", sans-serif;
+    font-size: 14px;
+}
+
+window#waybar {
+    background-color: @bg0;
+    color: @fg;
+    border-bottom: 2px solid @bg2;
+    transition-property: background-color;
+    transition-duration: 0.5s;
+}
+
+window#waybar.hidden {
+    opacity: 0.2;
+}
+
+button {
+    box-shadow: inset 0 -3px transparent;
+    border: none;
+    border-radius: 0;
+}
+
+button:hover {
+    background: inherit;
+    box-shadow: inset 0 -3px @fg;
+}
+
+#workspaces button {
+    padding: 0 10px;
+    background-color: transparent;
+    color: @gray;
+    border-radius: 4px;
+    margin: 3px 2px;
+    transition: all 0.2s ease;
+}
+
+#workspaces button:hover {
+    background: @bg2;
+    color: @fg;
+}
+
+#workspaces button.focused, #workspaces button.active {
+    background-color: @blue;
+    color: @bg0;
+    box-shadow: none;
+    font-weight: bold;
+}
+
+#workspaces button.urgent {
+    background-color: @red;
+    color: @bg0;
+    box-shadow: none;
+}
+
+#mode {
+    background-color: @orange;
+    color: @bg0;
+    font-weight: bold;
+    padding: 0 10px;
+}
+
+#clock,
+#battery,
+#cpu,
+#memory,
+#disk,
+#temperature,
+#backlight,
+#custom-backlight,
+#network,
+#bluetooth,
+#pulseaudio,
+#wireplumber,
+#custom-media,
+#idle_inhibitor,
+#scratchpad,
+#power-profiles-daemon,
+#mpd,
+#custom-power,
+#custom-pomodoro {
+    padding: 0 12px;
+    color: @fg;
+    background-color: transparent;
+}
+
+#window,
+#workspaces {
+    margin: 0 4px;
+}
+
+/* Clock & Pomodoro */
+#clock {
+    color: @yellow;
+    font-weight: bold;
+}
+
+#custom-pomodoro {
+    color: @red;
+    font-weight: bold;
+}
+
+/* System Stats */
+#cpu {
+    color: @blue;
+}
+
+#memory {
+    color: @purple;
+}
+
+#disk {
+    color: @orange;
+}
+
+#temperature {
+    color: @orange;
+}
+
+#temperature.critical {
+    color: @red;
+    font-weight: bold;
+}
+
+/* Battery */
+#battery {
+    color: @green;
+}
+
+#battery.charging, #battery.plugged {
+    color: @green;
+}
+
+@keyframes blink {
+    to {
+        background-color: @red;
+        color: @bg0;
+    }
+}
+
+#battery.critical:not(.charging) {
+    color: @red;
+    animation-name: blink;
+    animation-duration: 0.5s;
+    animation-timing-function: steps(12);
+    animation-iteration-count: infinite;
+    animation-direction: alternate;
+}
+
+/* Power Profiles */
+#power-profiles-daemon {
+    padding-right: 15px;
+}
+
+#power-profiles-daemon.performance {
+    color: @red;
+}
+
+#power-profiles-daemon.balanced {
+    color: @blue;
+}
+
+#power-profiles-daemon.power-saver {
+    color: @green;
+}
+
+/* Backlight */
+#backlight,
+#custom-backlight {
+    color: @yellow;
+}
+
+#custom-backlight.nightlight {
+    color: @orange;
+}
+
+/* Connectivity */
+#bluetooth {
+    color: @blue;
+}
+
+#bluetooth.off, #bluetooth.disabled {
+    color: @gray;
+    opacity: 0.5;
+}
+
+#network {
+    color: @aqua;
+}
+
+#network.disconnected {
+    color: @red;
+    font-weight: bold;
+}
+
+/* Audio */
+#pulseaudio {
+    color: @green;
+}
+
+#pulseaudio.muted {
+    color: @gray;
+}
+
+#wireplumber {
+    color: @green;
+}
+
+#wireplumber.muted {
+    color: @gray;
+}
+
+/* Separator */
+#custom-separator {
+    color: @bg3;
+    padding: 0 2px;
+}
+
+/* Media Info */
+#custom-media {
+    color: @green;
+    font-weight: bold;
+}
+
+#custom-media.custom-spotify {
+    color: @green;
+}
+
+#custom-media.custom-vlc {
+    color: @orange;
+}
+
+/* System Tray & Misc */
+#tray {
+    background-color: transparent;
+    padding: 0 5px;
+}
+
+#tray > .passive {
+    -gtk-icon-effect: dim;
+}
+
+#tray > .needs-attention {
+    -gtk-icon-effect: highlight;
+    background-color: @red;
+}
+
+#idle_inhibitor {
+    color: @gray;
+    opacity: 0.7;
+}
+
+#idle_inhibitor.activated {
+    color: @yellow;
+    opacity: 1.0;
+}
+
+#mpd {
+    color: @green;
+}
+
+#mpd.disconnected {
+    color: @red;
+}
+
+#mpd.stopped {
+    color: @gray;
+}
+
+#mpd.paused {
+    color: @gray;
+}
+
+#language {
+    color: @purple;
+    padding: 0 5px;
+    font-weight: bold;
+}
+
+#keyboard-state {
+    color: @aqua;
+    padding: 0 5px;
+}
+
+#scratchpad {
+    color: @yellow;
+}
+
+#scratchpad.empty {
+    color: @gray;
+    opacity: 0.5;
+}
+
+/* Privacy Indicators */
+#privacy {
+    padding: 0;
+}
+
+#privacy-item {
+    padding: 0 5px;
+}
+
+#privacy-item.screenshare {
+    color: @orange;
+}
+
+#privacy-item.audio-in {
+    color: @green;
+}
+
+#privacy-item.audio-out {
+    color: @blue;
+}

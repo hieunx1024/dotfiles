@@ -1,0 +1,4 @@
+alias e='exit'
+alias v='nvim'
+alias oh='cd ~ && echo "wellcome ~"'
+

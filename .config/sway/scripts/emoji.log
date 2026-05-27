@@ -1,0 +1,5 @@
+Tue May 26 07:49:24 AM +07 2026: Script started
+Tue May 26 07:49:24 AM +07 2026: Launching fuzzel
+ err: config.c:1057: /home/hieunx/.config/fuzzel/fuzzel.ini:20: [main].fuzzy-min-length: 1: not a valid option: fuzzy-min-length
+Tue May 26 07:49:29 AM +07 2026: Selected: 😊 smile / happy
+Tue May 26 07:49:29 AM +07 2026: Copied 😊 to clipboard

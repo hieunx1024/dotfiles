@@ -1,0 +1,276 @@
+# Sway Configuration
+# Theme: Catppuccin Mocha
+
+### Variables
+set $mod Mod4
+set $left h
+set $down j
+set $up k
+set $right l
+
+set $term kitty
+set $menu fuzzel
+set $browser MOZ_ENABLE_WAYLAND=1 firefox
+set $file QT_QPA_PLATFORM=wayland dolphin
+
+### Visuals
+font pango:Inter 11
+# Gaps
+gaps inner 5
+gaps outer 5
+smart_gaps on
+smart_borders on
+
+# Window Borders
+default_border pixel 2
+default_floating_border normal
+hide_edge_borders smart
+
+### Gruvbox Dark Colors
+set $bg0         #282828
+set $bg1         #3c3836
+set $bg2         #504945
+set $bg3         #665c54
+set $bg4         #7c6f64
+set $fg          #ebdbb2
+set $gray        #928374
+set $red         #fb4934
+set $green       #b8bb26
+set $yellow      #fabd2f
+set $blue        #83a598
+set $purple      #d3869b
+set $aqua        #8ec07c
+set $orange      #fe8019
+
+# Căn giữa tiêu đề cửa sổ (đặc biệt đẹp khi dùng layout Tabbed giống tab trình duyệt)
+title_align center
+
+# target                 border    bg        text      indicator  child_border
+client.focused           $blue     $bg2      $fg       $orange    $blue
+client.focused_inactive  $bg2      $bg2      $fg       $orange    $bg2
+client.unfocused         $bg1      $bg1      $gray     $orange    $bg1
+client.urgent            $red      $red      $bg0      $orange    $red
+client.placeholder       $bg1      $bg1      $gray     $orange    $bg1
+client.background        $bg0
+
+### Output configuration
+# Default wallpaper
+output * bg /usr/share/backgrounds/sway/Sway_Wallpaper_Blue_1920x1080.png fill
+# output * adaptive_sync on
+# output * max_render_time 1
+
+# Cấu hình màn hình động (Extend & Mirror)
+# Sử dụng tổ hợp phím tắt $mod+Shift+p để mở menu tùy chọn hiển thị động (display-mode.sh).
+# Mặc định bật màn hình laptop eDP-1:
+output eDP-1 mode 1920x1080 position 0 0
+
+
+### Input configuration
+input "type:touchpad" {
+    tap enabled
+    natural_scroll enabled
+    dwt enabled
+}
+
+input "type:keyboard" {
+    xkb_numlock enabled
+}
+
+### Autostart
+# Cập nhật environment cho DBus và Systemd (quan trọng cho screensharing và portal)
+exec systemctl --user import-environment DISPLAY WAYLAND_DISPLAY SWAYSOCK XDG_CURRENT_DESKTOP
+exec hash dbus-update-activation-environment 2>/dev/null && \
+     dbus-update-activation-environment --systemd DISPLAY WAYLAND_DISPLAY SWAYSOCK XDG_CURRENT_DESKTOP
+
+exec /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1
+exec fcitx5 -rd
+exec_always "pkill swaync; swaync"
+exec waypaper --restore
+exec_always "pkill waybar; waybar"
+# Tự động kích hoạt lại màn hình laptop khi rút cáp màn ngoài
+exec_always /home/hieunx/.config/sway/scripts/auto-display.sh
+exec swayidle -w \
+         timeout 600 '/home/hieunx/.config/sway/scripts/lock.sh' \
+         timeout 900 'swaymsg "output * dpms off"' \
+         resume 'swaymsg "output * dpms on"' \
+         before-sleep '/home/hieunx/.config/sway/scripts/lock.sh'
+
+### Key bindings
+# Basics:
+bindsym $mod+Return exec $term
+bindsym $mod+q kill
+bindsym $mod+d exec $menu
+bindsym $mod+b exec $browser
+bindsym $mod+e exec $file
+
+# Floating modifier
+floating_modifier $mod normal
+
+# Reload/Exit
+bindsym $mod+Shift+c reload
+bindsym $mod+Ctrl+b exec pkill -USR1 waybar
+bindsym $mod+Shift+t exec ~/.config/waybar/switch_theme.sh
+bindsym $mod+Shift+e exec ~/.config/sway/scripts/powermenu.sh
+bindsym $mod+Shift+p exec ~/.config/sway/scripts/display-mode.sh
+bindsym $mod+Ctrl+l exec ~/.config/sway/scripts/lock.sh
+bindsym $mod+Alt+s exec ~/.config/sway/scripts/lock.sh && systemctl suspend
+
+# Moving focus
+bindsym $mod+$left focus left
+bindsym $mod+$down focus down
+bindsym $mod+$up focus up
+bindsym $mod+$right focus right
+bindsym $mod+Left focus left
+bindsym $mod+Down focus down
+bindsym $mod+Up focus up
+bindsym $mod+Right focus right
+
+# Moving windows
+# bindsym $mod+Shift+$left move left (Commented out to avoid conflict with Night Mode)
+bindsym $mod+Shift+$down move down
+bindsym $mod+Shift+$up move up
+bindsym $mod+Shift+$right move right
+bindsym $mod+Shift+$left move left
+bindsym $mod+Shift+Down move down
+bindsym $mod+Shift+Up move up
+bindsym $mod+Shift+Right move right
+bindsym $mod+Shift+Left move left
+
+# Workspaces
+bindsym $mod+1 workspace number 1
+bindsym $mod+2 workspace number 2
+bindsym $mod+3 workspace number 3
+bindsym $mod+4 workspace number 4
+bindsym $mod+5 workspace number 5
+bindsym $mod+6 workspace number 6
+bindsym $mod+7 workspace number 7
+bindsym $mod+8 workspace number 8
+bindsym $mod+9 workspace number 9
+bindsym $mod+0 workspace number 10
+
+# Gestures
+bindgesture swipe:3:left workspace next
+bindgesture swipe:3:right workspace prev
+
+bindsym $mod+Shift+1 move container to workspace number 1
+bindsym $mod+Shift+2 move container to workspace number 2
+bindsym $mod+Shift+3 move container to workspace number 3
+bindsym $mod+Shift+4 move container to workspace number 4
+bindsym $mod+Shift+5 move container to workspace number 5
+bindsym $mod+Shift+6 move container to workspace number 6
+bindsym $mod+Shift+7 move container to workspace number 7
+bindsym $mod+Shift+8 move container to workspace number 8
+bindsym $mod+Shift+9 move container to workspace number 9
+bindsym $mod+Shift+0 move container to workspace number 10
+
+# Layout
+bindsym $mod+s layout stacking
+bindsym $mod+w layout tabbed
+bindsym $mod+x layout toggle split
+bindsym $mod+f fullscreen toggle
+bindsym $mod+m layout toggle tabbed split; gaps inner current toggle 10; gaps outer current toggle 5
+bindsym $mod+Shift+space floating toggle
+#bindsym $mod+space focus mode_toggle
+bindsym $mod+a focus parent
+
+# Scratchpad
+bindsym $mod+Shift+minus move scratchpad
+bindsym $mod+minus scratchpad show
+# Xóa cửa sổ khỏi scratchpad (đưa ra workspace hiện tại)
+bindsym $mod+Ctrl+minus move container to workspace current; floating disable
+
+# Application Shortcuts
+# Tối ưu Wayland cho các app Electron (Discord, Obsidian) và Spotify
+# bindsym $mod+Shift+d exec discord --enable-features=UseOzonePlatform --ozone-platform=wayland
+# bindsym $mod+Shift+s exec spotify --enable-features=UseOzonePlatform --ozone-platform=wayland
+# bindsym $mod+Shift+o exec obsidian --enable-features=UseOzonePlatform --ozone-platform=wayland
+bindsym $mod+i exec $term --app-id floating_shortcut -e nvim -R /home/hieunx/.config/shortcut.md
+#bindsym ctrl+space exec env XMODIFIERS="" GTK_IM_MODULE=none QT_IM_MODULE=none GLFW_IM_MODULE=none $term --app-id floating_launcher -e view-launcher
+
+# Floating Window Rules
+for_window [app_id="floating_launcher"] floating enable, resize set 700 450, move position center
+for_window [app_id="floating_shortcut"] floating enable, resize set 1000 700, move position center
+for_window [app_id="floating_network"] floating enable, resize set 800 600, move position center
+for_window [app_id="at.yrlf.wl_mirror"] floating enable, border none, no_focus
+
+# Scratchpad Rules for Productivity
+for_window [class="discord"] floating enable, resize set 1200 800, move position center, move scratchpad
+for_window [class="Spotify"] floating enable, resize set 1200 800, move position center, move scratchpad
+
+# Scratchpad Toggles
+bindsym $mod+Ctrl+d [class="discord"] scratchpad show
+bindsym $mod+Ctrl+s [class="Spotify"] scratchpad show
+
+# Notification Center
+bindsym $mod+n exec swaync-client -t -sw
+
+# Window Switcher (Overview lite)
+bindsym $mod+Tab exec /home/hieunx/.config/sway/scripts/window-switcher.sh
+
+### Window Rules (Workspace Assignment)
+# Automatically focus on new windows when they are opened
+focus_on_window_activation focus
+for_window [all] focus
+
+# WS1: Terminal
+assign [app_id="kitty"] workspace number 1
+
+# WS2: Code
+assign [app_id="code"] workspace number 2
+assign [app_id="antigravity"] workspace number 2
+assign [app_id="Cursor"] workspace number 2
+assign [class="jetbrains-idea"] workspace number 2
+assign [app_id="jetbrains-idea"] workspace number 2
+assign [app_id="vscodium"] workspace number 2
+
+# WS3: Browser
+assign [app_id="firefox"] workspace number 3
+assign [app_id="google-chrome"] workspace number 3
+assign [app_id="brave-browser"] workspace number 3
+assign [app_id="Tor Browser"] workspace number 3
+
+# WS4: Social
+assign [app_id="org.telegram.desktop"] workspace number 4
+# assign [app_id="discord"] workspace number 4
+# assign [class="discord"] workspace number 4
+
+# WS5: Obsidian
+assign [app_id="obsidian"] workspace number 5
+
+# WS6: Spotify
+# assign [class="Spotify"] workspace number 6
+# assign [app_id="spotify"] workspace number 6
+
+# Resize mode
+mode "resize" {
+    bindsym $left resize shrink width 10px
+    bindsym $down resize grow height 10px
+    bindsym $up resize shrink height 10px
+    bindsym $right resize grow width 10px
+    bindsym Return mode "default"
+    bindsym Escape mode "default"
+}
+bindsym $mod+r mode "resize"
+
+# Audio/Brightness/Night Mode
+bindsym --locked XF86AudioMute exec pactl set-sink-mute @DEFAULT_SINK@ toggle
+bindsym --locked XF86AudioLowerVolume exec pactl set-sink-volume @DEFAULT_SINK@ -5%
+bindsym --locked XF86AudioRaiseVolume exec pactl set-sink-volume @DEFAULT_SINK@ +5%
+bindsym --locked XF86AudioMicMute exec pactl set-source-mute @DEFAULT_SOURCE@ toggle
+bindsym --locked XF86MonBrightnessDown exec brightnessctl set 5%-
+bindsym --locked XF86MonBrightnessUp exec brightnessctl set 5%+
+bindsym $mod+Shift+n exec ~/.config/sway/scripts/night-mode.sh
+bindsym $mod+Shift+a exec ~/.config/sway/scripts/toggle_audio.sh
+
+# Screenshots
+bindsym Ctrl+Print exec grim -g "$(slurp)" - | wl-copy
+# bindsym Ctrl+Print exec grim -g "$(slurp)" - | swappy -f -
+bindsym Print exec grim - | swappy -f -
+
+# Cursor configuration (Dynamic from GTK settings)
+exec_always "swaymsg seat seat0 xcursor_theme $(grep gtk-cursor-theme-name ~/.config/gtk-3.0/settings.ini | cut -d= -f2) $(grep gtk-cursor-theme-size ~/.config/gtk-3.0/settings.ini | cut -d= -f2)"
+
+include /etc/sway/config.d/*
+
+# Custom shortcut for Wayland Emoji Picker
+bindsym ctrl+period exec /home/hieunx/.config/sway/scripts/emoji-picker.sh
