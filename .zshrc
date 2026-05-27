@@ -50,17 +50,38 @@ if [ ! -f "$LAST_RUN_FILE" ] || [ "$(cat "$LAST_RUN_FILE")" != "$TODAY" ]; then
 fi
 
 export EDITOR="nvim"
-# SDKMAN Configuration
+# SDKMAN Configuration & Lazy-loading
 export SDKMAN_DIR="$HOME/.sdkman"
-[[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
+export JAVA_HOME="$SDKMAN_DIR/candidates/java/current"
+export PATH="$SDKMAN_DIR/candidates/maven/current/bin:$SDKMAN_DIR/candidates/java/current/bin:$SDKMAN_DIR/candidates/gradle/current/bin:$PATH"
 
-# Set JAVA_HOME points to current SDKMAN java
-export JAVA_HOME="$HOME/.sdkman/candidates/java/current"
+sdk() {
+    unset -f sdk
+    [[ -s "$SDKMAN_DIR/bin/sdkman-init.sh" ]] && source "$SDKMAN_DIR/bin/sdkman-init.sh"
+    sdk "$@"
+}
 
-# NVM Configuration
+# NVM Configuration & Lazy-loading
 export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+declare -a __nvm_commands=(nvm node npm npx yarn pnpm corepack)
+
+function __init_nvm() {
+    for cmd in "${__nvm_commands[@]}"; do
+        unalias "$cmd" &>/dev/null
+        unset -f "$cmd" &>/dev/null
+    done
+    
+    if [ -s "$NVM_DIR/nvm.sh" ]; then
+        source "$NVM_DIR/nvm.sh"
+    fi
+    if [ -s "$NVM_DIR/bash_completion" ]; then
+        source "$NVM_DIR/bash_completion"
+    fi
+}
+
+for cmd in "${__nvm_commands[@]}"; do
+    eval "function $cmd() { __init_nvm; $cmd \"\$@\"; }"
+done
 
 
 
