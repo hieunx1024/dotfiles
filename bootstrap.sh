@@ -25,7 +25,7 @@ if ! command -v git &> /dev/null; then
 fi
 
 # 2. Khai báo các đường dẫn cần thiết
-REPO_URL="https://github.com/hieunx/dotfiles.git"
+REPO_URL="https://github.com/hieunx1024/dotfiles.git"
 DOTFILES_DIR="$HOME/.dotfiles"
 BACKUP_DIR="$HOME/.dotfiles-backup-$(date +%Y%m%d%H%M%S)"
 

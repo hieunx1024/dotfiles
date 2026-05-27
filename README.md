@@ -11,7 +11,7 @@ Hệ thống được quản lý cực kỳ sạch sẽ bằng cách sử dụng
 Khi cài đặt lại máy hoặc chuyển sang thiết bị mới, bạn chỉ cần mở terminal, cài đặt `git` và chạy lệnh duy nhất dưới đây để đồng bộ hóa hoàn hảo tất cả cấu hình:
 
 ```bash
-curl -sSL https://raw.githubusercontent.com/hieunx/dotfiles/main/bootstrap.sh | bash
+curl -sSL https://raw.githubusercontent.com/hieunx1024/dotfiles/main/bootstrap.sh | bash
 ```
 
 > [!NOTE]
@@ -78,14 +78,14 @@ dotfiles push
 
 ---
 
-## 🌟 Hướng dẫn đẩy repository này lên GitHub lần đầu tiên (Dành cho hieunx)
+## 🌟 Hướng dẫn đẩy repository này lên GitHub lần đầu tiên (Dành cho hieunx1024)
 
 1. Truy cập vào tài khoản GitHub của bạn và tạo một repository mới tên là `dotfiles` (Lưu ý: **KHÔNG** tích chọn thêm README, .gitignore hay LICENSE).
 2. Chạy lần lượt các lệnh sau trong terminal của bạn để đẩy toàn bộ dotfiles cục bộ lên GitHub:
 
 ```bash
 # Thêm remote liên kết với repo GitHub của bạn
-dotfiles remote add origin git@github.com:hieunx/dotfiles.git
+dotfiles remote add origin git@github.com:hieunx1024/dotfiles.git
 
 # Đặt tên nhánh chính là main
 dotfiles branch -M main
@@ -94,4 +94,4 @@ dotfiles branch -M main
 dotfiles push -u origin main
 ```
 
-*(Nếu bạn muốn sử dụng giao thức HTTPS thay vì SSH, hãy đổi đường dẫn origin thành `https://github.com/hieunx/dotfiles.git`)*
+*(Nếu bạn muốn sử dụng giao thức HTTPS thay vì SSH, hãy đổi đường dẫn origin thành `https://github.com/hieunx1024/dotfiles.git`)*
