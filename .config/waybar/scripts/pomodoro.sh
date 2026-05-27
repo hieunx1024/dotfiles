@@ -207,18 +207,32 @@ prompt_input() {
     local icon_work=$(printf '\uf017')
     local icon_break=$(printf '\uf0f4')
     
-    # 1. Choose Work Time
-    local work_choices="15\n20\n25\n30\n35\n40\n45\n50\n55\n60"
-    local selected_work=$(echo -e "$work_choices" | fuzzel -d -p "$icon_work  Chọn thời gian làm việc (phút): " -w 35 -l 10 --no-exit-on-keyboard-focus-loss)
+    # 1. Choose Work Time or Stop
+    local work_choices="15\n20\n25\n30\n35\n40\n45\n50\n55\n60\n⏹  Dừng / Reset Pomodoro"
+    local selected_work=$(echo -e "$work_choices" | fuzzel -d -p "$icon_work  Cấu hình Pomodoro (phút): " -w 35 -l 11 --no-exit-on-keyboard-focus-loss)
     
     # Check if user cancelled
-    if [ -z "$selected_work" ] || ! [[ "$selected_work" =~ ^[0-9]+$ ]]; then
+    if [ -z "$selected_work" ]; then
+        return
+    fi
+    
+    if [ "$selected_work" = "⏹  Dừng / Reset Pomodoro" ]; then
+        stop_timer
+        notify-send -u low "Pomodoro" "Đã dừng và reset bộ đếm."
+        return
+    fi
+    
+    if ! [[ "$selected_work" =~ ^[0-9]+$ ]]; then
         return
     fi
     
     # 2. Choose Break Time
     local break_choices="5\n10\n15\n20\n25\n30"
     local selected_break=$(echo -e "$break_choices" | fuzzel -d -p "$icon_break  Chọn thời gian nghỉ (phút): " -w 35 -l 6 --no-exit-on-keyboard-focus-loss)
+    
+    if [ -z "$selected_break" ] || ! [[ "$selected_break" =~ ^[0-9]+$ ]]; then
+        return
+    fi
     
     # Parse values
     local work_seconds=$((selected_work * 60))
