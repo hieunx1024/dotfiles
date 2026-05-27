@@ -49,6 +49,12 @@
         "exec": "/home/hieunx/.config/waybar/scripts/pomodoro.sh status",
         "on-click": "/home/hieunx/.config/waybar/scripts/pomodoro.sh pause",
         "on-click-right": "/home/hieunx/.config/waybar/scripts/pomodoro.sh stop",
+        "on-click-middle": "/home/hieunx/.config/waybar/scripts/pomodoro.sh input",
+        "on-scroll-up": "/home/hieunx/.config/waybar/scripts/pomodoro.sh adjust 300",
+        "on-scroll-down": "/home/hieunx/.config/waybar/scripts/pomodoro.sh adjust -300",
+        "smooth-scrolling-threshold": 1.0,
+        "format": "{}",
+        "exec-on-event": true,
         "signal": 2,
         "interval": "once"
     }

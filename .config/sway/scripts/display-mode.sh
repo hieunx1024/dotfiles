@@ -28,8 +28,15 @@ PRIMARY_HEIGHT=${PRIMARY_HEIGHT:-1080}
 SECONDARY_WIDTH=${SECONDARY_WIDTH:-1920}
 SECONDARY_HEIGHT=${SECONDARY_HEIGHT:-1080}
 
-# 3. Các tùy chọn cho Menu Fuzzel
-OPTIONS="💻 Chỉ màn hình laptop\n📺 Chỉ màn hình ngoài (Tự động chuyển workspace & tắt laptop)\n➡️ Mở rộng sang phải (Extend Right)\n⬅️ Mở rộng sang trái (Extend Left)\n⬆️ Mở rộng lên trên (Extend Up)\n🔄 Phản chiếu màn hình (Mirror - kế thừa toàn bộ workspace)"
+# 3. Các tùy chọn cho Menu Fuzzel (Sử dụng Nerd Font để tránh lỗi hiển thị trên Arch)
+ICON_LAPTOP=$(printf '\uf109')
+ICON_MONITOR=$(printf '\uf108')
+ICON_RIGHT=$(printf '\uf178')
+ICON_LEFT=$(printf '\uf177')
+ICON_UP=$(printf '\uf176')
+ICON_MIRROR=$(printf '\uf01e')
+
+OPTIONS="$ICON_LAPTOP  Chỉ màn hình laptop\n$ICON_MONITOR  Chỉ màn hình ngoài (Tự động chuyển workspace & tắt laptop)\n$ICON_RIGHT  Mở rộng sang phải (Extend Right)\n$ICON_LEFT  Mở rộng sang trái (Extend Left)\n$ICON_UP  Mở rộng lên trên (Extend Up)\n$ICON_MIRROR  Phản chiếu màn hình (Mirror - kế thừa toàn bộ workspace)"
 
 CHOICE=$(echo -e "$OPTIONS" | fuzzel -d -p "Chọn chế độ màn hình: ")
 
