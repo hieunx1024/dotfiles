@@ -1,8 +1,9 @@
 #!/bin/bash
 
 entries=" Khóa màn hình\n Đăng xuất\n󰒲 Ngủ\n󰜉 Khởi động lại\n Tắt máy"
+max_len=$(echo -e "$entries" | awk '{if (length($0) > max) max = length($0)} END {print max + 2}')
 
-index=$(echo -e "$entries" | fuzzel -d -p "Hành động: " -w 20 -l 5 --index -a top-right --y-margin=40 --x-margin=10 --no-exit-on-keyboard-focus-loss)
+index=$(echo -e "$entries" | fuzzel -a bottom-right -d -p "" --hide-prompt --minimal-lines -w $max_len --index)
 
 case "$index" in
     0)

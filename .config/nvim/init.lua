@@ -18,5 +18,12 @@ require("vim-helpers")
 require("help-floating")
 require("floating-term")
 require("ws").setup()
-require("lazy").setup("plugins")
+require("lazy").setup({
+    { import = "plugins.ui" },
+    { import = "plugins.lsp" },
+    { import = "plugins.languages" },
+    { import = "plugins.tools" },
+    { import = "plugins.utils" },
+    { import = "plugins.platform" },
+})
 require("snipets")

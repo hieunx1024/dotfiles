@@ -8,8 +8,9 @@ get_status() {
     freq_khz=$(cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq)
     freq_ghz=$(awk "BEGIN {printf \"%.2f\", $freq_khz/1000000}")
     
-    temp=$(sensors 2>/dev/null | grep Tctl | awk '{print $2}')
-    power=$(sensors 2>/dev/null | grep -A 10 "amdgpu-pci-0700" | grep PPT | awk '{print $2}')
+    sensors_out=$(sensors 2>/dev/null)
+    temp=$(echo "$sensors_out" | grep Tctl | awk '{print $2}')
+    power=$(echo "$sensors_out" | grep -A 10 "amdgpu-pci-0700" | grep PPT | awk '{print $2}')
     
     if [ "$gov" = "performance" ]; then
         text=""

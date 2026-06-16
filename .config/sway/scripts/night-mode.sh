@@ -16,3 +16,6 @@ else
     wlsunset -t 5000 -T 5001 &
     notify-send "Night Mode" "Blue light filter enabled (4500K)" -i display-brightness-symbolic
 fi
+
+# Update waybar backlight icon/tooltip
+pkill -RTMIN+1 waybar

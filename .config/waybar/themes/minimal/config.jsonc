@@ -1,175 +1,173 @@
 {
-    "layer": "top",
-    "position": "top",
-    "height": 28,
-    "spacing": 4,
-    "modules-left": [
-        "sway/workspaces",
-        "sway/window"
-    ],
-    "modules-center": [
-        "custom/pomodoro",
-        "mpris",
-        "clock"
-    ],
-    "modules-right": [
-        "idle_inhibitor",
-        "tray",
-        "cpu",
-        "memory",
-        "custom/performance",
-        "pulseaudio",
-        "custom/backlight",
-        "network",
-        "bluetooth",
-        "custom/fcitx5",
-        "battery",
-        "custom/power"
-    ],
-    "sway/workspaces": {
-        "disable-scroll": true,
-        "format": "{name}"
+  "layer": "top",
+  "position": "bottom",
+  "height": 28,
+  "spacing": 4,
+  "modules-left": ["sway/workspaces", "sway/window"],
+  "modules-center": ["custom/pomodoro", "mpris", "clock"],
+  "modules-right": [
+    "idle_inhibitor",
+    "custom/fcitx5",
+    "tray",
+    "cpu",
+    "memory",
+    "pulseaudio",
+    "custom/backlight",
+    "network",
+    "bluetooth",
+    "battery",
+    "custom/power"
+  ],
+  "sway/workspaces": {
+    "disable-scroll": false,
+    "format": "{name}",
+  },
+  "sway/mode": {
+    "format": " {}",
+  },
+  "sway/window": {
+    "format": "{app_id}",
+    "max-length": 40,
+    "tooltip": false,
+  },
+  "mpris": {
+    "format": "{player_icon} {title}",
+    "format-paused": "{status_icon} <i>{title}</i>",
+    "player-icons": {
+      "default": "󰎆",
+      "spotify": "",
+      "firefox": "󰈹",
     },
-    "sway/mode": {
-        "format": " {}"
+    "status-icons": {
+      "paused": "󰐊",
     },
-    "sway/window": {
-        "format": "{app_id}",
-        "max-length": 40,
-        "tooltip": false
+    "on-click": "playerctl play-pause",
+    "on-click-middle": "playerctl previous",
+    "on-click-right": "playerctl next",
+    "max-length": 30,
+    "tooltip": false,
+  },
+  "idle_inhibitor": {
+    "format": "{icon}",
+    "format-icons": {
+      "activated": "󰈈",
+      "deactivated": "󰈉",
     },
-    "mpris": {
-        "format": "{player_icon} {title}",
-        "format-paused": "{status_icon} <i>{title}</i>",
-        "player-icons": {
-            "default": "󰎆"
-        },
-        "status-icons": {
-            "paused": "󰏤"
-        },
-        "max-length": 30,
-        "tooltip": false
+    "tooltip-format-activated": "Đang chặn tự động khóa màn hình",
+    "tooltip-format-deactivated": "Tự động khóa màn hình đang bật",
+  },
+  "bluetooth": {
+    "format": "󰂯",
+    "format-disabled": "󰂲",
+    "format-off": "󰂲",
+    "format-on": "󰂯",
+    "format-connected": "󰂱",
+    "format-connected-battery": "󰂱 {device_battery_percentage}%",
+    "tooltip-format": "{controller_alias}\t{controller_address}\n\n{num_connections} connected",
+    "tooltip-format-connected": "{controller_alias}\t{controller_address}\n\n{num_connections} connected\n\n{device_enumerate}",
+    "tooltip-format-enumerate-connected": "{device_alias}\t{device_address}",
+    "tooltip-format-enumerate-connected-battery": "{device_alias}\t{device_address}\t{device_battery_percentage}%",
+    "on-click": "blueman-manager",
+  },
+  "tray": {
+    "spacing": 10,
+  },
+  "custom/fcitx5": {
+    "exec": "~/.config/waybar/scripts/fcitx5.sh",
+    "return-type": "json",
+    "interval": 1,
+    "on-click": "fcitx5-remote -t",
+    "format": " {}",
+    "tooltip": true,
+  },
+  "network": {
+    "interval": 10,
+    "format-wifi": "󰤨",
+    "format-ethernet": "󰈀",
+    "format-disconnected": "󰤭",
+    "tooltip-format-wifi": "{essid} {signalStrength}%\n⬆ {bandwidthUpBytes}  ⬇ {bandwidthDownBytes}",
+    "on-click": "kitty --app-id floating_network -e nmtui",
+  },
+  "pulseaudio": {
+    "format": "{icon} {volume}%",
+    "format-muted": "󰝟 Muted",
+    "format-icons": {
+      "headphone": "󰋋",
+      "default": "󰕾",
     },
-    "idle_inhibitor": {
-        "format": "{icon}",
-        "format-icons": {
-            "activated": "󰈈",
-            "deactivated": "󰈉"
-        },
-        "tooltip-format-activated": "Đang chặn tự động khóa màn hình",
-        "tooltip-format-deactivated": "Tự động khóa màn hình đang bật"
+    "on-scroll-up": "/home/hieunx/.config/sway/scripts/volume_up.sh",
+    "on-scroll-down": "pactl set-sink-volume @DEFAULT_SINK@ -5%",
+    "on-click": "pactl set-sink-mute @DEFAULT_SINK@ toggle",
+    "on-click-right": "pavucontrol",
+    "tooltip": false,
+  },
+  "cpu": {
+    "interval": 2,
+    "format": " {usage}%",
+    "tooltip": false,
+    "on-click": "kitty -e htop",
+  },
+  "memory": {
+    "interval": 2,
+    "format": "󰍛 {used:0.1f}G",
+    "tooltip-format": "Used: {used:0.1f}GiB\nAvailable: {avail:0.1f}GiB\nTotal: {total:0.1f}GiB",
+    "on-click": "kitty -e htop",
+  },
+  "custom/performance": {
+    "exec": "/home/hieunx/.config/sway/scripts/cpu-performance.sh status",
+    "interval": 5,
+    "format": "{}",
+    "on-click": "/home/hieunx/.config/sway/scripts/cpu-performance.sh toggle",
+    "return-type": "json",
+  },
+  "battery": {
+    "interval": 30,
+    "states": {
+      "warning": 30,
+      "critical": 20,
     },
-    "bluetooth": {
-        "format": "󰂯",
-        "format-disabled": "󰂲",
-        "format-off": "󰂲",
-        "format-on": "󰂯",
-        "format-connected": "󰂱 {device_alias}",
-        "format-connected-battery": "󰂱 {device_alias} {device_battery_percentage}%",
-        "tooltip-format": "{controller_alias}\t{controller_address}\n\n{num_connections} connected",
-        "tooltip-format-connected": "{controller_alias}\t{controller_address}\n\n{num_connections} connected\n\n{device_enumerate}",
-        "tooltip-format-enumerate-connected": "{device_alias}\t{device_address}",
-        "tooltip-format-enumerate-connected-battery": "{device_alias}\t{device_address}\t{device_battery_percentage}%",
-        "on-click": "blueman-manager"
-    },
-    "tray": {
-        "spacing": 10
-    },
-    "custom/fcitx5": {
-        "exec": "fcitx5-remote | grep -q 2 && echo V || echo E",
-        "interval": 1,
-        "format": "{}"
-    },
-    "network": {
-        "interval": 5,
-        "format-wifi": "󰤨 {essid}",
-        "format-ethernet": "󰈀 Ethernet",
-        "format-disconnected": "󰤭 Off",
-        "tooltip-format-wifi": "{essid} {signalStrength}%\n⬆ {bandwidthUpBytes}  ⬇ {bandwidthDownBytes}",
-        "on-click": "kitty --app-id floating_network -e nmtui"
-    },
-    "pulseaudio": {
-        "format": "{icon} {volume}%",
-        "format-muted": "󰝟 Muted",
-        "format-icons": {
-            "headphone": "󰋋",
-            "default": "󰕾"
-        },
-        "on-scroll-up": "/home/hieunx/.config/sway/scripts/volume_up.sh",
-        "on-scroll-down": "pactl set-sink-volume @DEFAULT_SINK@ -5%",
-        "on-click": "pactl set-sink-mute @DEFAULT_SINK@ toggle",
-        "on-click-right": "pavucontrol",
-        "tooltip": false
-    },
-    "cpu": {
-        "interval": 10,
-        "format": " {usage}%",
-        "tooltip": false
-    },
-    "memory": {
-        "interval": 10,
-        "format": "󰍛 {used:0.1f}G",
-        "tooltip-format": "Used: {used:0.1f}GiB\nAvailable: {avail:0.1f}GiB\nTotal: {total:0.1f}GiB"
-    },
-    "custom/performance": {
-        "exec": "/home/hieunx/.config/sway/scripts/cpu-performance.sh status",
-        "interval": 5,
-        "format": "{}",
-        "on-click": "/home/hieunx/.config/sway/scripts/cpu-performance.sh toggle",
-        "return-type": "json"
-    },
-    "battery": {
-        "interval": 30,
-        "states": {
-            "warning": 30,
-            "critical": 15
-        },
-        "format": "󰁹 {capacity}%",
-        "format-charging": "󰂄 {capacity}%",
-        "format-plugged": "󰂄 {capacity}%",
-        "tooltip-format": "{timeTo}"
-    },
-    "clock": {
-        "interval": 60,
-        "format": "{:%H:%M}",
-        "format-alt": "{:%Y-%m-%d %H:%M}",
-        "tooltip-format": "<big>{:%B %Y}</big>\n<tt>{calendar}</tt>",
-        "calendar": {
-            "mode": "month",
-            "on-scroll": 1,
-            "format": {
-                "months": "<span color='#ffead3'><b>{}</b></span>",
-                "days": "<span color='#ecc6d9'><b>{}</b></span>",
-                "weeks": "<span color='#99fffe'><b>W{}</b></span>",
-                "weekdays": "<span color='#ffcc66'><b>{}</b></span>",
-                "today": "<span color='#ff6699'><b><u>{}</u></b></span>"
-            }
-        }
-    },
-    "custom/pomodoro": {
-        "exec": "/home/hieunx/.config/waybar/scripts/pomodoro.sh status",
-        "on-click": "/home/hieunx/.config/waybar/scripts/pomodoro.sh pause",
-        "on-click-right": "/home/hieunx/.config/waybar/scripts/pomodoro.sh input",
-        "on-scroll-up": "/home/hieunx/.config/waybar/scripts/pomodoro.sh adjust 300",
-        "on-scroll-down": "/home/hieunx/.config/waybar/scripts/pomodoro.sh adjust -300",
-        "smooth-scrolling-threshold": 1.0,
-        "format": "{}",
-        "exec-on-event": true,
-        "signal": 2,
-        "interval": "once"
-    },
-    "custom/backlight": {
-        "exec": "/home/hieunx/.config/waybar/scripts/brightness.sh",
-        "interval": 1,
-        "return-type": "json",
-        "on-click": "/home/hieunx/.config/sway/scripts/night-mode.sh",
-        "on-scroll-up": "brightnessctl set +5%",
-        "on-scroll-down": "brightnessctl set 5%-",
-        "tooltip": true
-    },
-    "custom/power": {
-        "format": "",
-        "on-click": "/home/hieunx/.config/sway/scripts/powermenu.sh",
-        "tooltip": false
+    "format": "󰁹 {capacity}%",
+    "format-charging": "󰂄 {capacity}%",
+    "format-plugged": "󰂄 {capacity}%",
+    "tooltip-format": "{timeTo}",
+  },
+  "clock": {
+    "interval": 60,
+    "format": "{:%H:%M}",
+    "format-alt": "{:%Y-%m-%d %H:%M}",
+    "tooltip-format": "<tt>{calendar}</tt>",
+    "calendar": {
+      "mode": "month",
+      "format": {
+        "today": "<span color='#fabd2f'><b><u>{}</u></b></span>"
+      }
     }
+  },
+  "custom/pomodoro": {
+    "exec": "/home/hieunx/.config/waybar/scripts/pomodoro.sh status",
+    "on-click": "/home/hieunx/.config/waybar/scripts/pomodoro.sh pause",
+    "on-click-right": "/home/hieunx/.config/waybar/scripts/pomodoro.sh input",
+    "on-scroll-up": "/home/hieunx/.config/waybar/scripts/pomodoro.sh adjust 300",
+    "on-scroll-down": "/home/hieunx/.config/waybar/scripts/pomodoro.sh adjust -300",
+    "smooth-scrolling-threshold": 1.0,
+    "format": "{}",
+    "exec-on-event": true,
+    "signal": 2,
+    "interval": "once",
+  },
+  "custom/backlight": {
+    "exec": "/home/hieunx/.config/waybar/scripts/brightness.sh",
+    "interval": "once",
+    "signal": 1,
+    "return-type": "json",
+    "on-click": "/home/hieunx/.config/sway/scripts/night-mode.sh",
+    "on-scroll-up": "brightnessctl set +5% && pkill -RTMIN+1 waybar",
+    "on-scroll-down": "brightnessctl set 5%- && pkill -RTMIN+1 waybar",
+    "tooltip": true,
+  },
+  "custom/power": {
+    "format": "",
+    "on-click": "/home/hieunx/.config/sway/scripts/powermenu.sh",
+    "tooltip": false,
+  },
 }

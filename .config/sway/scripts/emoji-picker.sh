@@ -4,7 +4,7 @@
 EMOJI_FILE="/home/hieunx/.config/sway/scripts/emojis.txt"
 
 # Run fuzzel in dmenu mode to pick an emoji
-selected=$(/usr/bin/fuzzel --dmenu --prompt="Emoji: " < "$EMOJI_FILE")
+selected=$(fuzzel -d -p "Emoji: " < "$EMOJI_FILE")
 
 # Extract the emoji (first character/word)
 if [ -n "$selected" ]; then

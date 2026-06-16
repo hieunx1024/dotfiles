@@ -23,7 +23,7 @@ smart_borders on
 
 # Window Borders
 default_border pixel 2
-default_floating_border normal
+default_floating_border pixel 2
 hide_edge_borders smart
 
 ### Gruvbox Dark Colors
@@ -56,8 +56,8 @@ client.background        $bg0
 ### Output configuration
 # Default wallpaper
 output * bg /usr/share/backgrounds/sway/Sway_Wallpaper_Blue_1920x1080.png fill
-# output * adaptive_sync on
-# output * max_render_time 1
+output * adaptive_sync on
+output * max_render_time 1
 
 # Cấu hình màn hình động (Extend & Mirror)
 # Sử dụng tổ hợp phím tắt $mod+Shift+p để mở menu tùy chọn hiển thị động (display-mode.sh).
@@ -94,6 +94,7 @@ exec swayidle -w \
          timeout 900 'swaymsg "output * dpms off"' \
          resume 'swaymsg "output * dpms on"' \
          before-sleep '/home/hieunx/.config/sway/scripts/lock.sh'
+
 
 ### Key bindings
 # Basics:
@@ -148,6 +149,10 @@ bindsym $mod+8 workspace number 8
 bindsym $mod+9 workspace number 9
 bindsym $mod+0 workspace number 10
 
+# Navigation between workspaces
+bindsym $mod+Ctrl+Right workspace next
+bindsym $mod+Ctrl+Left workspace prev
+
 # Gestures
 bindgesture swipe:3:left workspace next
 bindgesture swipe:3:right workspace prev
@@ -193,6 +198,11 @@ for_window [app_id="floating_shortcut"] floating enable, resize set 1000 700, mo
 for_window [app_id="floating_network"] floating enable, resize set 800 600, move position center
 for_window [app_id="at.yrlf.wl_mirror"] floating enable, border none, no_focus
 
+# Force Steam games and Gamescope to obey Sway's tiling rules
+for_window [app_id="gamescope"] floating disable
+for_window [class="^steam_app_.*"] floating disable
+
+
 # Scratchpad Rules for Productivity
 for_window [class="discord"] floating enable, resize set 1200 800, move position center, move scratchpad
 for_window [class="Spotify"] floating enable, resize set 1200 800, move position center, move scratchpad
@@ -204,8 +214,10 @@ bindsym $mod+Ctrl+s [class="Spotify"] scratchpad show
 # Notification Center
 bindsym $mod+n exec swaync-client -t -sw
 
-# Window Switcher (Overview lite)
-bindsym $mod+Tab exec /home/hieunx/.config/sway/scripts/window-switcher.sh
+# Window Switcher (Fuzzel script)
+bindsym $mod+Tab exec ~/.config/sway/scripts/window-switcher.sh
+
+
 
 ### Window Rules (Workspace Assignment)
 # Automatically focus on new windows when they are opened
@@ -257,8 +269,8 @@ bindsym --locked XF86AudioMute exec pactl set-sink-mute @DEFAULT_SINK@ toggle
 bindsym --locked XF86AudioLowerVolume exec pactl set-sink-volume @DEFAULT_SINK@ -5%
 bindsym --locked XF86AudioRaiseVolume exec pactl set-sink-volume @DEFAULT_SINK@ +5%
 bindsym --locked XF86AudioMicMute exec pactl set-source-mute @DEFAULT_SOURCE@ toggle
-bindsym --locked XF86MonBrightnessDown exec brightnessctl set 5%-
-bindsym --locked XF86MonBrightnessUp exec brightnessctl set 5%+
+bindsym --locked XF86MonBrightnessDown exec brightnessctl set 5%- && pkill -RTMIN+1 waybar
+bindsym --locked XF86MonBrightnessUp exec brightnessctl set 5%+ && pkill -RTMIN+1 waybar
 bindsym $mod+Shift+n exec ~/.config/sway/scripts/night-mode.sh
 bindsym $mod+Shift+a exec ~/.config/sway/scripts/toggle_audio.sh
 

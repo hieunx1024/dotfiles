@@ -19,6 +19,64 @@ elseif vim.fn.has("win32") == 1 then
     os_config = "config_win"
 end
 
+-- Load capabilities from cmp_nvim_lsp for autocomplete/code actions support
+local capabilities = vim.lsp.protocol.make_client_capabilities()
+local cmp_status, cmp_nvim_lsp = pcall(require, "cmp_nvim_lsp")
+if cmp_status then
+    capabilities = cmp_nvim_lsp.default_capabilities(capabilities)
+end
+
+local on_attach = function(client, bufnr)
+    local opts = { silent = true, buffer = bufnr }
+    -- Standard LSP keymaps for Java buffer
+    vim.keymap.set("n", "K", vim.lsp.buf.hover, opts)
+    vim.keymap.set("n", "gi", vim.lsp.buf.implementation, opts)
+    vim.keymap.set("n", "gd", vim.lsp.buf.definition, opts)
+    vim.keymap.set("n", "gD", vim.lsp.buf.declaration, opts)
+    vim.keymap.set("n", "gr", vim.lsp.buf.references, opts)
+    vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename, opts)
+    vim.keymap.set({ "n", "v" }, "<leader>ca", function()
+        require("fzf-lua").lsp_code_actions({ previewer = false, silent = true })
+    end, { desc = "LSP Code Actions", silent = true, buffer = bufnr })
+
+    -- Advanced Java specific keymaps
+    vim.keymap.set("n", "<leader>co", "<Cmd>lua require'jdtls'.organize_imports()<CR>", { desc = "Organize Imports", buffer = bufnr })
+    vim.keymap.set("n", "<leader>crv", "<Cmd>lua require('jdtls').extract_variable()<CR>", { desc = "Extract Variable", buffer = bufnr })
+    vim.keymap.set(
+        "v",
+        "<leader>crv",
+        "<Esc><Cmd>lua require('jdtls').extract_variable(true)<CR>",
+        { desc = "Extract Variable", buffer = bufnr }
+    )
+    vim.keymap.set("n", "<leader>crc", "<Cmd>lua require('jdtls').extract_constant()<CR>", { desc = "Extract Constant", buffer = bufnr })
+    vim.keymap.set(
+        "v",
+        "<leader>crc",
+        "<Esc><Cmd>lua require('jdtls').extract_constant(true)<CR>",
+        { desc = "Extract Constant", buffer = bufnr }
+    )
+    vim.keymap.set(
+        "v",
+        "<leader>crm",
+        "<Esc><Cmd>lua require('jdtls').extract_method(true)<CR>",
+        { desc = "Extract Method", buffer = bufnr }
+    )
+end
+
+local root_dir = require("jdtls.setup").find_root({
+    ".git",
+    "mvnw",
+    "gradlew",
+    "pom.xml",
+    "build.gradle",
+    "settings.gradle",
+})
+
+-- Dự phòng: Nếu không tìm thấy file đánh dấu root dự án, dùng thư mục chứa file Java hiện tại
+if not root_dir or root_dir == "" then
+    root_dir = vim.fn.expand("%:p:h")
+end
+
 local config = {
     cmd = {
         home .. "/.sdkman/candidates/java/current/bin/java",
@@ -42,14 +100,10 @@ local config = {
         "-data",
         workspace_dir,
     },
-    root_dir = require("jdtls.setup").find_root({
-        ".git",
-        "mvnw",
-        "gradlew",
-        "pom.xml",
-        "build.gradle",
-        "settings.gradle",
-    }),
+    root_dir = root_dir,
+
+    capabilities = capabilities,
+    on_attach = on_attach,
 
     settings = {
         java = {
@@ -84,24 +138,3 @@ local config = {
 }
 require("jdtls").start_or_attach(config)
 
-vim.keymap.set("n", "<leader>co", "<Cmd>lua require'jdtls'.organize_imports()<CR>", { desc = "Organize Imports" })
-vim.keymap.set("n", "<leader>crv", "<Cmd>lua require('jdtls').extract_variable()<CR>", { desc = "Extract Variable" })
-vim.keymap.set(
-    "v",
-    "<leader>crv",
-    "<Esc><Cmd>lua require('jdtls').extract_variable(true)<CR>",
-    { desc = "Extract Variable" }
-)
-vim.keymap.set("n", "<leader>crc", "<Cmd>lua require('jdtls').extract_constant()<CR>", { desc = "Extract Constant" })
-vim.keymap.set(
-    "v",
-    "<leader>crc",
-    "<Esc><Cmd>lua require('jdtls').extract_constant(true)<CR>",
-    { desc = "Extract Constant" }
-)
-vim.keymap.set(
-    "v",
-    "<leader>crm",
-    "<Esc><Cmd>lua require('jdtls').extract_method(true)<CR>",
-    { desc = "Extract Method" }
-)

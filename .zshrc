@@ -26,6 +26,8 @@ alias ss='source ~/.zshrc'
 alias ff='fastfetch'
 alias t='tmux attach || tmux'
 alias dotfiles='/usr/bin/git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'
+alias ya='yazi'
+alias snvim='sudo --preserve-env=WAYLAND_DISPLAY,XDG_RUNTIME_DIR nvim'
 
 
 # Todo.txt shortcuts
@@ -88,3 +90,6 @@ done
 
 # Added by Antigravity CLI installer
 export PATH="/home/hieunx/.local/bin:$PATH"
+export FZF_DEFAULT_OPTS="--preview 'bat --color=always --style=numbers --line-range=:500 {}'"
+
+

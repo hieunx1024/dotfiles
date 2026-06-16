@@ -12,8 +12,8 @@ vim.keymap.set("n", "<leader>ce", function()
 end, { noremap = true, silent = true })
 
 -- go to errors in a file :/
-vim.keymap.set("n", "<leader>ne", vim.diagnostic.goto_next) -- next err
-vim.keymap.set("n", "<leader>pe", vim.diagnostic.goto_prev) -- previous err
+vim.keymap.set("n", "<leader>ne", function() vim.diagnostic.jump({ count = 1 }) end) -- next err
+vim.keymap.set("n", "<leader>pe", function() vim.diagnostic.jump({ count = -1 }) end) -- previous err
 vim.keymap.set("n", "<leader>e", vim.diagnostic.open_float)
 -- copy current file path (absolute) into clipboard
 vim.keymap.set("n", "<leader>cp", function()
@@ -77,12 +77,6 @@ if is_mac then
             os.execute("macism " .. english_layout)
         end,
     })
-
-    -- vim.api.nvim_create_autocmd({ "CmdlineEnter" }, {
-    -- 	callback = function()
-    -- 		os.execute("macism " .. english_layout)
-    -- 	end,
-    -- })
 
     vim.api.nvim_create_autocmd("InsertEnter", {
         callback = function()
