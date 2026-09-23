@@ -286,6 +286,3 @@ bindsym Print exec grim - | swappy -f -
 exec_always "swaymsg seat seat0 xcursor_theme $(grep gtk-cursor-theme-name ~/.config/gtk-3.0/settings.ini | cut -d= -f2) $(grep gtk-cursor-theme-size ~/.config/gtk-3.0/settings.ini | cut -d= -f2)"
 
 include /etc/sway/config.d/*
-
-# Custom shortcut for Wayland Emoji Picker
-bindsym ctrl+period exec /home/hieunx/.config/sway/scripts/emoji-picker.sh
