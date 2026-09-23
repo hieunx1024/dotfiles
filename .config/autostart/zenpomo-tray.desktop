@@ -1,0 +1,12 @@
+[Desktop Entry]
+Name=ZenPomo System Tray
+GenericName=Pomodoro Timer
+Comment=ZenPomo Background System Tray Monitor
+Exec=/home/hieunx/.local/bin/zenpomo tray
+Icon=/home/hieunx/.local/share/icons/hicolor/512x512/apps/zenpomo.png
+Terminal=false
+Type=Application
+Categories=Utility;Clock;
+X-GNOME-Autostart-enabled=false
+Hidden=false
+NoDisplay=false
