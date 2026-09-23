@@ -1,1 +1,4 @@
-/home/hieunx/Desktop/dotfiles/.config/autostart/blueman.desktop
+[Desktop Entry]
+Type=Application
+Name=Blueman Applet
+Hidden=true
