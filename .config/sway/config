@@ -91,6 +91,8 @@ exec waypaper --restore
 exec_always "pkill waybar; waybar"
 # Tự động kích hoạt lại màn hình laptop khi rút cáp màn ngoài
 exec_always /home/hieunx/.config/sway/scripts/auto-display.sh
+# Tự động chuyển audio output sang thiết bị vừa cắm/kết nối (tai nghe dây/Bluetooth)
+exec_always /home/hieunx/.config/sway/scripts/audio-autoswitch.py
 exec swayidle -w \
          timeout 600 '/home/hieunx/.config/sway/scripts/lock.sh' \
          timeout 900 'swaymsg "output * dpms off"' \
