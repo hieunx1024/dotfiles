@@ -12,8 +12,8 @@ vim.keymap.set("n", "<leader>ce", function()
 end, { noremap = true, silent = true })
 
 -- go to errors in a file :/
-vim.keymap.set("n", "<leader>ne", function() vim.diagnostic.jump({ count = 1 }) end) -- next err
-vim.keymap.set("n", "<leader>pe", function() vim.diagnostic.jump({ count = -1 }) end) -- previous err
+vim.keymap.set("n", "<leader>ne", vim.diagnostic.goto_next) -- next err
+vim.keymap.set("n", "<leader>pe", vim.diagnostic.goto_prev) -- previous err
 vim.keymap.set("n", "<leader>e", vim.diagnostic.open_float)
 -- copy current file path (absolute) into clipboard
 vim.keymap.set("n", "<leader>cp", function()
@@ -78,6 +78,12 @@ if is_mac then
         end,
     })
 
+    -- vim.api.nvim_create_autocmd({ "CmdlineEnter" }, {
+    -- 	callback = function()
+    -- 		os.execute("macism " .. english_layout)
+    -- 	end,
+    -- })
+
     vim.api.nvim_create_autocmd("InsertEnter", {
         callback = function()
             os.execute("macism " .. last_insert_layout)
@@ -94,47 +100,93 @@ if is_mac then
         end,
     })
 elseif is_linux then
-    local last_layout = "keyboard-us" -- English is default
+    local last_layout = nil
 
-    local function get_fcitx_layout()
-        local f = io.popen("fcitx5-remote -n")
-        if f ~= nil then
-            local result = f:read("*all")
-            f:close()
-            if result then
-                return result:gsub("%s+", "")
+    local function get_ime()
+        -- Try ibus first
+        local f_ibus = io.popen("ibus engine 2>/dev/null")
+        if f_ibus then
+            local res = f_ibus:read("*all")
+            f_ibus:close()
+            if res and res:match("%S+") then
+                return "ibus", res:gsub("%s+", "")
             end
         end
-        return "keyboard-us" -- fallback English
+
+        -- Try fcitx5
+        local f_fcitx = io.popen("fcitx5-remote -n 2>/dev/null")
+        if f_fcitx then
+            local res = f_fcitx:read("*all")
+            f_fcitx:close()
+            if res and res:match("%S+") then
+                return "fcitx5", res:gsub("%s+", "")
+            end
+        end
+
+        return nil, nil
     end
 
-    local function set_fcitx_layout(layout)
-        os.execute("fcitx5-remote -s " .. layout)
+    local function set_ime(ime_type, layout)
+        if ime_type == "ibus" then
+            os.execute("ibus engine " .. layout .. " >/dev/null 2>&1")
+        elseif ime_type == "fcitx5" then
+            os.execute("fcitx5-remote -s " .. layout .. " >/dev/null 2>&1")
+        end
+    end
+
+    local function get_english_layout(ime_type, current)
+        if ime_type == "ibus" then
+            if current == "Bamboo" then
+                return "BambooUs"
+            elseif current:find("xkb:us") or current:find("Us") then
+                return current
+            else
+                return "BambooUs"
+            end
+        elseif ime_type == "fcitx5" then
+            return "keyboard-us"
+        end
+        return "keyboard-us"
     end
 
     vim.api.nvim_create_autocmd("InsertLeave", {
         callback = function()
-            last_layout = get_fcitx_layout()
-            set_fcitx_layout("keyboard-us") -- change to English
+            local ime_type, current = get_ime()
+            if ime_type and current then
+                local english = get_english_layout(ime_type, current)
+                if current ~= english then
+                    last_layout = { type = ime_type, layout = current }
+                    set_ime(ime_type, english)
+                end
+            end
         end,
     })
 
     vim.api.nvim_create_autocmd("InsertEnter", {
         callback = function()
-            set_fcitx_layout(last_layout)
+            if last_layout and last_layout.type then
+                set_ime(last_layout.type, last_layout.layout)
+            end
         end,
     })
 
     vim.api.nvim_create_autocmd("FocusGained", {
         callback = function()
-            if vim.fn.mode() == "i" then
-                set_fcitx_layout(last_layout)
-            else
-                set_fcitx_layout("keyboard-us")
+            local ime_type, current = get_ime()
+            if ime_type then
+                if vim.fn.mode() == "i" then
+                    if last_layout and last_layout.type == ime_type then
+                        set_ime(last_layout.type, last_layout.layout)
+                    end
+                else
+                    local english = get_english_layout(ime_type, current or "")
+                    set_ime(ime_type, english)
+                end
             end
         end,
     })
 end
+
 
 -- Show folder/dir structure
 local tree_win = nil
@@ -200,3 +252,57 @@ vim.api.nvim_create_user_command("ShowTree", function()
 end, {})
 
 vim.keymap.set("n", "<leader>vt", ":ShowTree<CR>", { desc = "Show directory tree in floating window" })
+
+-- Open Keybindings documentation in a floating window
+local help_win = nil
+local help_buf = nil
+
+vim.api.nvim_create_user_command("HelpKeys", function()
+    if help_win and vim.api.nvim_win_is_valid(help_win) then
+        vim.api.nvim_win_close(help_win, true)
+        help_win = nil
+        return
+    end
+
+    local keybindings_path = vim.fn.expand("~/.config/nvim/KEYBINDINGS.md")
+    help_buf = vim.api.nvim_create_buf(false, true)
+
+    if vim.fn.filereadable(keybindings_path) == 1 then
+        local lines = vim.fn.readfile(keybindings_path)
+        vim.api.nvim_buf_set_lines(help_buf, 0, -1, false, lines)
+    else
+        vim.api.nvim_buf_set_lines(help_buf, 0, -1, false, { "# Keybindings file not found" })
+    end
+
+    vim.api.nvim_set_option_value("filetype", "markdown", { buf = help_buf })
+    vim.api.nvim_set_option_value("modifiable", false, { buf = help_buf })
+
+    local editor_width = vim.o.columns
+    local editor_height = vim.o.lines
+    local width = math.floor(editor_width * 0.85)
+    local height = math.floor(editor_height * 0.85)
+    local col = math.floor((editor_width - width) / 2)
+    local row = math.floor((editor_height - height) / 2)
+
+    help_win = vim.api.nvim_open_win(help_buf, true, {
+        relative = "editor",
+        width = width,
+        height = height,
+        col = col,
+        row = row,
+        style = "minimal",
+        border = "rounded",
+        title = " ⌨️ Neovim Keybindings Cheatsheet (Press q to close) ",
+        title_pos = "center",
+    })
+
+    vim.keymap.set("n", "q", function()
+        if help_win and vim.api.nvim_win_is_valid(help_win) then
+            vim.api.nvim_win_close(help_win, true)
+            help_win = nil
+        end
+    end, { buffer = help_buf, silent = true })
+end, {})
+
+vim.keymap.set("n", "<leader>?", ":HelpKeys<CR>", { desc = "Show Neovim Keybindings cheatsheet" })
+

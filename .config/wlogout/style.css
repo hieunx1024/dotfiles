@@ -1,0 +1,62 @@
+* {
+	background-image: none;
+	box-shadow: none;
+	font-family: "JetBrainsMono Nerd Font", sans-serif;
+}
+
+window {
+	background-color: rgba(29, 32, 33, 0.97);
+}
+
+button {
+    min-width: 220px;
+    min-height: 400px;
+    border-radius: 18px;
+    border-color: #665c54;
+	text-decoration-color: #ebdbb2;
+    color: #ebdbb2;
+	background-color: #32302f;
+	border-style: solid;
+	border-width: 2px;
+	background-repeat: no-repeat;
+	background-position: center;
+	background-size: 26%;
+	margin: 12px;
+	font-size: 14px;
+	transition: all 0.15s ease-in-out;
+	box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
+}
+
+button:focus, button:active, button:hover {
+	background-color: #3c3836;
+	border-color: #83a598;
+	outline-style: none;
+	box-shadow: 0 0 20px rgba(131, 165, 152, 0.5);
+}
+
+#lock {
+    background-image: image(url("/home/hieunx/.config/wlogout/icons/lock.svg"));
+}
+
+#logout {
+    background-image: image(url("/home/hieunx/.config/wlogout/icons/logout.svg"));
+}
+
+#suspend {
+    background-image: image(url("/home/hieunx/.config/wlogout/icons/suspend.svg"));
+}
+
+#reboot {
+    background-image: image(url("/home/hieunx/.config/wlogout/icons/reboot.svg"));
+}
+
+#shutdown {
+    background-color: #32302f;
+    background-image: image(url("/home/hieunx/.config/wlogout/icons/shutdown.svg"));
+}
+
+#shutdown:focus, #shutdown:hover {
+    background-color: #3c3836;
+    border-color: #fb4934;
+    box-shadow: 0 0 20px rgba(251, 73, 52, 0.4);
+}

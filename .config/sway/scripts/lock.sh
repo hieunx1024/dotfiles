@@ -3,6 +3,7 @@
 
 # Get current wallpaper from waypaper config if it exists
 WALLPAPER=$(grep '^wallpaper =' ~/.config/waypaper/config.ini | cut -d ' ' -f 3 | sed "s|~|$HOME|")
+[ -f "$WALLPAPER" ] || WALLPAPER=""
 
 # Fallback color if no image
 COLOR="1e1e2e"
@@ -14,9 +15,12 @@ GREEN="a6e3a1"
 BASE="1e1e2e"
 TEXT="cdd6f4"
 
+IMAGE_ARGS=()
+[ -n "$WALLPAPER" ] && IMAGE_ARGS=(--image "$WALLPAPER")
+
 # Note: standard swaylock doesn't support --clock or --effects
 swaylock -f \
-	--image "$WALLPAPER" \
+	"${IMAGE_ARGS[@]}" \
 	--scaling fill \
 	--color $BASE \
 	--ring-color $MAUVE \

@@ -85,6 +85,7 @@ button:hover {
 #battery,
 #cpu,
 #memory,
+#temperature,
 #backlight,
 #custom-backlight,
 #network,
@@ -120,6 +121,10 @@ button:hover {
 
 #pulseaudio.muted {
     color: @darkgray;
+}
+
+#pulseaudio.bluetooth {
+    color: @blue;
 }
 
 #pulseaudio:hover,
@@ -164,6 +169,27 @@ button:hover {
     animation-direction: alternate;
 }
 
+/* ================= GROUPS (group/xxx -> id #xxx, bỏ tiền tố "group/") ========= */
+
+#system,
+#traybar {
+    background-color: @bg1;
+    border: 1px solid @bg2;
+    border-radius: 8px;
+    padding: 0 4px;
+}
+
+#system #cpu,
+#system #memory,
+#system #temperature {
+    padding: 0 8px;
+}
+
+#traybar #idle_inhibitor,
+#traybar #tray {
+    padding: 0 8px;
+}
+
 /* ================= OTHER WIDGETS ================= */
 
 #tray {
@@ -185,6 +211,11 @@ button:hover {
 
 #idle_inhibitor.activated {
     color: @yellow;
+}
+
+#custom-vpn {
+    color: @green;
+    font-weight: bold;
 }
 
 #custom-power {
