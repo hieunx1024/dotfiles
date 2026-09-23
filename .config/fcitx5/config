@@ -47,7 +47,7 @@ ModifierOnlyKeyTimeout=250
 
 [Behavior]
 # Active By Default
-ActiveByDefault=True
+ActiveByDefault=False
 # Reset state on Focus In
 resetStateWhenFocusIn=No
 # Share Input State
@@ -63,7 +63,7 @@ CompactInputMethodInformation=True
 # Show first input method information
 ShowFirstInputMethodInformation=False
 # Default page size
-DefaultPageSize=5
+DefaultPageSize=3
 # Override XKB Option
 OverrideXkbOption=False
 # Custom XKB Option
@@ -71,7 +71,7 @@ CustomXkbOption=
 # Force Enabled Addons
 EnabledAddons=
 # Force Disabled Addons
-DisabledAddons=kimpanel
+DisabledAddons=
 # Preload input method to be used by default
 PreloadInputMethod=True
 # Allow input method in the password field

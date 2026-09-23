@@ -1,0 +1,30 @@
+{
+    "label" : "lock",
+    "action" : "/home/hieunx/.config/sway/scripts/lock.sh",
+    "text" : "Khóa màn hình",
+    "keybind" : "l"
+}
+{
+    "label" : "logout",
+    "action" : "swaymsg exit",
+    "text" : "Đăng xuất",
+    "keybind" : "e"
+}
+{
+    "label" : "suspend",
+    "action" : "/home/hieunx/.config/sway/scripts/lock.sh && systemctl suspend",
+    "text" : "Ngủ",
+    "keybind" : "u"
+}
+{
+    "label" : "reboot",
+    "action" : "systemctl reboot",
+    "text" : "Khởi động lại",
+    "keybind" : "r"
+}
+{
+    "label" : "shutdown",
+    "action" : "systemctl poweroff",
+    "text" : "Tắt máy",
+    "keybind" : "s"
+}

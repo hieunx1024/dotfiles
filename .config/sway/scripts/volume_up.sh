@@ -1,9 +1,4 @@
 #!/bin/bash
-LIMIT=150
-CURRENT_VOL=$(pactl get-sink-volume @DEFAULT_SINK@ | grep -oP '\d+%' | head -1 | tr -d '%')
-
-if [ $(($CURRENT_VOL + 5)) -gt $LIMIT ]; then
-    pactl set-sink-volume @DEFAULT_SINK@ ${LIMIT}%
-else
-    pactl set-sink-volume @DEFAULT_SINK@ +5%
-fi
+# LIMIT 150% via wpctl's boost factor (-l 1.5)
+wpctl set-volume -l 1.5 @DEFAULT_AUDIO_SINK@ 5%+
+wpctl set-mute @DEFAULT_AUDIO_SINK@ 0

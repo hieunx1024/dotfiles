@@ -1,0 +1,3 @@
+# Runtime files, không phải config thật - tự sinh lại lúc chạy
+.config/fcitx/dbus/
+.config/fcitx5/*.pid

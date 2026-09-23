@@ -1,1 +1,2 @@
-.mydotfiles/com.ml4w.dotfiles/.gtkrc-2.0
+# ~/.gtkrc-2.0 - minimal placeholder (previous ML4W/Arch symlink target no longer exists)
+gtk-theme-name="Adwaita"
