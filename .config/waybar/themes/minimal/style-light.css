@@ -1,0 +1,244 @@
+/* =============================================================================
+ * WAYBAR GRUVBOX LIGHT STYLESHEET (MINIMALIST MONOCHROME THEME)
+ * Bản màu sáng của style.css - CHỈ đổi màu, cấu trúc/layout giữ nguyên y hệt.
+ * ============================================================================= */
+
+@define-color bg0         #fbf1c7; /* Light soft background */
+@define-color bg1         #ebdbb2;
+@define-color bg2         #d5c4a1;
+@define-color fg          #3c3836; /* Dark readable text */
+@define-color red         #cc241d;
+@define-color green       #98971a;
+@define-color yellow      #d79921;
+@define-color blue        #458588;
+@define-color purple      #b16286;
+@define-color aqua        #689d6a;
+@define-color orange      #d65d0e;
+@define-color gray        #7c6f64;
+@define-color darkgray    #a89984;
+
+* {
+    font-family: "JetBrainsMono Nerd Font", "JetBrainsMono Nerd Font Propo", sans-serif;
+    font-size: 14px;
+    border: none;
+    border-radius: 0;
+}
+
+window#waybar {
+    background-color: @bg0;
+    color: @fg;
+    transition-property: background-color;
+    transition-duration: 0.5s;
+}
+
+window#waybar.hidden {
+    opacity: 0.2;
+}
+
+button {
+    box-shadow: inset 0 -2px transparent;
+    border: none;
+    border-radius: 0;
+    transition: all 0.2s ease-in-out;
+}
+
+button:hover {
+    background: transparent;
+}
+
+/* ================= WORKSPACES ================= */
+
+#workspaces button {
+    padding: 0 10px;
+    background-color: transparent;
+    color: @gray; /* Muted gray for inactive workspaces */
+}
+
+#workspaces button:hover {
+    color: @fg;
+    box-shadow: inset 0 -2px @gray;
+}
+
+#workspaces button.focused,
+#workspaces button.active {
+    color: @blue;
+    box-shadow: inset 0 -2px @blue; /* Signature Gruvbox blue underline */
+    font-weight: bold;
+}
+
+#workspaces button.urgent {
+    color: @red;
+    box-shadow: inset 0 -2px @red;
+}
+
+/* ================= ACTIVE WINDOW ================= */
+
+#window {
+    color: @gray;
+    margin: 0 10px;
+    font-size: 13px;
+}
+
+/* ================= MODULE COMMON STYLE ================= */
+
+#clock,
+#battery,
+#cpu,
+#memory,
+#temperature,
+#backlight,
+#custom-backlight,
+#network,
+#bluetooth,
+#pulseaudio,
+#custom-media,
+#mpris,
+#idle_inhibitor,
+#custom-power,
+#custom-pomodoro,
+#custom-performance,
+#custom-fcitx5 {
+    padding: 0 12px;
+    color: @fg; /* Standard monochrome dark text */
+}
+
+/* ================= INDIVIDUAL MODULES ================= */
+
+#clock {
+    color: @yellow;
+    font-weight: bold;
+}
+
+#mpris {
+    color: @gray;
+    font-style: italic;
+    font-size: 13px;
+}
+
+#custom-pomodoro {
+    color: @orange;
+}
+
+#pulseaudio.muted {
+    color: @darkgray;
+}
+
+#pulseaudio.bluetooth {
+    color: @blue;
+}
+
+#pulseaudio:hover,
+#custom-backlight:hover,
+#network:hover,
+#bluetooth:hover,
+#cpu:hover,
+#memory:hover {
+    color: @yellow; /* Brighten/pop on hover */
+}
+
+#network.disconnected {
+    color: @red;
+}
+
+#bluetooth.off,
+#bluetooth.disabled {
+    color: @darkgray;
+}
+
+/* ================= BATTERY STATES ================= */
+
+#battery.charging,
+#battery.plugged {
+    color: @green;
+}
+
+@keyframes blink {
+    to {
+        background-color: @red;
+        color: @bg0;
+    }
+}
+
+#battery.critical:not(.charging) {
+    background-color: transparent;
+    color: @red;
+    animation-name: blink;
+    animation-duration: 0.8s;
+    animation-timing-function: steps(12);
+    animation-iteration-count: infinite;
+    animation-direction: alternate;
+}
+
+/* ================= GROUPS (group/xxx -> id #xxx, bỏ tiền tố "group/") ========= */
+
+#system,
+#traybar {
+    background-color: @bg1;
+    border: 1px solid @bg2;
+    border-radius: 8px;
+    padding: 0 4px;
+}
+
+#system #cpu,
+#system #memory,
+#system #temperature {
+    padding: 0 8px;
+}
+
+#traybar #idle_inhibitor,
+#traybar #tray {
+    padding: 0 8px;
+}
+
+/* ================= OTHER WIDGETS ================= */
+
+#tray {
+    padding: 0 8px;
+}
+
+#tray > .passive {
+    -gtk-icon-effect: dim;
+}
+
+#tray > .needs-attention {
+    -gtk-icon-effect: highlight;
+    background-color: @red;
+}
+
+#idle_inhibitor {
+    color: @darkgray;
+}
+
+#idle_inhibitor.activated {
+    color: @yellow;
+}
+
+#custom-vpn {
+    color: @green;
+    font-weight: bold;
+}
+
+#custom-power {
+    color: @red;
+    padding-right: 15px;
+}
+
+#custom-power:hover {
+    color: @bg0;
+    background-color: @red;
+}
+
+/* ================= TOOLTIPS & CALENDAR ================= */
+
+tooltip {
+    background-color: @bg1;
+    border: 1px solid @bg2;
+    border-radius: 6px;
+    padding: 8px;
+}
+
+tooltip label {
+    color: @fg;
+    font-family: "JetBrainsMono Nerd Font Propo", monospace;
+    font-size: 13px;
+}
