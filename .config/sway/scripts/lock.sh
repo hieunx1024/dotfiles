@@ -1,8 +1,12 @@
 #!/bin/bash
 # Lock script with Catppuccin Mocha theme (Standard swaylock)
 
-# Get current wallpaper from waypaper config if it exists
-WALLPAPER=$(grep '^wallpaper =' ~/.config/waypaper/config.ini | cut -d ' ' -f 3 | sed "s|~|$HOME|")
+# Tránh mở nhiều instance swaylock đè lên nhau
+if pgrep -x swaylock >/dev/null; then
+    exit 0
+fi
+
+WALLPAPER=$(sed -n 's/^wallpaper[[:space:]]*=[[:space:]]*//p' ~/.config/waypaper/config.ini 2>/dev/null | head -n 1 | sed "s|^~|$HOME|")
 [ -f "$WALLPAPER" ] || WALLPAPER=""
 
 # Fallback color if no image
@@ -37,3 +41,21 @@ swaylock -f \
 	--inside-clear-color ${BASE}aa \
 	--indicator-radius 100 \
 	--indicator-thickness 7
+
+# Khi đang ở màn hình khóa, nếu sau 10 giây không có thao tác chuột/phím thì tắt màn hình (dpms off)
+(
+    sleep 0.5
+    if pgrep -x swaylock >/dev/null; then
+        swayidle -w \
+            timeout 10 'swaymsg "output * dpms off"' \
+            resume 'swaymsg "output * dpms on"' &
+        SUB_IDLE_PID=$!
+
+        while pgrep -x swaylock >/dev/null; do
+            sleep 1
+        done
+
+        kill "$SUB_IDLE_PID" 2>/dev/null
+        swaymsg "output * dpms on"
+    fi
+) &
