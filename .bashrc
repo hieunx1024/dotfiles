@@ -156,7 +156,7 @@ __prompt_dir() {
   fi
 }
 
-export PS1='\[\e[38;2;131;165;152m\]\u@\h\[\e[0m\] \[\e[38;2;184;187;38m\]$(__prompt_dir)\[\e[0m\]\[\e[38;2;254;128;25m\]$(parse_git_branch)\[\e[0m\] \[\e[38;2;184;187;38m\]\342\235\257\[\e[0m\] '
+export PS1='\[\e[38;2;131;165;152m\]\u\[\e[0m\] \[\e[38;2;184;187;38m\]$(__prompt_dir)\[\e[0m\]\[\e[38;2;254;128;25m\]$(parse_git_branch)\[\e[0m\] \[\e[38;2;184;187;38m\]\342\235\257\[\e[0m\] '
 export EDITOR="nvim"
 export VISUAL="nvim"
 export PATH="$HOME/.local/go/bin:$HOME/go/bin:$PATH"
