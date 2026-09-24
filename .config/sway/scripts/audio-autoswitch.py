@@ -39,6 +39,20 @@ def wpctl(*args):
     subprocess.run(["wpctl", *args], capture_output=True)
 
 
+def apply_fallback(card_id, spk_index, hp_index, hp_plugged, bt_sinks):
+    """Chọn thiết bị tốt nhất còn lại theo thứ tự ưu tiên: Bluetooth > Tai nghe dây > Loa (chót)."""
+    if bt_sinks:
+        any_bt_id = next(iter(bt_sinks.values()))
+        wpctl("set-default", str(any_bt_id))
+        notify("Audio Output", "Chuyển sang Tai nghe Bluetooth", "audio-headphones")
+    elif hp_plugged and card_id is not None and hp_index is not None:
+        wpctl("set-profile", str(card_id), str(hp_index))
+        notify("Audio Output", "Chuyển sang Tai nghe dây", "audio-headphones")
+    elif card_id is not None and spk_index is not None:
+        wpctl("set-profile", str(card_id), str(spk_index))
+        notify("Audio Output", "Chuyển sang Loa Laptop", "audio-speakers")
+
+
 def get_state():
     dump = json.loads(subprocess.run(["pw-dump"], capture_output=True, text=True).stdout)
 
@@ -105,10 +119,9 @@ def main():
             wpctl("set-profile", str(card_id), str(state["hp_index"]))
             notify("Audio Output", "Tự động chuyển sang Tai nghe dây", "audio-headphones")
 
-        # Tai nghe dây vừa RÚT RA -> về loa (nếu không có gì khác ưu tiên hơn)
-        elif (not hp_plugged) and prev_hp_plugged and card_id is not None and state["spk_index"] is not None:
-            wpctl("set-profile", str(card_id), str(state["spk_index"]))
-            notify("Audio Output", "Tai nghe dây đã rút, về Loa Laptop", "audio-speakers")
+        # Tai nghe dây vừa RÚT RA -> fallback: còn Bluetooth thì dùng BT, không thì mới về Loa
+        elif (not hp_plugged) and prev_hp_plugged:
+            apply_fallback(card_id, state["spk_index"], state["hp_index"], hp_plugged=False, bt_sinks=state["bt_sinks"])
 
         # Có thiết bị Bluetooth MỚI kết nối
         new_bt = bt_names - prev_bt_names
@@ -117,11 +130,10 @@ def main():
             wpctl("set-default", str(new_sink_id))
             notify("Audio Output", "Tự động chuyển sang Tai nghe Bluetooth", "audio-headphones")
 
-        # Thiết bị Bluetooth vừa NGẮT hết -> về loa
+        # Thiết bị Bluetooth vừa NGẮT hết -> fallback: còn tai nghe dây thì dùng tai dây, không thì mới về Loa
         removed_bt = prev_bt_names - bt_names
-        if removed_bt and not bt_names and card_id is not None and state["spk_index"] is not None:
-            wpctl("set-profile", str(card_id), str(state["spk_index"]))
-            notify("Audio Output", "Bluetooth đã ngắt, về Loa Laptop", "audio-speakers")
+        if removed_bt and not bt_names:
+            apply_fallback(card_id, state["spk_index"], state["hp_index"], hp_plugged=hp_plugged, bt_sinks={})
 
         prev_hp_plugged = hp_plugged
         prev_bt_names = bt_names

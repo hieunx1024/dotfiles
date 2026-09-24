@@ -3,8 +3,7 @@
 # Script to update SDDM wallpaper to match current desktop wallpaper
 # Theme: gruvbox-minimal
 
-# Get current wallpaper from waypaper config
-WALLPAPER=$(grep '^wallpaper =' ~/.config/waypaper/config.ini | cut -d ' ' -f 3 | sed "s|~|$HOME|")
+WALLPAPER=$(sed -n 's/^wallpaper[[:space:]]*=[[:space:]]*//p' ~/.config/waypaper/config.ini 2>/dev/null | head -n 1 | sed "s|^~|$HOME|")
 
 if [ -f "$WALLPAPER" ]; then
     echo "Current wallpaper: $WALLPAPER"

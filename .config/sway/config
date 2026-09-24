@@ -56,15 +56,17 @@ client.placeholder       $bg1      $bg1      $gray     $orange    $bg1
 client.background        $bg0
 
 ### Output configuration
-# Default wallpaper
-output * bg /usr/share/backgrounds/ubuntu-wallpaper-d.png fill
+# Quản lý hình nền bởi waypaper (tắt hình nền mặc định để không bị đè)
+# output * bg /usr/share/backgrounds/ubuntu-wallpaper-d.png fill
 output * adaptive_sync on
-output * max_render_time 1
+# Tắt max_render_time 1 (1ms là quá hẹp đối với iGPU khiến Sway bị lỡ vblank gây drop frame)
+output * max_render_time off
 
 # Cấu hình màn hình động (Extend & Mirror)
 # Sử dụng tổ hợp phím tắt $mod+Shift+p để mở menu tùy chọn hiển thị động (display-mode.sh).
 # Mặc định bật màn hình laptop eDP-1:
 output eDP-1 mode 1920x1080 position 0 0
+output HDMI-A-1 mode 1920x1080@100Hz
 
 
 ### Input configuration
@@ -87,17 +89,14 @@ exec hash dbus-update-activation-environment 2>/dev/null && \
 exec /usr/lib/policykit-1-gnome/polkit-gnome-authentication-agent-1
 exec fcitx5 -rd
 exec_always "pkill swaync; swaync"
-exec waypaper --restore
+exec_always waypaper --restore
 exec_always "pkill waybar; waybar"
 # Tự động kích hoạt lại màn hình laptop khi rút cáp màn ngoài
 exec_always /home/hieunx/.config/sway/scripts/auto-display.sh
 # Tự động chuyển audio output sang thiết bị vừa cắm/kết nối (tai nghe dây/Bluetooth)
 exec_always /home/hieunx/.config/sway/scripts/audio-autoswitch.py
-exec swayidle -w \
-         timeout 600 '/home/hieunx/.config/sway/scripts/lock.sh' \
-         timeout 900 'swaymsg "output * dpms off"' \
-         resume 'swaymsg "output * dpms on"' \
-         before-sleep '/home/hieunx/.config/sway/scripts/lock.sh'
+# Quản lý tự động khóa màn hình (Pin: 10 phút, Sạc: 20 phút) & tắt màn hình sau khi lock
+exec_always /home/hieunx/.config/sway/scripts/idle-manager.sh
 
 
 ### Key bindings
