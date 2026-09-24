@@ -33,4 +33,21 @@ for f in "$HOME/.config/gtk-3.0/settings.ini" "$HOME/.config/gtk-4.0/settings.in
     echo "gtk-application-prefer-dark-theme=$GTK_PREFER_DARK" >> "$f"
 done
 
+# Đổi luôn CSS của waybar theo sáng/tối (giữ nguyên layout, chỉ đổi bảng màu)
+WAYBAR_DIR="$HOME/.config/waybar"
+if [ -L "$WAYBAR_DIR/style.css" ]; then
+    THEME_FOLDER="$(dirname "$(readlink -f "$WAYBAR_DIR/style.css")")"
+    if [ "$NEW_SCHEME" = "prefer-light" ] && [ -f "$THEME_FOLDER/style-light.css" ]; then
+        TARGET_CSS="$THEME_FOLDER/style-light.css"
+    else
+        TARGET_CSS="$THEME_FOLDER/style.css"
+    fi
+    rm -f "$WAYBAR_DIR/style.css"
+    ln -s "$TARGET_CSS" "$WAYBAR_DIR/style.css"
+    pkill waybar 2>/dev/null
+    sleep 0.3
+    nohup waybar >/dev/null 2>&1 &
+    disown
+fi
+
 notify-send "Theme" "Đã chuyển sang: $NEW_SCHEME ($NEW_THEME)" -i preferences-desktop-theme
