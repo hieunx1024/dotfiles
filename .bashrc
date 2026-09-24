@@ -143,9 +143,20 @@ alias dotfiles='git --git-dir=/home/hieunx/Desktop/dotfiles/.git --work-tree=/ho
 
 
 parse_git_branch() {
-  git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/ (\1)/'
+  local branch
+  branch=$(git branch 2>/dev/null | sed -n '/^\*/s/^\* //p')
+  [ -n "$branch" ] && printf '  %s' "$branch"
 }
-export PS1="\[\033[36m\]\u@\h\[\033[00m\]:\[\033[01;32m\]\w\[\033[00m\]\[\033[33m\]\$(parse_git_branch)\[\033[00m\]\$ "
+
+__prompt_dir() {
+  if [ "$PWD" = "$HOME" ]; then
+    printf ' ~'
+  else
+    printf '%s' "${PWD/#$HOME/\~}"
+  fi
+}
+
+export PS1='\[\e[38;2;131;165;152m\]\u@\h\[\e[0m\] \[\e[38;2;184;187;38m\]$(__prompt_dir)\[\e[0m\]\[\e[38;2;254;128;25m\]$(parse_git_branch)\[\e[0m\] \[\e[38;2;184;187;38m\]\xe2\x9d\xaf\[\e[0m\] '
 export EDITOR="nvim"
 export VISUAL="nvim"
 export PATH="$HOME/.local/go/bin:$HOME/go/bin:$PATH"
