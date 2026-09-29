@@ -14,7 +14,7 @@ if [ -f "$PID_FILE" ]; then
 fi
 echo "$$" > "$PID_FILE"
 
-LOCK_SCRIPT="/home/hieunx/.config/sway/scripts/lock.sh"
+LOCK_SCRIPT="$HOME/.config/sway/scripts/lock.sh"
 CURRENT_STATE=""
 CURRENT_PID=""
 

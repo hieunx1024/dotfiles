@@ -67,7 +67,8 @@ def get_state():
         info = obj.get("info") or {}
         props = info.get("props") or {}
 
-        if props.get("device.name") == CARD_NAME:
+        dev_name = str(props.get("device.name", ""))
+        if (dev_name == CARD_NAME) or (card_id is None and dev_name.startswith("alsa_card.")):
             card_id = obj["id"]
             params = info.get("params") or {}
             for p in params.get("EnumProfile", []):

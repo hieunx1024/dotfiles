@@ -15,7 +15,7 @@ APT_PACKAGES=(
     sway waybar sway-notification-center kitty nautilus nwg-look
     fuzzel wlogout
     fcitx5 fcitx5-config-qt fcitx5-bamboo fcitx5-frontend-gtk3 fcitx5-frontend-gtk4 fcitx5-frontend-qt5 fcitx5-frontend-qt6
-    grim slurp swappy wl-clipboard
+    grim slurp swappy wl-clipboard cliphist
     brightnessctl playerctl wlsunset
     tmux htop
     pavucontrol blueman
@@ -71,6 +71,9 @@ for d in "${CONFIG_DIRS[@]}"; do
     ln -s "$SRC" "$DST"
     echo "  -> Linked: ~/.config/$d"
 done
+
+# Shortcut cheatsheet link
+[ -f "$HOME/.config/sway/shortcut.md" ] && ln -sfn "$HOME/.config/sway/shortcut.md" "$HOME/.config/shortcut.md"
 
 for d in "${SHARED_DIRS[@]}"; do
     SRC_DIR="$DOTFILES_DIR/.config/$d"

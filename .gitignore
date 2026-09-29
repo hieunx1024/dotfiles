@@ -3,3 +3,5 @@
 .config/fcitx5/*.pid
 .config/sway/current_power_mode
 .config/waybar/backup_*
+.config/gtk-3.0/bookmarks
+.bashrc_local

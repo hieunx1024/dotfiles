@@ -1,6 +1,6 @@
 {
     "label" : "lock",
-    "action" : "/home/hieunx/.config/sway/scripts/lock.sh",
+    "action" : "~/.config/sway/scripts/lock.sh",
     "text" : "Khóa màn hình",
     "keybind" : "l"
 }
@@ -12,7 +12,7 @@
 }
 {
     "label" : "suspend",
-    "action" : "/home/hieunx/.config/sway/scripts/lock.sh && systemctl suspend",
+    "action" : "~/.config/sway/scripts/lock.sh && systemctl suspend",
     "text" : "Ngủ",
     "keybind" : "u"
 }

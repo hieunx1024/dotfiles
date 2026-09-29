@@ -14,7 +14,7 @@ BOLD='\033[1m'
 NC='\033[0m' # No Color
 
 echo -e "${BLUE}${BOLD}======================================================${NC}"
-echo -e "${BLUE}${BOLD}   Hệ thống Khôi phục Dotfiles tự động của hieunx     ${NC}"
+echo -e "${BLUE}${BOLD}        Hệ thống Khôi phục Dotfiles tự động           ${NC}"
 echo -e "${BLUE}${BOLD}======================================================${NC}"
 
 # 1. Kiểm tra Git đã cài đặt chưa

@@ -37,24 +37,24 @@ button:focus, button:active, button:hover {
 }
 
 #lock {
-    background-image: image(url("/home/hieunx/.config/wlogout/icons/lock.svg"));
+    background-image: image(url("icons/lock.svg"));
 }
 
 #logout {
-    background-image: image(url("/home/hieunx/.config/wlogout/icons/logout.svg"));
+    background-image: image(url("icons/logout.svg"));
 }
 
 #suspend {
-    background-image: image(url("/home/hieunx/.config/wlogout/icons/suspend.svg"));
+    background-image: image(url("icons/suspend.svg"));
 }
 
 #reboot {
-    background-image: image(url("/home/hieunx/.config/wlogout/icons/reboot.svg"));
+    background-image: image(url("icons/reboot.svg"));
 }
 
 #shutdown {
     background-color: @bg1;
-    background-image: image(url("/home/hieunx/.config/wlogout/icons/shutdown.svg"));
+    background-image: image(url("icons/shutdown.svg"));
 }
 
 #shutdown:focus, #shutdown:hover {
