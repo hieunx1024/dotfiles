@@ -95,6 +95,8 @@ alias c='clear'
 alias e='exit'
 alias ws='cd ~/CODES/VNPOST/'
 alias des='cd ~/Desktop/'
+alias ff='fastfetch'
+alias ss='source ~/.bashrc'
 # Add an "alert" alias for long running commands.  Use like so:
 #   sleep 10; alert
 alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
@@ -142,21 +144,29 @@ alias vim='nvim'
 alias dotfiles='git --git-dir=/home/hieunx/Desktop/dotfiles/.git --work-tree=/home/hieunx/Desktop/dotfiles'
 
 
-parse_git_branch() {
+__set_prompt() {
+  local exit_code=$?
+  local c_user='\[\e[38;2;131;165;152m\]'   # Gruvbox blue/aqua (#83a598)
+  local c_dir='\[\e[38;2;184;187;38m\]'     # Gruvbox green (#b8bb26)
+  local c_git='\[\e[38;2;254;128;25m\]'     # Gruvbox orange (#fe8019)
+  local c_gray='\[\e[38;2;146;131;116m\]'   # Gruvbox gray (#928374)
+  local c_ok='\[\e[38;2;184;187;38m\]'      # Gruvbox green (#b8bb26)
+  local c_err='\[\e[38;2;251;73;52m\]'      # Gruvbox red (#fb4934)
+  local c_reset='\[\e[0m\]'
+
+  local symbol="${c_ok}❯${c_reset}"
+  [ $exit_code -ne 0 ] && symbol="${c_err}❯${c_reset}"
+
+  local git_info=""
   local branch
   branch=$(git branch 2>/dev/null | sed -n '/^\*/s/^\* //p')
-  [ -n "$branch" ] && printf '  %s' "$branch"
-}
+  [ -n "$branch" ] && git_info=" ${c_gray}on${c_reset} ${c_git} ${branch}${c_reset}"
 
-__prompt_dir() {
-  if [ "$PWD" = "$HOME" ]; then
-    printf ' ~'
-  else
-    printf '%s' "${PWD/#$HOME/\~}"
-  fi
-}
+  local dir_str="${PWD/#$HOME/\~}"
 
-export PS1='\[\e[38;2;131;165;152m\]\u\[\e[0m\] \[\e[38;2;184;187;38m\]$(__prompt_dir)\[\e[0m\]\[\e[38;2;254;128;25m\]$(parse_git_branch)\[\e[0m\] \[\e[38;2;184;187;38m\]\342\235\257\[\e[0m\] '
+  PS1="${c_user}\u${c_reset} ${c_gray}in${c_reset} ${c_dir} ${dir_str}${c_reset}${git_info}\n${symbol} "
+}
+PROMPT_COMMAND=__set_prompt
 export EDITOR="nvim"
 export VISUAL="nvim"
 export PATH="$HOME/.local/go/bin:$HOME/go/bin:$PATH"

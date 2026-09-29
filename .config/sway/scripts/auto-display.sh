@@ -9,7 +9,15 @@ if [ -f "$PID_FILE" ]; then
         sleep 0.1
     fi
 fi
+pkill -f 'swaymsg -m -t subscribe \["output"\]' 2>/dev/null
 echo "$$" > "$PID_FILE"
+
+cleanup() {
+    pkill -P $$ 2>/dev/null
+    rm -f "$PID_FILE"
+    exit 0
+}
+trap cleanup SIGTERM SIGINT SIGHUP EXIT
 
 # Tự động tìm tên màn hình laptop chính (e.g. eDP-1)
 PRIMARY=$(swaymsg -t get_outputs | jq -r '.[] | select(.name | startswith("eDP") or startswith("LVDS") or startswith("DSI")) | .name' | head -n 1)

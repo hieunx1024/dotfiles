@@ -1,5 +1,5 @@
 # Sway Configuration
-# Theme: Gruvbox Dark
+# Theme: Modular (include theme.conf)
 
 ### Variables
 set $mod Mod4
@@ -15,65 +15,33 @@ set $file nautilus
 
 ### Visuals
 font pango:JetBrainsMono Nerd Font 11
-# Gaps
+
 gaps inner 5
 gaps outer 5
 smart_gaps on
 smart_borders on
 
-# Window Borders
 default_border pixel 2
 default_floating_border pixel 2
 hide_edge_borders smart
-titlebar_border_thickness 2
+titlebar_border_thickness 0
 titlebar_padding 8 2
-
-### Gruvbox Dark Colors
-set $bg0         #282828
-set $bg1         #3c3836
-set $bg2         #504945
-set $bg3         #665c54
-set $bg4         #7c6f64
-set $fg          #ebdbb2
-set $gray        #928374
-set $red         #fb4934
-set $green       #b8bb26
-set $yellow      #fabd2f
-set $blue        #83a598
-set $purple      #d3869b
-set $aqua        #8ec07c
-set $orange      #fe8019
-
-# Căn trái tiêu đề, giống tab trình duyệt/IDE
 title_align left
 
-# target                 border    bg        text      indicator  child_border
-client.focused           $blue     $bg2      $fg       $orange    $blue
-client.focused_inactive  $bg2      $bg2      $fg       $orange    $bg2
-client.unfocused         $bg1      $bg1      $gray     $orange    $bg1
-client.urgent            $red      $red      $bg0      $orange    $red
-client.placeholder       $bg1      $bg1      $gray     $orange    $bg1
-client.background        $bg0
+include ~/.config/sway/theme.conf
 
-### Output configuration
-# Quản lý hình nền bởi waypaper (tắt hình nền mặc định để không bị đè)
-# output * bg /usr/share/backgrounds/ubuntu-wallpaper-d.png fill
-output * adaptive_sync on
-# Tắt max_render_time 1 (1ms là quá hẹp đối với iGPU khiến Sway bị lỡ vblank gây drop frame)
-output * max_render_time off
-
-# Cấu hình màn hình động (Extend & Mirror)
-# Sử dụng tổ hợp phím tắt $mod+Shift+p để mở menu tùy chọn hiển thị động (display-mode.sh).
-# Mặc định bật màn hình laptop eDP-1:
-output eDP-1 mode 1920x1080 position 0 0
+### Output Configuration
+output * max_render_time 5
+output eDP-1 mode 1920x1080 position 0 0 adaptive_sync off
 output HDMI-A-1 mode 1920x1080@100Hz
 
-
-### Input configuration
+### Input Configuration
 input "type:touchpad" {
     tap enabled
     natural_scroll enabled
-    dwt enabled
+    dwt disabled
+    accel_profile flat
+    pointer_accel 0.82
 }
 
 input "type:keyboard" {
@@ -81,46 +49,101 @@ input "type:keyboard" {
 }
 
 ### Autostart
-# Cập nhật environment cho DBus và Systemd (quan trọng cho screensharing và portal)
-exec systemctl --user import-environment DISPLAY WAYLAND_DISPLAY SWAYSOCK XDG_CURRENT_DESKTOP
+exec systemctl --user import-environment DISPLAY WAYLAND_DISPLAY SWAYSOCK XDG_CURRENT_DESKTOP _JAVA_AWT_WM_NONREPARENTING
 exec hash dbus-update-activation-environment 2>/dev/null && \
-     dbus-update-activation-environment --systemd DISPLAY WAYLAND_DISPLAY SWAYSOCK XDG_CURRENT_DESKTOP
+     dbus-update-activation-environment --systemd DISPLAY WAYLAND_DISPLAY SWAYSOCK XDG_CURRENT_DESKTOP _JAVA_AWT_WM_NONREPARENTING=1
 
+exec wl-paste --watch /home/hieunx/.local/bin/cliphist store
 exec /usr/lib/policykit-1-gnome/polkit-gnome-authentication-agent-1
 exec fcitx5 -rd
+exec xhost +local:root
+
 exec_always "pkill swaync; swaync"
 exec_always waypaper --restore
 exec_always "pkill waybar; waybar"
-# Tự động kích hoạt lại màn hình laptop khi rút cáp màn ngoài
 exec_always /home/hieunx/.config/sway/scripts/auto-display.sh
-# Tự động chuyển audio output sang thiết bị vừa cắm/kết nối (tai nghe dây/Bluetooth)
 exec_always /home/hieunx/.config/sway/scripts/audio-autoswitch.py
-# Quản lý tự động khóa màn hình (Pin: 10 phút, Sạc: 20 phút) & tắt màn hình sau khi lock
 exec_always /home/hieunx/.config/sway/scripts/idle-manager.sh
+exec_always "swaymsg seat seat0 xcursor_theme $(grep gtk-cursor-theme-name ~/.config/gtk-3.0/settings.ini | cut -d= -f2) $(grep gtk-cursor-theme-size ~/.config/gtk-3.0/settings.ini | cut -d= -f2)"
 
+### Window Rules & Workspace Assignments
+focus_on_window_activation focus
 
-### Key bindings
-# Basics:
+# WS1: Terminal
+assign [app_id="kitty"] workspace number 1
+
+# WS2: IDE (IntelliJ, VS Code, Cursor)
+assign [app_id="(?i)(code|vscodium|cursor|jetbrains-idea)"] workspace number 2
+assign [class="(?i)(code|vscodium|cursor|jetbrains)"] workspace number 2
+for_window [class="(?i)jetbrains" window_type="dialog|menu"] floating enable
+for_window [class="(?i)jetbrains" title="win0|splash|Welcome to .*"] floating enable
+for_window [class="(?i)jetbrains" title=".*Edit.*"] floating enable
+
+# WS3: Browsers
+assign [app_id="(?i)(firefox|google-chrome|brave-browser|tor browser)"] workspace number 3
+
+# WS4: AI Agents & Chat
+assign [app_id="(?i)(com\.anthropic\.claude|claude|chatgpt|antigravity|org\.telegram\.desktop)"] workspace number 4
+assign [class="(?i)(claude|chatgpt|antigravity)"] workspace number 4
+for_window [title="(?i)claude code"] move to workspace number 4
+
+# WS5: Notes
+assign [app_id="obsidian"] workspace number 5
+
+# WS6: Database (DBeaver, DataGrip)
+assign [app_id="(?i)(dbeaver|jetbrains-datagrip)"] workspace number 6
+assign [class="(?i)(dbeaver|jetbrains-datagrip)"] workspace number 6
+for_window [class="(?i)dbeaver" window_type="dialog"] floating enable
+
+# Floating Helper Rules
+for_window [app_id="view-launcher"] floating enable, border none, move position center
+for_window [app_id="floating_shortcut"] floating enable, resize set 1000 700, move position center
+for_window [app_id="floating_network"] floating enable, resize set 800 600, move position center
+for_window [app_id="floating_btop"] floating enable, resize set 1150 750, move position center
+for_window [app_id="at.yrlf.wl_mirror"] floating enable, border none, no_focus
+
+# Gaming
+for_window [app_id="gamescope"] floating disable
+for_window [class="^steam_app_.*"] floating disable
+
+# Scratchpad Rules & Toggles
+for_window [class="(?i)discord"] floating enable, resize set 1200 800, move position center, move scratchpad
+for_window [class="(?i)spotify"] floating enable, resize set 1200 800, move position center, move scratchpad
+for_window [app_id="(?i)viber" class="(?i)viber.*"] floating enable, resize set 1200 800, move position center, move scratchpad
+
+bindsym $mod+Ctrl+d [class="(?i)discord"] scratchpad show
+bindsym $mod+Ctrl+s [class="(?i)spotify"] scratchpad show
+bindsym $mod+Ctrl+v [app_id="(?i)viber" class="(?i)viber.*"] scratchpad show
+
+bindsym $mod+Shift+minus move scratchpad
+bindsym $mod+minus scratchpad show
+bindsym $mod+Ctrl+minus move container to workspace current; floating disable
+
+### Keybindings
+# Applications
 bindsym $mod+Return exec $term
 bindsym $mod+q kill
 bindsym $mod+d exec $menu
+bindsym Alt+z exec view-launcher
 bindsym $mod+b exec $browser
 bindsym $mod+e exec $file
+bindsym $mod+v exec ~/.config/sway/scripts/clipboard.sh
+bindsym $mod+i exec $term --app-id floating_shortcut -e nvim -R /home/hieunx/.config/shortcut.md
+bindsym $mod+n exec swaync-client -t -sw
+bindsym $mod+Tab exec ~/.config/sway/scripts/window-switcher.sh
 
-# Floating modifier
+# System Controls
 floating_modifier $mod normal
-
-# Reload/Exit
 bindsym $mod+Shift+c reload
 bindsym $mod+Ctrl+b exec pkill -USR1 waybar
-bindsym $mod+Shift+t exec ~/.config/waybar/switch_theme.sh
+bindsym $mod+Shift+t exec ~/.config/sway/scripts/theme-selector.sh
 bindsym $mod+Shift+u exec ~/.config/sway/scripts/theme-toggle.sh
 bindsym $mod+Shift+e exec ~/.config/sway/scripts/powermenu.sh
 bindsym $mod+Shift+p exec ~/.config/sway/scripts/display-mode.sh
 bindsym $mod+Ctrl+l exec ~/.config/sway/scripts/lock.sh
 bindsym $mod+Alt+s exec ~/.config/sway/scripts/lock.sh && systemctl suspend
 
-# Moving focus
+# Focus (hjkl & arrows)
 bindsym $mod+$left focus left
 bindsym $mod+$down focus down
 bindsym $mod+$up focus up
@@ -130,15 +153,15 @@ bindsym $mod+Down focus down
 bindsym $mod+Up focus up
 bindsym $mod+Right focus right
 
-# Moving windows
+# Move Containers (hjkl & arrows)
+bindsym $mod+Shift+$left move left
 bindsym $mod+Shift+$down move down
 bindsym $mod+Shift+$up move up
 bindsym $mod+Shift+$right move right
-bindsym $mod+Shift+$left move left
+bindsym $mod+Shift+Left move left
 bindsym $mod+Shift+Down move down
 bindsym $mod+Shift+Up move up
 bindsym $mod+Shift+Right move right
-bindsym $mod+Shift+Left move left
 
 # Workspaces
 bindsym $mod+1 workspace number 1
@@ -152,14 +175,6 @@ bindsym $mod+8 workspace number 8
 bindsym $mod+9 workspace number 9
 bindsym $mod+0 workspace number 10
 
-# Navigation between workspaces
-bindsym $mod+Ctrl+Right workspace next
-bindsym $mod+Ctrl+Left workspace prev
-
-# Gestures
-bindgesture swipe:3:left workspace next
-bindgesture swipe:3:right workspace prev
-
 bindsym $mod+Shift+1 move container to workspace number 1
 bindsym $mod+Shift+2 move container to workspace number 2
 bindsym $mod+Shift+3 move container to workspace number 3
@@ -171,104 +186,21 @@ bindsym $mod+Shift+8 move container to workspace number 8
 bindsym $mod+Shift+9 move container to workspace number 9
 bindsym $mod+Shift+0 move container to workspace number 10
 
-# Layout
+bindsym $mod+Ctrl+Right workspace next
+bindsym $mod+Ctrl+Left workspace prev
+bindgesture swipe:3:left workspace next
+bindgesture swipe:3:right workspace prev
+
+# Layout & Fullscreen
 bindsym $mod+s layout stacking
 bindsym $mod+w layout tabbed
 bindsym $mod+x layout toggle split
 bindsym $mod+f fullscreen toggle
 bindsym $mod+m layout toggle tabbed split; gaps inner current toggle 0; gaps outer current toggle 0
 bindsym $mod+Shift+space floating toggle
-#bindsym $mod+space focus mode_toggle
 bindsym $mod+a focus parent
 
-# Scratchpad
-bindsym $mod+Shift+minus move scratchpad
-bindsym $mod+minus scratchpad show
-# Xóa cửa sổ khỏi scratchpad (đưa ra workspace hiện tại)
-bindsym $mod+Ctrl+minus move container to workspace current; floating disable
-
-# Application Shortcuts
-# Tối ưu Wayland cho các app Electron (Discord, Obsidian) và Spotify
-# bindsym $mod+Shift+d exec discord --enable-features=UseOzonePlatform --ozone-platform=wayland
-# bindsym $mod+Shift+s exec spotify --enable-features=UseOzonePlatform --ozone-platform=wayland
-# bindsym $mod+Shift+o exec obsidian --enable-features=UseOzonePlatform --ozone-platform=wayland
-bindsym $mod+i exec $term --app-id floating_shortcut -e nvim -R /home/hieunx/.config/shortcut.md
-bindsym ctrl+space exec "view-launcher & sleep 0.15 && fcitx5-remote -c"
-
-# Floating Window Rules
-for_window [app_id="view-launcher"] floating enable, resize set 700 450, move position center
-for_window [app_id="floating_shortcut"] floating enable, resize set 1000 700, move position center
-for_window [app_id="floating_network"] floating enable, resize set 800 600, move position center
-for_window [app_id="at.yrlf.wl_mirror"] floating enable, border none, no_focus
-
-# Force Steam games and Gamescope to obey Sway's tiling rules
-for_window [app_id="gamescope"] floating disable
-for_window [class="^steam_app_.*"] floating disable
-
-
-# Scratchpad Rules for Productivity
-for_window [class="discord"] floating enable, resize set 1200 800, move position center, move scratchpad
-for_window [class="Spotify"] floating enable, resize set 1200 800, move position center, move scratchpad
-for_window [app_id="viber"] floating enable, resize set 1200 800, move position center, move scratchpad
-
-# Scratchpad Toggles
-bindsym $mod+Ctrl+d [class="discord"] scratchpad show
-bindsym $mod+Ctrl+s [class="Spotify"] scratchpad show
-
-# Notification Center
-bindsym $mod+n exec swaync-client -t -sw
-
-# Window Switcher (Fuzzel script)
-bindsym $mod+Tab exec ~/.config/sway/scripts/window-switcher.sh
-
-
-
-### Window Rules (Workspace Assignment)
-# Automatically focus on new windows when they are opened
-focus_on_window_activation focus
-for_window [all] focus
-
-# WS1: Terminal
-assign [app_id="kitty"] workspace number 1
-
-# WS2: Code
-assign [app_id="code"] workspace number 2
-assign [app_id="antigravity"] workspace number 2
-assign [app_id="Cursor"] workspace number 2
-assign [class="jetbrains-idea"] workspace number 2
-assign [app_id="jetbrains-idea"] workspace number 2
-assign [app_id="vscodium"] workspace number 2
-
-# WS3: Browser
-assign [app_id="firefox"] workspace number 3
-assign [app_id="google-chrome"] workspace number 3
-assign [app_id="brave-browser"] workspace number 3
-assign [app_id="Tor Browser"] workspace number 3
-
-# WS4: Social
-assign [app_id="org.telegram.desktop"] workspace number 4
-# assign [app_id="discord"] workspace number 4
-# assign [class="discord"] workspace number 4
-
-# WS5: Obsidian
-assign [app_id="obsidian"] workspace number 5
-
-# WS6: Spotify
-# assign [class="Spotify"] workspace number 6
-# assign [app_id="spotify"] workspace number 6
-
-# Resize mode
-mode "resize" {
-    bindsym $left resize shrink width 10px
-    bindsym $down resize grow height 10px
-    bindsym $up resize shrink height 10px
-    bindsym $right resize grow width 10px
-    bindsym Return mode "default"
-    bindsym Escape mode "default"
-}
-bindsym $mod+r mode "resize"
-
-# Audio/Brightness/Night Mode
+# Hardware Fn Keys
 bindsym --locked XF86AudioMute exec wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle
 bindsym --locked XF86AudioLowerVolume exec ~/.config/sway/scripts/volume_down.sh
 bindsym --locked XF86AudioRaiseVolume exec ~/.config/sway/scripts/volume_up.sh
@@ -280,10 +212,21 @@ bindsym $mod+Shift+a exec ~/.config/sway/scripts/toggle_audio.sh
 
 # Screenshots
 bindsym $mod+Shift+s exec grim -g "$(slurp)" - | wl-copy
-# bindsym Ctrl+Print exec grim -g "$(slurp)" - | swappy -f -
 bindsym Print exec grim - | swappy -f -
 
-# Cursor configuration (Dynamic from GTK settings)
-exec_always "swaymsg seat seat0 xcursor_theme $(grep gtk-cursor-theme-name ~/.config/gtk-3.0/settings.ini | cut -d= -f2) $(grep gtk-cursor-theme-size ~/.config/gtk-3.0/settings.ini | cut -d= -f2)"
+### Resize Mode
+mode "resize" {
+    bindsym $left resize shrink width 10px
+    bindsym $down resize grow height 10px
+    bindsym $up resize shrink height 10px
+    bindsym $right resize grow width 10px
+    bindsym Left resize shrink width 10px
+    bindsym Down resize grow height 10px
+    bindsym Up resize shrink height 10px
+    bindsym Right resize grow width 10px
+    bindsym Return mode "default"
+    bindsym Escape mode "default"
+}
+bindsym $mod+r mode "resize"
 
 include /etc/sway/config.d/*

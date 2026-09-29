@@ -3,7 +3,7 @@
 # Check if wlsunset is installed
 if ! command -v wlsunset &> /dev/null
 then
-    notify-send "Night Mode" "wlsunset is not installed. Please install it with: sudo pacman -S wlsunset" -u critical
+    notify-send "Night Mode" "wlsunset is not installed. Please install it with: sudo apt install wlsunset" -u critical
     exit 1
 fi
 
