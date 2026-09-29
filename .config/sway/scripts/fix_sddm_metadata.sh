@@ -2,7 +2,7 @@
 # Script to fix SDDM theme metadata group header and update QML layout
 
 METADATA_TARGET="/usr/share/sddm/themes/gruvbox-minimal/metadata.desktop"
-QML_SOURCE="/home/hieunx/.config/sway/scripts/Main.qml"
+QML_SOURCE="$HOME/.config/sway/scripts/Main.qml"
 QML_TARGET="/usr/share/sddm/themes/gruvbox-minimal/Main.qml"
 
 if [ ! -f "$METADATA_TARGET" ]; then

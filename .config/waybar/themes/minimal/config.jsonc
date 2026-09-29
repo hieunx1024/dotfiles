@@ -89,7 +89,7 @@
     "spacing": 10,
   },
   "custom/vpn": {
-    "exec": "/home/hieunx/.config/waybar/scripts/vpn-status.sh",
+    "exec": "~/.config/waybar/scripts/vpn-status.sh",
     "exec-if": "ip link show tun0 up",
     "interval": 5,
     "return-type": "json",
@@ -114,8 +114,8 @@
       "speaker": ["󰕿", "󰖀", "󰕾"],
       "default": ["󰕿", "󰖀", "󰕾"],
     },
-    "on-scroll-up": "/home/hieunx/.config/sway/scripts/volume_up.sh",
-    "on-scroll-down": "/home/hieunx/.config/sway/scripts/volume_down.sh",
+    "on-scroll-up": "~/.config/sway/scripts/volume_up.sh",
+    "on-scroll-down": "~/.config/sway/scripts/volume_down.sh",
     "on-click": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle",
     "on-click-right": "pavucontrol",
     "tooltip": true,
@@ -160,14 +160,14 @@
     "tooltip-format-full": "󰁹 Pin đã sạc đầy (100%)\n󰚥 Đang cắm nguồn điện\n󰋑 Sức khỏe pin: {health}%",
   },
   "custom/power-profile": {
-    "exec": "/home/hieunx/.config/sway/scripts/power-profile.sh --status",
+    "exec": "~/.config/sway/scripts/power-profile.sh --status",
     "interval": 10,
     "signal": 2,
     "return-type": "json",
-    "on-click": "/home/hieunx/.config/sway/scripts/power-profile.sh --next",
-    "on-click-right": "/home/hieunx/.config/sway/scripts/power-profile.sh --menu",
-    "on-scroll-up": "/home/hieunx/.config/sway/scripts/power-profile.sh --prev",
-    "on-scroll-down": "/home/hieunx/.config/sway/scripts/power-profile.sh --next",
+    "on-click": "~/.config/sway/scripts/power-profile.sh --next",
+    "on-click-right": "~/.config/sway/scripts/power-profile.sh --menu",
+    "on-scroll-up": "~/.config/sway/scripts/power-profile.sh --prev",
+    "on-scroll-down": "~/.config/sway/scripts/power-profile.sh --next",
     "tooltip": true,
   },
   "clock": {
@@ -183,11 +183,11 @@
     }
   },
   "custom/backlight": {
-    "exec": "/home/hieunx/.config/waybar/scripts/brightness.sh",
+    "exec": "~/.config/waybar/scripts/brightness.sh",
     "interval": "once",
     "signal": 1,
     "return-type": "json",
-    "on-click": "/home/hieunx/.config/sway/scripts/night-mode.sh",
+    "on-click": "~/.config/sway/scripts/night-mode.sh",
     "on-scroll-up": "brightnessctl set +5% && pkill -RTMIN+1 waybar",
     "on-scroll-down": "brightnessctl set 5%- && pkill -RTMIN+1 waybar",
     "tooltip": true,
@@ -214,7 +214,7 @@
   },
   "custom/power": {
     "format": "",
-    "on-click": "/home/hieunx/.config/sway/scripts/powermenu.sh",
+    "on-click": "~/.config/sway/scripts/powermenu.sh",
     "tooltip": false,
   },
 }

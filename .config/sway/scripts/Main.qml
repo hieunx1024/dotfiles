@@ -79,7 +79,7 @@ Item {
 
             // User Welcome Label
             Text {
-                text: "Chào hieunx"
+                text: userModel.lastUser ? ("Chào " + userModel.lastUser) : "Xin chào"
                 font.family: "Inter"
                 font.pixelSize: 22
                 font.bold: true
@@ -287,7 +287,7 @@ Item {
     }
 
     function tryLogin() {
-        var username = userModel.lastUser ? userModel.lastUser : "hieunx";
+        var username = userModel.lastUser ? userModel.lastUser : "";
         errorMessage.text = "";
         sddm.login(username, passwordInput.text, sessionBox.currentIndex);
     }

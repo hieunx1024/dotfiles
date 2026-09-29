@@ -127,8 +127,7 @@ export SDKMAN_DIR="$HOME/.sdkman"
 
 
 # Custom Aliases & PATH
-export PATH="/home/hieunx/.local/bin:$PATH"
-alias vpn='sudo openvpn --config /home/hieunx/.config/openvpn/client-uat-cmc.ovpn'
+export PATH="$HOME/.local/bin:$PATH"
 
 # Neovim wrapper function: 'nvim -h' opens Neovim keybindings cheatsheet
 nvim() {
@@ -141,7 +140,7 @@ nvim() {
 
 alias v='nvim'
 alias vim='nvim'
-alias dotfiles='git --git-dir=/home/hieunx/.dotfiles/.git --work-tree=/home/hieunx/.dotfiles'
+alias dotfiles='git --git-dir=$HOME/.dotfiles/.git --work-tree=$HOME/.dotfiles'
 
 
 __set_prompt() {
@@ -172,3 +171,6 @@ export VISUAL="nvim"
 export PATH="$HOME/.local/go/bin:$HOME/go/bin:$PATH"
 . "$HOME/.cargo/env"
 export GSK_RENDERER=gl
+
+# Local customizations / private aliases (not tracked in git)
+[ -f "$HOME/.bashrc_local" ] && source "$HOME/.bashrc_local"

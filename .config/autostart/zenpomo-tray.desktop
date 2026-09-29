@@ -2,8 +2,9 @@
 Name=ZenPomo System Tray
 GenericName=Pomodoro Timer
 Comment=ZenPomo Background System Tray Monitor
-Exec=/home/hieunx/.local/bin/zenpomo tray
-Icon=/home/hieunx/.local/share/icons/hicolor/512x512/apps/zenpomo.png
+Exec=zenpomo tray
+TryExec=zenpomo
+Icon=zenpomo
 Terminal=false
 Type=Application
 Categories=Utility;Clock;

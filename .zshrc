@@ -89,7 +89,7 @@ done
 
 
 # Added by Antigravity CLI installer
-export PATH="/home/hieunx/.local/bin:$PATH"
+export PATH="$HOME/.local/bin:$PATH"
 export FZF_DEFAULT_OPTS="--preview 'bat --color=always --style=numbers --line-range=:500 {}'"
 
 
