@@ -10,24 +10,25 @@ DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 echo -e "${BLUE}${BOLD}=== Cài đặt dotfiles Sway (Ubuntu) từ $DOTFILES_DIR ===${NC}"
 
 # 1. Cài gói apt cần thiết
-echo -e "${YELLOW}[1/5]${NC} Cài gói apt..."
+echo -e "${YELLOW}[1/6]${NC} Cài gói apt..."
 APT_PACKAGES=(
-    sway waybar sway-notification-center kitty nautilus nwg-look
+    sway swaybg swayidle swaylock waybar sway-notification-center kitty nautilus nwg-look
     fuzzel wlogout
     fcitx5 fcitx5-config-qt fcitx5-bamboo fcitx5-frontend-gtk3 fcitx5-frontend-gtk4 fcitx5-frontend-qt5 fcitx5-frontend-qt6
     grim slurp swappy wl-clipboard cliphist
     brightnessctl playerctl wlsunset
     tmux htop
-    pavucontrol blueman
+    pavucontrol blueman wireplumber
     jq rsync fastfetch
     network-manager
-    pipx
+    policykit-1-gnome
+    pipx curl tar fonts-font-awesome
 )
 sudo apt update
 sudo apt install -y "${APT_PACKAGES[@]}"
 
 # 2. Cài app qua pipx (không có trong apt)
-echo -e "${YELLOW}[2/5]${NC} Cài waypaper qua pipx..."
+echo -e "${YELLOW}[2/6]${NC} Cài waypaper qua pipx..."
 pipx ensurepath
 pipx install waypaper || pipx upgrade waypaper
 
@@ -39,10 +40,36 @@ if [ -d "$WAYPAPER_VENV" ]; then
     cp -f "$WAYPAPER_VENV/share/icons/hicolor/scalable/apps/waypaper.svg" "$HOME/.local/share/icons/hicolor/scalable/apps/" 2>/dev/null || true
 fi
 
-echo -e "${YELLOW}${BOLD}Lưu ý:${NC} 'view-launcher' là project riêng của bạn (không có trong apt) — tự build/cài .deb riêng."
+# 3. Cài JetBrainsMono Nerd Font (để hiển thị icon Waybar, SwayNC, Terminal)
+echo -e "${YELLOW}[3/6]${NC} Kiểm tra JetBrainsMono Nerd Font..."
+if ! fc-list : family | grep -iq "JetBrainsMono Nerd Font"; then
+    echo "  -> Đang tải JetBrainsMono Nerd Font..."
+    FONT_DIR="$HOME/.local/share/fonts/JetBrainsMono"
+    mkdir -p "$FONT_DIR"
+    curl -fLo /tmp/JetBrainsMono.tar.xz https://github.com/ryanoasis/nerd-fonts/releases/latest/download/JetBrainsMono.tar.xz
+    tar -xf /tmp/JetBrainsMono.tar.xz -C "$FONT_DIR"
+    rm -f /tmp/JetBrainsMono.tar.xz
+    fc-cache -f
+    echo "  -> Đã cài đặt JetBrainsMono Nerd Font thành công."
+else
+    echo "  -> JetBrainsMono Nerd Font đã có sẵn."
+fi
 
-# 3. Symlink các thư mục .config vào repo
-echo -e "${YELLOW}[3/5]${NC} Tạo symlink .config..."
+# 4. Sao chép hình nền mẫu và cài đặt tmux plugin manager (tpm)
+echo -e "${YELLOW}[4/6]${NC} Thiết lập tài nguyên bổ trợ (wallpapers, tmux tpm)..."
+if [ -d "$DOTFILES_DIR/wallpapers" ]; then
+    mkdir -p "$HOME/Pictures/wallpapers"
+    cp -n "$DOTFILES_DIR/wallpapers/"* "$HOME/Pictures/wallpapers/" 2>/dev/null || true
+fi
+
+if [ ! -d "$HOME/.config/tmux/plugins/tpm" ]; then
+    git clone https://github.com/tmux-plugins/tpm "$HOME/.config/tmux/plugins/tpm" 2>/dev/null || true
+fi
+
+echo -e "${YELLOW}${BOLD}Lưu ý:${NC} 'view-launcher' là project riêng (không có trong apt) — tự build/cài .deb riêng nếu cần."
+
+# 5. Symlink các thư mục .config vào repo
+echo -e "${YELLOW}[5/6]${NC} Tạo symlink .config..."
 # Thư mục thuộc sở hữu riêng của dotfiles - symlink nguyên thư mục
 CONFIG_DIRS=(fcitx fcitx5 fuzzel nwg-look sway swaync waybar waypaper kitty nvim gtk-3.0 gtk-4.0 wlogout tmux)
 # Thư mục dùng chung với app khác (XDG autostart/environment.d) - chỉ symlink từng file bên trong,
@@ -105,8 +132,8 @@ for d in "${SHARED_DIRS[@]}"; do
     done
 done
 
-# 4. Symlink các dotfile ở top-level $HOME (trừ .gitconfig - giữ danh tính git riêng của máy)
-echo -e "${YELLOW}[4/5]${NC} Tạo symlink dotfile top-level..."
+# 6. Symlink các dotfile ở top-level $HOME (trừ .gitconfig - giữ danh tính git riêng của máy)
+echo -e "${YELLOW}[6/7]${NC} Tạo symlink dotfile top-level..."
 TOP_FILES=(.bashrc .gtkrc-2.0 .Xresources)
 for f in "${TOP_FILES[@]}"; do
     SRC="$DOTFILES_DIR/$f"
@@ -127,8 +154,8 @@ done
 
 echo -e "${YELLOW}${BOLD}Bỏ qua:${NC} .gitconfig (giữ danh tính git hiện có của máy, không ghi đè)."
 
-# 5. Thêm user vào group video (để brightnessctl hoạt động không cần sudo)
-echo -e "${YELLOW}[5/5]${NC} Thêm user vào group 'video'..."
+# 7. Thêm user vào group video (để brightnessctl hoạt động không cần sudo)
+echo -e "${YELLOW}[7/7]${NC} Thêm user vào group 'video'..."
 if ! groups "$USER" | grep -q '\bvideo\b'; then
     sudo usermod -aG video "$USER"
     echo -e "${YELLOW}Cần đăng xuất/đăng nhập lại (hoặc reboot) để group 'video' có hiệu lực.${NC}"
