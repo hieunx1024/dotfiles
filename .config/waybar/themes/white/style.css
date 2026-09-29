@@ -1,0 +1,311 @@
+/* =============================================================================
+ * WAYBAR PURE WHITE STYLESHEET (NỀN TRẮNG, CHỮ ĐEN)
+ * Clean, flat, minimalist design with natural spacing.
+ * ============================================================================= */
+
+@define-color bg0         #ffffff; /* Nền trắng tinh khiết */
+@define-color bg1         #f0f0f0;
+@define-color bg2         #e0e0e0;
+@define-color fg          #000000; /* Chữ đen tuyền */
+@define-color red         #d32f2f;
+@define-color green       #2e7d32;
+@define-color yellow      #f57f17;
+@define-color blue        #000000; /* Gạch chân đen sắc nét */
+@define-color purple      #7b1fa2;
+@define-color aqua        #0097a7;
+@define-color orange      #e65100;
+@define-color gray        #555555;
+@define-color darkgray    #999999;
+
+* {
+    font-family: "JetBrainsMono Nerd Font", "JetBrainsMono Nerd Font Propo", sans-serif;
+    font-size: 14px;
+    border: none;
+    border-radius: 0;
+}
+
+window#waybar {
+    background-color: @bg0;
+    color: @fg;
+    transition-property: background-color;
+    transition-duration: 0.5s;
+}
+
+window#waybar.hidden {
+    opacity: 0.2;
+}
+
+button {
+    box-shadow: inset 0 -2px transparent;
+    border: none;
+    border-radius: 0;
+    transition: all 0.2s ease-in-out;
+}
+
+button:hover {
+    background: transparent;
+}
+
+/* ================= WORKSPACES ================= */
+
+#workspaces button {
+    padding: 0 10px;
+    background-color: transparent;
+    color: @gray; /* Muted gray for inactive workspaces */
+}
+
+#workspaces button:hover {
+    color: @fg;
+    box-shadow: inset 0 -2px @gray;
+}
+
+#workspaces button.focused, 
+#workspaces button.active {
+    color: @blue;
+    box-shadow: inset 0 -2px @blue; /* Signature Gruvbox blue underline */
+    font-weight: bold;
+}
+
+#workspaces button.urgent {
+    color: @red;
+    box-shadow: inset 0 -2px @red;
+}
+
+/* ================= ACTIVE WINDOW ================= */
+
+#window {
+    color: @gray;
+    margin: 0 10px;
+    font-size: 13px;
+}
+
+/* ================= MODULE COMMON STYLE ================= */
+
+#clock,
+#battery,
+#cpu,
+#memory,
+#temperature,
+#backlight,
+#custom-backlight,
+#network,
+#bluetooth,
+#pulseaudio,
+#custom-media,
+#mpris,
+#idle_inhibitor,
+#custom-power,
+#custom-pomodoro,
+#custom-performance,
+#custom-power-profile,
+#power-profiles-daemon,
+#custom-fcitx5 {
+    padding: 0 12px;
+    color: @fg; /* Standard monochrome cream */
+}
+
+/* ================= INDIVIDUAL MODULES ================= */
+
+#clock {
+    color: @fg;
+    font-weight: bold;
+}
+
+#mpris {
+    color: @gray;
+    font-style: italic;
+    font-size: 13px;
+}
+
+#custom-pomodoro {
+    color: @orange;
+}
+
+#pulseaudio.muted {
+    color: @red;
+}
+
+#pulseaudio.bluetooth {
+    color: @blue;
+}
+
+#pulseaudio:hover,
+#custom-backlight:hover,
+#network:hover,
+#bluetooth:hover,
+#cpu:hover,
+#memory:hover,
+#idle_inhibitor:hover {
+    color: @yellow; /* Brighten/pop on hover */
+}
+
+#network.disconnected {
+    color: @red;
+}
+
+#bluetooth.off, 
+#bluetooth.disabled {
+    color: @gray;
+}
+
+
+/* ================= POWER PROFILES ================= */
+
+#power-profiles-daemon,
+#custom-power-profile {
+    padding: 0 10px;
+}
+
+#power-profiles-daemon:hover,
+#custom-power-profile:hover {
+    color: @yellow;
+}
+
+#power-profiles-daemon.performance,
+#custom-power-profile.performance {
+    color: @red;
+}
+
+#power-profiles-daemon.balanced,
+#custom-power-profile.balanced {
+    color: @blue;
+}
+
+#power-profiles-daemon.power-saver,
+#custom-power-profile.power-saver {
+    color: @green;
+}
+
+/* ================= BATTERY STATES ================= */
+
+#battery.charging, 
+#battery.plugged {
+    color: @green;
+}
+
+@keyframes blink {
+    to {
+        background-color: @red;
+        color: @bg0;
+    }
+}
+
+#battery.critical:not(.charging) {
+    background-color: transparent;
+    color: @red;
+    animation-name: blink;
+    animation-duration: 0.8s;
+    animation-timing-function: steps(12);
+    animation-iteration-count: infinite;
+    animation-direction: alternate;
+}
+
+/* ================= GROUPS & CAPSULES ================= */
+
+#idle_inhibitor,
+#hardware,
+#media,
+#connections,
+#energy,
+#traybar {
+    background-color: @bg1;
+    border: 1px solid @bg2;
+    border-radius: 8px;
+    padding: 0 4px;
+    margin: 2px 3px;
+}
+
+#idle_inhibitor {
+    padding: 0 10px;
+    color: @gray;
+}
+
+#idle_inhibitor.activated {
+    color: @yellow;
+}
+
+#idle_inhibitor:hover {
+    color: @yellow;
+}
+
+#hardware #cpu,
+#hardware #memory,
+#hardware #temperature,
+#media #pulseaudio,
+#media #custom-backlight,
+#connections #custom-vpn,
+#connections #network,
+#connections #bluetooth,
+#energy #custom-power-profile,
+#energy #battery,
+#traybar #tray {
+    padding: 0 8px;
+}
+
+/* ================= OTHER WIDGETS ================= */
+
+#tray {
+    padding: 0 4px;
+}
+
+#tray > .passive {
+    -gtk-icon-effect: dim;
+}
+
+#tray > .needs-attention {
+    -gtk-icon-effect: highlight;
+    background-color: @red;
+}
+
+
+
+#custom-vpn {
+    color: @green;
+    font-weight: normal;
+}
+
+#custom-notification {
+    padding: 0 8px;
+    color: @gray;
+}
+
+#custom-notification.notification {
+    color: @yellow;
+}
+
+#custom-notification.dnd-notification,
+#custom-notification.dnd-none {
+    color: @gray;
+}
+
+#custom-notification:hover {
+    color: @yellow;
+}
+
+#custom-power {
+    color: @red;
+    padding: 0 10px;
+    margin: 3px 6px 3px 2px;
+    border-radius: 6px;
+    transition: all 0.2s ease-in-out;
+}
+
+#custom-power:hover {
+    color: @bg0;
+    background-color: @red;
+}
+
+/* ================= TOOLTIPS & CALENDAR ================= */
+
+tooltip {
+    background-color: @bg1;
+    border: 1px solid @bg2;
+    border-radius: 6px;
+    padding: 8px;
+}
+
+tooltip label {
+    color: @fg;
+    font-family: "JetBrainsMono Nerd Font Propo", monospace;
+    font-size: 13px;
+}

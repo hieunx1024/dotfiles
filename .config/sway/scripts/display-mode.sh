@@ -28,17 +28,9 @@ PRIMARY_HEIGHT=${PRIMARY_HEIGHT:-1080}
 SECONDARY_WIDTH=${SECONDARY_WIDTH:-1920}
 SECONDARY_HEIGHT=${SECONDARY_HEIGHT:-1080}
 
-# 3. Các tùy chọn cho Menu Fuzzel (Sử dụng Nerd Font để tránh lỗi hiển thị trên Arch)
-ICON_LAPTOP=$(printf '\uf109')
-ICON_MONITOR=$(printf '\uf108')
-ICON_RIGHT=$(printf '\uf178')
-ICON_LEFT=$(printf '\uf177')
-ICON_UP=$(printf '\uf176')
-ICON_MIRROR=$(printf '\uf01e')
+OPTIONS="󰌢  Chỉ màn hình laptop     (Tắt màn hình ngoài)\n󰍹  Chỉ màn hình ngoài      (Tắt màn hình laptop)\n󰍺  Mở rộng sang phải       (Laptop ← | → Màn ngoài)\n󰍺  Mở rộng sang trái       (Màn ngoài ← | → Laptop)\n󰍺  Mở rộng lên trên        (Màn ngoài ↑ / ↓ Laptop)\n󰍻  Phản chiếu màn hình     (Nhân bản Mirror)"
 
-OPTIONS="$ICON_LAPTOP  Chỉ màn hình laptop\n$ICON_MONITOR  Chỉ màn hình ngoài (Tự động chuyển workspace & tắt laptop)\n$ICON_RIGHT  Mở rộng sang phải (Extend Right)\n$ICON_LEFT  Mở rộng sang trái (Extend Left)\n$ICON_UP  Mở rộng lên trên (Extend Up)\n$ICON_MIRROR  Phản chiếu màn hình (Mirror - kế thừa toàn bộ workspace)"
-
-CHOICE=$(echo -e "$OPTIONS" | fuzzel -d -p "Chọn chế độ màn hình: ")
+CHOICE=$(echo -e "$OPTIONS" | fuzzel -d -w 52 -l 6 -p "󰍹 Display Mode ❯ ")
 
 # Hàm dọn dẹp các tiến trình wl-mirror cũ
 cleanup_mirror() {

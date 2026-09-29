@@ -10,11 +10,11 @@ fi
 
 # Check if nightlight (wlsunset) is running
 if pgrep -x "wlsunset" > /dev/null; then
-    ICON="" # Moon icon for Night Light
+    ICON="󰖔" # Monoline Moon icon for Night Light
     CLASS="nightlight"
     TOOLTIP="Độ sáng: ${BRIGHTNESS}% | Night Light: Đang bật"
 else
-    ICON="" # Sun icon for normal mode
+    ICON="󰃠" # Monoline Sun icon for normal mode
     CLASS="normal"
     TOOLTIP="Độ sáng: ${BRIGHTNESS}% | Night Light: Đang tắt"
 fi

@@ -43,7 +43,7 @@ num_lines=$(echo "$rows" | wc -l)
 id=$(echo "$rows" | while IFS=$'\t' read -r ws wid appid title; do
     icon=$(resolve_icon "$appid")
     printf '%s\t[WS%s] %s — %s\x00icon\x1f%s\n' "$wid" "$ws" "$appid" "$title" "$icon"
-done | fuzzel -d -p "" --with-nth=2 --accept-nth=1 -l "$num_lines" -w "$max_len")
+done | fuzzel -d -p "󰖯 Switch ❯ " --with-nth=2 --accept-nth=1 -l "$num_lines" -w "$max_len")
 
 if [ -n "$id" ]; then
     sleep 0.1
