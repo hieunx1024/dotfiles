@@ -7,7 +7,7 @@
 #   theme-selector.sh <theme-name> (Directly applies theme)
 # =============================================================================
 
-DOTFILES="$HOME/Desktop/dotfiles/.config"
+DOTFILES="$HOME/.dotfiles/.config"
 
 # Danh sách theme và mô tả
 declare -A THEMES

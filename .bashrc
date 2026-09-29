@@ -141,7 +141,7 @@ nvim() {
 
 alias v='nvim'
 alias vim='nvim'
-alias dotfiles='git --git-dir=/home/hieunx/Desktop/dotfiles/.git --work-tree=/home/hieunx/Desktop/dotfiles'
+alias dotfiles='git --git-dir=/home/hieunx/.dotfiles/.git --work-tree=/home/hieunx/.dotfiles'
 
 
 __set_prompt() {
