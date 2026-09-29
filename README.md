@@ -7,8 +7,8 @@ Kho lưu trữ cấu hình môi trường Sway Window Manager và các công c�
 ## Khôi phục trên máy Ubuntu mới
 
 ```bash
-git clone -b ubuntu https://github.com/hieunx1024/dotfiles.git ~/Desktop/dotfiles
-cd ~/Desktop/dotfiles
+git clone -b ubuntu https://github.com/hieunx1024/dotfiles.git ~/.dotfiles
+cd ~/.dotfiles
 ./setup.sh
 ```
 
@@ -42,7 +42,7 @@ Không quản lý qua dotfiles (cần cấu hình riêng từng máy): `.gitconf
 
 ## Hướng dẫn sử dụng lệnh dotfiles
 
-Sử dụng lệnh `dotfiles` (alias trỏ tới repo tại `~/Desktop/dotfiles`) để quản lý cấu hình thay vì lệnh `git` thông thường:
+Sử dụng lệnh `dotfiles` (alias trỏ tới repo tại `~/.dotfiles`) để quản lý cấu hình thay vì lệnh `git` thông thường:
 
 ### Xem trạng thái thay đổi
 ```bash
