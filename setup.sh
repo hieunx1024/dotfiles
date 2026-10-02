@@ -154,6 +154,15 @@ done
 
 echo -e "${YELLOW}${BOLD}Bỏ qua:${NC} .gitconfig (giữ danh tính git hiện có của máy, không ghi đè)."
 
+# dbus service override (chọn đúng notification daemon theo desktop, xem chú thích trong file)
+for SRC in "$DOTFILES_DIR"/.local/share/dbus-1/services/*.service; do
+    [ -f "$SRC" ] || continue
+    DST="$HOME/.local/share/dbus-1/services/$(basename "$SRC")"
+    mkdir -p "$(dirname "$DST")"
+    ln -sfn "$SRC" "$DST"
+    echo "  -> Linked: ~/.local/share/dbus-1/services/$(basename "$SRC")"
+done
+
 # 7. Thêm user vào group video (để brightnessctl hoạt động không cần sudo)
 echo -e "${YELLOW}[7/7]${NC} Thêm user vào group 'video'..."
 if ! groups "$USER" | grep -q '\bvideo\b'; then
