@@ -24,8 +24,9 @@ libhyprgraphics-dev libhyprcursor-dev libharfbuzz-dev libfreetype-dev libfontcon
 libgles-dev libegl-dev libgl-dev libglx-dev x11proto-dev libx11-dev libxcb1-dev libxrender-dev
 libxext-dev libpng-dev libfribidi-dev libthai-dev libdatrie-dev libxft-dev libxau-dev
 libxdmcp-dev libxcb-render0-dev libxcb-shm0-dev libxcb-composite0-dev libxcb-errors-dev
-libxcb-icccm4-dev libxcb-res0-dev libxcb-xfixes0-dev libgraphite2-dev libbrotli-dev
-libbz2-dev libevdev-dev libmtdev-dev libwacom-dev libgudev-1.0-dev"
+libxcb-icccm4-dev libxcb-res0-dev libxcb-xfixes0-dev libxcb-shape0-dev libgraphite2-dev
+libbrotli-dev libbz2-dev libicu-dev libice-dev libsm-dev libpciaccess-dev xtrans-dev
+libevdev-dev libmtdev-dev libwacom-dev libgudev-1.0-dev"
 SYSROOT=$TMP/sysroot
 mkdir -p "$TMP/debs" && (cd "$TMP/debs" && apt-get download -q $DEVS >/dev/null)
 for d in "$TMP"/debs/*.deb; do dpkg-deb -x "$d" "$SYSROOT"; done
@@ -34,7 +35,8 @@ find "$SYSROOT" -name '*.pc' -exec sed -i -E \
     "s#^(prefix|exec_prefix|libdir|includedir|sharedlibdir)=/usr#\1=$SYSROOT/usr#" {} +
 export PKG_CONFIG_PATH=$SYSROOT/usr/lib/x86_64-linux-gnu/pkgconfig:$SYSROOT/usr/share/pkgconfig
 
-make -C "$TMP/src" all INCLUDES="$(pkg-config --cflags pixman-1 libdrm hyprland pangocairo \
-    libinput libudev wayland-server xkbcommon) -I$SYSROOT/usr/include"
+# Tách riêng để set -e dừng ngay nếu thiếu .pc (thay vì build với INCLUDES rỗng)
+CFLAGS=$(pkg-config --cflags pixman-1 libdrm hyprland pangocairo libinput libudev wayland-server xkbcommon)
+make -C "$TMP/src" all INCLUDES="$CFLAGS -I$SYSROOT/usr/include"
 install -D -m 0755 "$TMP/src/Hyprspace.so" "$OUT"
 echo "Đã cài $OUT - chạy 'hyprctl reload' để nạp."
