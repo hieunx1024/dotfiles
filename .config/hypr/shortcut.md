@@ -5,7 +5,8 @@
 - `Super+D` — launcher (fuzzel)
 - `Super+B` — firefox · `Super+E` — nautilus
 - `Super+V` — lịch sử clipboard
-- `Super+Tab` — chuyển cửa sổ
+- `Super+Tab` — overview mọi workspace (hyprexpo; click để chọn, Esc/Super+Tab để thoát) · vuốt 3 ngón dọc
+- `Super+Shift+Tab` — chuyển cửa sổ (fuzzel)
 - `Super+N` — trung tâm thông báo
 - `Super+I` — xem file này
 - `Super+Q` — đóng cửa sổ · `Super+Shift+Q` — kill -9

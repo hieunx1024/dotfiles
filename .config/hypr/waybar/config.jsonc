@@ -134,7 +134,8 @@
     "on-click": "kitty --app-id floating_btop -e btop",
   },
   "temperature": {
-    "hwmon-path": "/sys/class/hwmon/hwmon4/temp1_input",
+    "hwmon-path-abs": "/sys/devices/pci0000:00/0000:00:18.3/hwmon",
+    "input-filename": "temp1_input",
     "interval": 5,
     "critical-threshold": 90,
     "format": "󰔏 {temperatureC}°C",
