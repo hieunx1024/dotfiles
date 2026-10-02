@@ -1,7 +1,40 @@
+diff --git a/src/Globals.hpp b/src/Globals.hpp
+index 24b722d..770c7b6 100644
+--- a/src/Globals.hpp
++++ b/src/Globals.hpp
+@@ -63,3 +63,6 @@ namespace Config {
+ }
+ 
+ extern int numWorkspaces;
++
++// Đóng overview trên tất cả màn hình (giữ các màn đồng bộ khi thoát bằng click)
++void hideAllOverviews();
 diff --git a/src/Input.cpp b/src/Input.cpp
-index 49f2a05..25208ca 100644
+index 49f2a05..4f4ab74 100644
 --- a/src/Input.cpp
 +++ b/src/Input.cpp
+@@ -56,7 +56,7 @@ bool CHyprspaceWidget::buttonEvent(bool pressed, Vector2D coords) {
+         }
+         if (Config::switchOnDrop) {
+             g_pCompositor->getMonitorFromID(targetWorkspace->m_monitor->m_id)->changeWorkspace(targetWorkspace->m_id);
+-            if (Config::exitOnSwitch && active) hide();
++            if (Config::exitOnSwitch && active) hideAllOverviews();
+         }
+         updateLayout();
+     }
+@@ -67,10 +67,10 @@ bool CHyprspaceWidget::buttonEvent(bool pressed, Vector2D coords) {
+         else {
+             g_pCompositor->getMonitorFromID(targetWorkspace->m_monitor->m_id)->changeWorkspace(targetWorkspace->m_id);
+         }
+-        if (Config::exitOnSwitch && active) hide();
++        if (Config::exitOnSwitch && active) hideAllOverviews();
+     }
+     // click elsewhere to exit overview
+-    else if (Config::exitOnClick && targetWorkspace == nullptr && active && couldExit && !pressed) hide();
++    else if (Config::exitOnClick && targetWorkspace == nullptr && active && couldExit && !pressed) hideAllOverviews();
+ 
+     return Return;
+ }
 @@ -122,7 +122,9 @@ bool CHyprspaceWidget::beginSwipe(IPointer::SSwipeBeginEvent e) {
  }
  
@@ -64,11 +97,46 @@ index 263a9c5..bc0839f 100644
          const auto curRules = std::to_string(pMonitor->activeWorkspaceID()) + ", gapsin:" + std::to_string(Config::gapsIn) + ", gapsout:" + std::to_string(Config::gapsOut);
          if (Config::overrideGaps) g_pConfigManager->handleWorkspaceRules("", curRules);
          g_pLayoutManager->getCurrentLayout()->recalculateMonitor(ownerID);
+diff --git a/src/Render.cpp b/src/Render.cpp
+index a6aca0f..7827bff 100644
+--- a/src/Render.cpp
++++ b/src/Render.cpp
+@@ -103,8 +103,16 @@ void renderWindowStub(PHLWINDOW pWindow, PHLMONITOR pMonitor, PHLWORKSPACE pWork
+ 
+     g_pHyprRenderer->damageWindow(pWindow);
+ 
++    // CSurfacePassElement::opaqueRegion() bỏ qua render modif (dịch/thu nhỏ) nên thumbnail bị
++    // tính là phủ đục đúng vị trí cửa sổ thật -> CRenderPass::simplify() loại luôn cửa sổ thật
++    // của workspace active (vùng dưới panel trống). Alpha < 1 => opaqueRegion rỗng, không che ai.
++    const float oActiveInactiveAlpha = pWindow->m_activeInactiveAlpha->value();
++    pWindow->m_activeInactiveAlpha->setValueAndWarp(std::min(oActiveInactiveAlpha, 0.999F));
++
+     (*(tRenderWindow)pRenderWindow)(g_pHyprRenderer.get(), pWindow, pMonitor, time, true, RENDER_PASS_ALL, false, false);
+ 
++    pWindow->m_activeInactiveAlpha->setValueAndWarp(oActiveInactiveAlpha);
++
+     // restore values for normal window render
+     pWindow->m_workspace = oWorkspace;
+     pWindow->m_fullscreenState = oFullscreen;
 diff --git a/src/main.cpp b/src/main.cpp
-index 6853264..43d02ce 100644
+index 6853264..15701ec 100644
 --- a/src/main.cpp
 +++ b/src/main.cpp
-@@ -465,6 +465,15 @@ void registerMonitors() {
+@@ -322,6 +322,13 @@ void onTouchUp(void* thisptr, SCallbackInfo& info, std::any args) {
+     g_pTouchedMonitor = nullptr;
+ }
+ 
++void hideAllOverviews() {
++    for (auto& widget : g_overviewWidgets) {
++        if (widget != nullptr && widget->isActive())
++            widget->hide();
++    }
++}
++
+ static SDispatchResult dispatchToggleOverview(std::string arg) {
+     auto currentMonitor = g_pCompositor->getMonitorFromCursor();
+     auto widget = getWidgetForMonitor(currentMonitor);
+@@ -465,6 +472,15 @@ void registerMonitors() {
  APICALL EXPORT PLUGIN_DESCRIPTION_INFO PLUGIN_INIT(HANDLE inHandle) {
      pHandle = inHandle;
  

@@ -6,6 +6,9 @@
 #   - backport dac99cb: reserved area dồn tích mỗi lần mở/đóng -> ASSERT abort Hyprland
 #   - backport 700f613: gestures:workspace_swipe_fingers không còn ở 0.53 -> segfault khi vuốt
 #   - từ chối nạp khi lệch hash với Hyprland đang chạy (sau apt upgrade) thay vì crash
+#   - thumbnail không được tính là opaque: opaqueRegion() bỏ qua render modif nên thumbnail
+#     "che" đúng chỗ cửa sổ thật -> Hyprland loại cửa sổ thật của workspace active (vùng trống)
+#   - thoát bằng click đóng overview trên mọi màn (trước chỉ màn có chuột -> 2 màn lệch nhau)
 # Khi nâng Hyprland lên 0.54+: bỏ patch, chọn COMMIT theo hyprpm.toml của repo.
 set -euo pipefail
 COMMIT=${COMMIT:-bcd9692}
