@@ -1,18 +1,21 @@
 #!/bin/bash
-# Nạp plugin hyprexpo (sudo apt install hyprland-plugin-hyprexpo) rồi áp cấu hình.
-# Đặt bằng hyprctl thay vì khối plugin {} trong hyprland.conf: chưa cài plugin thì
-# config vẫn sạch lỗi. Gọi bằng `exec =` nên chạy lại sau mỗi lần reload.
-# Workspace thuộc về từng màn hình: chỉ liệt kê workspace của màn đang mở overview
-# (m~1 = workspace đầu tiên trên màn đó), tránh ô trống giả của màn kia.
-SO=/usr/lib/x86_64-linux-gnu/hyprland/plugins/libhyprexpo.so
-[ -f "$SO" ] || exit 0
+# Nạp plugin overview (gọi bằng `exec =`, chạy lại mỗi lần reload - đã nạp thì bỏ qua).
+# Cấu hình nằm ở hyprspace.conf; plugin tự reload config sau khi nạp nên áp dụng ngay.
+#   Hyprspace (ưu tiên): mọi màn cùng lúc - build bằng scripts/build-hyprspace.sh
+#   hyprexpo (dự phòng): sudo apt install hyprland-plugin-hyprexpo
+HYPRSPACE=$HOME/.local/lib/hyprland/Hyprspace.so
+HYPREXPO=/usr/lib/x86_64-linux-gnu/hyprland/plugins/libhyprexpo.so
+LOADED=$(hyprctl plugin list)
 
-hyprctl plugin list | grep -q hyprexpo || hyprctl plugin load "$SO" >/dev/null
-
-hyprctl --batch "\
-keyword plugin:hyprexpo:columns 3;\
-keyword plugin:hyprexpo:gap_size 6;\
-keyword plugin:hyprexpo:bg_col rgb(141414);\
-keyword plugin:hyprexpo:workspace_method first m~1;\
-keyword plugin:hyprexpo:skip_empty true;\
-keyword hyprexpo-gesture 3, vertical, expo" >/dev/null
+if [ -f "$HYPRSPACE" ]; then
+    grep -q hyprexpo <<<"$LOADED" && hyprctl plugin unload "$HYPREXPO" >/dev/null
+    grep -q Hyprspace <<<"$LOADED" && exit 0
+    hyprctl plugin load "$HYPRSPACE" >/dev/null
+elif [ -f "$HYPREXPO" ]; then
+    grep -q hyprexpo <<<"$LOADED" && exit 0
+    hyprctl plugin load "$HYPREXPO" >/dev/null
+else
+    exit 0
+fi
+# Nạp xong reload để plugin đọc khối plugin {} (lần exec sau thấy đã nạp -> thoát, không lặp)
+hyprctl reload >/dev/null

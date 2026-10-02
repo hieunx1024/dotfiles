@@ -5,7 +5,7 @@
 - `Super+D` — launcher (fuzzel)
 - `Super+B` — firefox · `Super+E` — nautilus
 - `Super+V` — lịch sử clipboard
-- `Super+Tab` — overview mọi workspace (hyprexpo; click để chọn, Esc/Super+Tab để thoát) · vuốt 3 ngón dọc
+- `Super+Tab` — overview mọi workspace trên mọi màn (Hyprspace; click workspace để chuyển, kéo cửa sổ thả sang workspace khác, Esc để thoát) · vuốt 3 ngón dọc
 - `Super+Shift+Tab` — chuyển cửa sổ (fuzzel)
 - `Super+N` — trung tâm thông báo
 - `Super+I` — xem file này
