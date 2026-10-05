@@ -140,7 +140,30 @@ nvim() {
 
 alias v='nvim'
 alias vim='nvim'
+
+if [ "$XDG_CURRENT_DESKTOP" = "Hyprland" ] && [ -f "$HOME/.config/hypr/scripts/nmtui-themed.sh" ]; then
+    alias nmtui="$HOME/.config/hypr/scripts/nmtui-themed.sh"
+elif [ -f "$HOME/.config/sway/scripts/nmtui-themed.sh" ]; then
+    alias nmtui="$HOME/.config/sway/scripts/nmtui-themed.sh"
+elif [ -f "$HOME/.config/hypr/scripts/nmtui-themed.sh" ]; then
+    alias nmtui="$HOME/.config/hypr/scripts/nmtui-themed.sh"
+fi
+
+# Theme libnewt (nmtui, whiptail) sang Graphite dark
+export NEWT_COLORS='root=lightgray,black:border=lightgray,black:window=lightgray,black:shadow=black,black:title=white,black:button=black,lightgray:actbutton=lightgray,black:checkbox=lightgray,black:actcheckbox=black,lightgray:entry=white,black:label=lightgray,black:listbox=lightgray,black:actlistbox=black,lightgray:textbox=lightgray,black:acttextbox=black,lightgray:helpline=gray,black:roottext=lightgray,black:emptyscale=gray,black:fullscale=lightgray,black:disentry=gray,black:compactbutton=black,lightgray:actsellistbox=black,lightgray'
+
+# logind bật KillUserProcesses=yes: đăng xuất/đổi phiên sẽ tắt mọi tiến trình của phiên cũ. Chạy tmux trong
+# scope riêng của systemd --user (ngoài phiên đăng nhập) để server tmux và mọi thứ trong nó sống sót qua
+# lúc đổi phiên. Đã ở trong tmux, hoặc không có systemd --user (TTY/ssh), thì gọi tmux bình thường.
+tmux() {
+    if [ -z "$TMUX" ] && [ -n "$XDG_SESSION_ID" ] && systemctl --user show-environment >/dev/null 2>&1; then
+        systemd-run --user --scope --quiet --collect -- tmux "$@"
+    else
+        command tmux "$@"
+    fi
+}
 alias dotfiles='git --git-dir=$HOME/.dotfiles/.git --work-tree=$HOME/.dotfiles'
+alias dotfiles-hypr='git --git-dir=$HOME/.dotfiles/.git --work-tree=$HOME/.dotfiles-hypr'
 
 
 __set_prompt() {

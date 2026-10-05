@@ -22,12 +22,23 @@ alias c='clear'
 alias e='exit'
 alias v='nvim'
 alias scf='cd ~/.config/sway/ && nvim .'
+alias hcf='cd ~/.config/hypr/ && nvim .'
 alias ss='source ~/.zshrc'
 alias ff='fastfetch'
 alias t='tmux attach || tmux'
 alias dotfiles='/usr/bin/git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'
 alias ya='yazi'
 alias snvim='sudo --preserve-env=WAYLAND_DISPLAY,XDG_RUNTIME_DIR nvim'
+if [ "$XDG_CURRENT_DESKTOP" = "Hyprland" ] && [ -f "$HOME/.config/hypr/scripts/nmtui-themed.sh" ]; then
+    alias nmtui="$HOME/.config/hypr/scripts/nmtui-themed.sh"
+elif [ -f "$HOME/.config/sway/scripts/nmtui-themed.sh" ]; then
+    alias nmtui="$HOME/.config/sway/scripts/nmtui-themed.sh"
+elif [ -f "$HOME/.config/hypr/scripts/nmtui-themed.sh" ]; then
+    alias nmtui="$HOME/.config/hypr/scripts/nmtui-themed.sh"
+fi
+
+# Theme libnewt (nmtui, whiptail) sang Graphite dark
+export NEWT_COLORS='root=lightgray,black:border=lightgray,black:window=lightgray,black:shadow=black,black:title=white,black:button=black,lightgray:actbutton=lightgray,black:checkbox=lightgray,black:actcheckbox=black,lightgray:entry=white,black:label=lightgray,black:listbox=lightgray,black:actlistbox=black,lightgray:textbox=lightgray,black:acttextbox=black,lightgray:helpline=gray,black:roottext=lightgray,black:emptyscale=gray,black:fullscale=lightgray,black:disentry=gray,black:compactbutton=black,lightgray:actsellistbox=black,lightgray'
 
 
 # Todo.txt shortcuts

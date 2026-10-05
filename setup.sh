@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# setup.sh - Cài đặt môi trường Sway đầy đủ trên máy Ubuntu mới, dựa trên dotfiles branch "ubuntu".
+# setup.sh - Cài đặt môi trường Sway đa nền tảng (Ubuntu, Debian, Fedora, Arch Linux)
 # Chạy sau khi đã clone repo: ./setup.sh
 
 set -e
@@ -7,28 +7,72 @@ set -e
 RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[0;33m'; BLUE='\033[0;34m'; BOLD='\033[1m'; NC='\033[0m'
 DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-echo -e "${BLUE}${BOLD}=== Cài đặt dotfiles Sway (Ubuntu) từ $DOTFILES_DIR ===${NC}"
+# Nhận diện Distro
+if [ -f /etc/os-release ]; then
+    . /etc/os-release
+    DISTRO_ID="${ID:-unknown}"
+    DISTRO_LIKE="${ID_LIKE:-$DISTRO_ID}"
+else
+    DISTRO_ID="unknown"
+    DISTRO_LIKE="unknown"
+fi
 
-# 1. Cài gói apt cần thiết
-echo -e "${YELLOW}[1/6]${NC} Cài gói apt..."
-APT_PACKAGES=(
-    sway swaybg swayidle swaylock waybar sway-notification-center kitty nautilus nwg-look
-    fuzzel wlogout
-    fcitx5 fcitx5-config-qt fcitx5-bamboo fcitx5-frontend-gtk3 fcitx5-frontend-gtk4 fcitx5-frontend-qt5 fcitx5-frontend-qt6
-    grim slurp swappy wl-clipboard cliphist
-    brightnessctl playerctl wlsunset
-    tmux htop
-    pavucontrol blueman wireplumber
-    jq rsync fastfetch
-    network-manager
-    policykit-1-gnome
-    pipx curl tar fonts-font-awesome
-)
-sudo apt update
-sudo apt install -y "${APT_PACKAGES[@]}"
+echo -e "${BLUE}${BOLD}=== Cài đặt dotfiles Sway từ $DOTFILES_DIR ===${NC}"
+echo -e "${BLUE}${BOLD}=== Phát hiện hệ điều hành: ${NAME:-$DISTRO_ID} ($DISTRO_ID) ===${NC}"
 
-# 2. Cài app qua pipx (không có trong apt)
-echo -e "${YELLOW}[2/6]${NC} Cài waypaper qua pipx..."
+# 1. Cài đặt các gói hệ thống theo distro
+echo -e "${YELLOW}[1/7]${NC} Cài đặt gói hệ thống..."
+if [[ "$DISTRO_LIKE" == *"debian"* ]] || [[ "$DISTRO_LIKE" == *"ubuntu"* ]]; then
+    sudo apt update
+    sudo apt install -y \
+        sway swaybg swayidle swaylock waybar sway-notification-center kitty nautilus nwg-look \
+        fuzzel wlogout \
+        fcitx5 fcitx5-config-qt fcitx5-bamboo fcitx5-frontend-gtk3 fcitx5-frontend-gtk4 fcitx5-frontend-qt5 fcitx5-frontend-qt6 \
+        grim slurp swappy wl-clipboard cliphist \
+        brightnessctl playerctl wlsunset \
+        tmux htop \
+        pavucontrol blueman wireplumber \
+        jq rsync fastfetch python3 python3-pip python3-venv \
+        network-manager \
+        policykit-1-gnome \
+        pipx curl tar fonts-font-awesome
+elif [[ "$DISTRO_LIKE" == *"fedora"* ]] || [[ "$DISTRO_ID" == "fedora" ]]; then
+    sudo dnf install -y \
+        sway swaybg swayidle swaylock waybar kitty nautilus nwg-look \
+        fuzzel wlogout \
+        fcitx5 fcitx5-configtool fcitx5-bamboo fcitx5-gtk fcitx5-qt \
+        grim slurp swappy wl-clipboard cliphist \
+        brightnessctl playerctl wlsunset \
+        tmux htop \
+        pavucontrol blueman wireplumber \
+        jq rsync fastfetch python3 python3-pip python3-virtualenv \
+        NetworkManager \
+        polkit-gnome \
+        pipx curl tar fontawesome-fonts
+    if ! command -v swaync &>/dev/null; then
+        echo "  -> Đang kiểm tra/cài đặt swaync qua copr..."
+        sudo dnf copr enable -y erikreider/swaync 2>/dev/null || true
+        sudo dnf install -y swaync 2>/dev/null || true
+    fi
+elif [[ "$DISTRO_LIKE" == *"arch"* ]] || [[ "$DISTRO_ID" == "arch" ]]; then
+    sudo pacman -S --needed --noconfirm \
+        sway swaybg swayidle swaylock waybar swaync kitty nautilus nwg-look \
+        fuzzel wlogout \
+        fcitx5 fcitx5-configtool fcitx5-bamboo fcitx5-gtk fcitx5-qt \
+        grim slurp swappy wl-clipboard cliphist \
+        brightnessctl playerctl wlsunset \
+        tmux htop \
+        pavucontrol blueman wireplumber \
+        jq rsync fastfetch python python-pip \
+        networkmanager \
+        polkit-gnome \
+        python-pipx curl tar ttf-font-awesome
+else
+    echo -e "${YELLOW}Cảnh báo: Chưa có danh sách gói tự động cho distro: $DISTRO_ID. Bỏ qua bước cài gói.${NC}"
+fi
+
+# 2. Cài app qua pipx (không có trong repo chính thức hoặc cần bản mới nhất)
+echo -e "${YELLOW}[2/7]${NC} Cài waypaper qua pipx..."
 pipx ensurepath
 pipx install waypaper || pipx upgrade waypaper
 
@@ -41,7 +85,7 @@ if [ -d "$WAYPAPER_VENV" ]; then
 fi
 
 # 3. Cài JetBrainsMono Nerd Font (để hiển thị icon Waybar, SwayNC, Terminal)
-echo -e "${YELLOW}[3/6]${NC} Kiểm tra JetBrainsMono Nerd Font..."
+echo -e "${YELLOW}[3/7]${NC} Kiểm tra JetBrainsMono Nerd Font..."
 if ! fc-list : family | grep -iq "JetBrainsMono Nerd Font"; then
     echo "  -> Đang tải JetBrainsMono Nerd Font..."
     FONT_DIR="$HOME/.local/share/fonts/JetBrainsMono"
@@ -56,7 +100,7 @@ else
 fi
 
 # 4. Sao chép hình nền mẫu và cài đặt tmux plugin manager (tpm)
-echo -e "${YELLOW}[4/6]${NC} Thiết lập tài nguyên bổ trợ (wallpapers, tmux tpm)..."
+echo -e "${YELLOW}[4/7]${NC} Thiết lập tài nguyên bổ trợ (wallpapers, tmux tpm)..."
 if [ -d "$DOTFILES_DIR/wallpapers" ]; then
     mkdir -p "$HOME/Pictures/wallpapers"
     cp -n "$DOTFILES_DIR/wallpapers/"* "$HOME/Pictures/wallpapers/" 2>/dev/null || true
@@ -66,14 +110,11 @@ if [ ! -d "$HOME/.config/tmux/plugins/tpm" ]; then
     git clone https://github.com/tmux-plugins/tpm "$HOME/.config/tmux/plugins/tpm" 2>/dev/null || true
 fi
 
-echo -e "${YELLOW}${BOLD}Lưu ý:${NC} 'view-launcher' là project riêng (không có trong apt) — tự build/cài .deb riêng nếu cần."
+echo -e "${YELLOW}${BOLD}Lưu ý:${NC} 'view-launcher' (https://github.com/hieunx1024/view-launcher) là project riêng — tự build/cài nếu cần."
 
 # 5. Symlink các thư mục .config vào repo
-echo -e "${YELLOW}[5/6]${NC} Tạo symlink .config..."
-# Thư mục thuộc sở hữu riêng của dotfiles - symlink nguyên thư mục
+echo -e "${YELLOW}[5/7]${NC} Tạo symlink .config..."
 CONFIG_DIRS=(fcitx fcitx5 fuzzel nwg-look sway swaync waybar waypaper kitty nvim gtk-3.0 gtk-4.0 wlogout tmux)
-# Thư mục dùng chung với app khác (XDG autostart/environment.d) - chỉ symlink từng file bên trong,
-# tránh nuốt mất entry của app khác không thuộc dotfiles
 SHARED_DIRS=(autostart environment.d)
 
 BACKUP_DIR="$HOME/.dotfiles-setup-backup-$(date +%Y%m%d%H%M%S)"
@@ -85,7 +126,6 @@ for d in "${CONFIG_DIRS[@]}"; do
     [ -d "$SRC" ] || continue
 
     if [ -L "$DST" ]; then
-        # Đã là symlink, kiểm tra đúng đích chưa
         if [ "$(readlink -f "$DST")" = "$(readlink -f "$SRC")" ]; then
             continue
         fi
@@ -100,15 +140,13 @@ for d in "${CONFIG_DIRS[@]}"; do
 done
 
 # Shortcut cheatsheet link
-[ -f "$HOME/.config/sway/shortcut.md" ] && ln -sfn "$HOME/.config/sway/shortcut.md" "$HOME/.config/shortcut.md"
+[ -f "$DOTFILES_DIR/.config/sway/shortcut.md" ] && ln -sfn "$DOTFILES_DIR/.config/sway/shortcut.md" "$HOME/.config/shortcut.md"
 
 for d in "${SHARED_DIRS[@]}"; do
     SRC_DIR="$DOTFILES_DIR/.config/$d"
     DST_DIR="$HOME/.config/$d"
     [ -d "$SRC_DIR" ] || continue
 
-    # An toàn: nếu cả thư mục từng bị symlink nhầm (vd chạy bản script cũ), gỡ ra
-    # thành thư mục thật trước khi symlink từng file - tránh vòng lặp symlink tự trỏ vào chính nó.
     if [ -L "$DST_DIR" ]; then
         rm "$DST_DIR"
     fi
@@ -132,9 +170,9 @@ for d in "${SHARED_DIRS[@]}"; do
     done
 done
 
-# 6. Symlink các dotfile ở top-level $HOME (trừ .gitconfig - giữ danh tính git riêng của máy)
+# 6. Symlink các dotfile ở top-level $HOME (trừ .gitconfig)
 echo -e "${YELLOW}[6/7]${NC} Tạo symlink dotfile top-level..."
-TOP_FILES=(.bashrc .gtkrc-2.0 .Xresources)
+TOP_FILES=(.bashrc .zshrc .gtkrc-2.0 .Xresources)
 for f in "${TOP_FILES[@]}"; do
     SRC="$DOTFILES_DIR/$f"
     DST="$HOME/$f"
@@ -152,15 +190,30 @@ for f in "${TOP_FILES[@]}"; do
     echo "  -> Linked: ~/$f"
 done
 
-echo -e "${YELLOW}${BOLD}Bỏ qua:${NC} .gitconfig (giữ danh tính git hiện có của máy, không ghi đè)."
+# dbus service override
+for SRC in "$DOTFILES_DIR"/.local/share/dbus-1/services/*.service; do
+    [ -f "$SRC" ] || continue
+    DST="$HOME/.local/share/dbus-1/services/$(basename "$SRC")"
+    if [ -e "$DST" ] || [ -L "$DST" ]; then
+        echo "  -> Giữ nguyên: ~/.local/share/dbus-1/services/$(basename "$SRC") (đã tồn tại)"
+        continue
+    fi
+    mkdir -p "$(dirname "$DST")"
+    ln -s "$SRC" "$DST"
+    echo "  -> Linked: ~/.local/share/dbus-1/services/$(basename "$SRC")"
+done
 
-# 7. Thêm user vào group video (để brightnessctl hoạt động không cần sudo)
-echo -e "${YELLOW}[7/7]${NC} Thêm user vào group 'video'..."
-if ! groups "$USER" | grep -q '\bvideo\b'; then
-    sudo usermod -aG video "$USER"
-    echo -e "${YELLOW}Cần đăng xuất/đăng nhập lại (hoặc reboot) để group 'video' có hiệu lực.${NC}"
+# 7. Cấu hình quyền phần cứng (chỉ cần thiết trên Ubuntu/Debian)
+if [[ "$DISTRO_LIKE" == *"debian"* ]] || [[ "$DISTRO_LIKE" == *"ubuntu"* ]]; then
+    echo -e "${YELLOW}[7/7]${NC} Kiểm tra group 'video' (Ubuntu/Debian)..."
+    if ! groups "$USER" | grep -q '\bvideo\b'; then
+        sudo usermod -aG video "$USER"
+        echo -e "${YELLOW}Cần đăng xuất/đăng nhập lại (hoặc reboot) để group 'video' có hiệu lực.${NC}"
+    else
+        echo "  -> Đã có sẵn trong group video."
+    fi
 else
-    echo "  -> Đã có sẵn trong group video."
+    echo -e "${YELLOW}[7/7]${NC} Bỏ qua group 'video' ($DISTRO_ID quản lý quyền thiết bị qua systemd-logind/seat tự động)."
 fi
 
 echo -e "${GREEN}${BOLD}=== Hoàn tất! ===${NC}"
