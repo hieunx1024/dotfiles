@@ -1,53 +1,59 @@
-# Sway Window Manager Dotfiles
+# dotfiles
 
-Kho lưu trữ cấu hình môi trường Sway Window Manager và các công cụ phát triển liên quan. Repository được quản lý bằng phương pháp Bare Git Repository sạch sẽ và tối giản.
+Personal Linux dotfiles for Wayland compositors (Sway & Hyprland), supporting Ubuntu/Debian, Fedora, and Arch.
 
-## Khôi phục trên máy mới
+The repository uses dedicated branches for each environment to keep configurations isolated:
 
-Chạy lệnh duy nhất sau trên terminal của máy mới (yêu cầu cài đặt sẵn Git):
+| Branch | Compositor | Description |
+|---|---|---|
+| [`sway`](https://github.com/hieunx1024/dotfiles/tree/sway) | Sway WM | Standard i3-style workflow, lightweight, rock-solid. |
+| [`hypr`](https://github.com/hieunx1024/dotfiles/tree/hypr) | Hyprland | Modern animations, custom daemons, self-contained app configs. |
 
+---
+
+## Quickstart
+
+Clone the branch you need:
+
+### Sway
 ```bash
-curl -sSL https://raw.githubusercontent.com/hieunx1024/dotfiles/main/bootstrap.sh | bash
+git clone -b sway https://github.com/hieunx1024/dotfiles.git ~/.dotfiles
+cd ~/.dotfiles
+./setup.sh
 ```
 
-*Lưu ý: Kịch bản khôi phục sẽ tự động di chuyển các tệp cấu hình mặc định bị trùng tên vào thư mục sao lưu `~/.dotfiles-backup-<timestamp>/` trước khi thực hiện checkout.*
-
-## Danh sách cấu hình được quản lý
-
-*   **Sway**: `~/.config/sway/` (Cấu hình chính, phím tắt, hiển thị)
-*   **SwayNC**: `~/.config/swaync/` (Trung tâm thông báo)
-*   **Waybar**: `~/.config/waybar/` (Thanh trạng thái)
-*   **Fuzzel**: `~/.config/fuzzel/` (Menu ứng dụng)
-*   **Waypaper**: `~/.config/waypaper/` (Trình đổi hình nền)
-*   **Neovim**: `~/.config/nvim/` (Cấu hình trình soạn thảo code)
-*   **Tmux**: `~/.config/tmux/` (Trình quản lý phiên terminal)
-*   **Kitty**: `~/.config/kitty/` (Terminal emulator)
-*   **GTK Themes & Yay**: `~/.config/nwg-look/`, `~/.config/gtk-3.0/`, `~/.config/gtk-4.0/`, `~/.config/yay/`
-*   **Bộ gõ**: `~/.config/fcitx/`, `~/.config/fcitx5/`
-*   **Shell profiles**: `.bashrc`, `.bashrc_custom`, `.bash_profile`, `.zshrc`, `.zprofile`, `.zshenv`
-*   **Git**: `.gitconfig`
-*   **Khác**: `.gtkrc-2.0`, `.Xresources`
-
-## Hướng dẫn sử dụng lệnh dotfiles
-
-Sử dụng lệnh `dotfiles` (alias trỏ tới bare repo) để quản lý cấu hình thay vì lệnh `git` thông thường:
-
-### Xem trạng thái thay đổi
+### Hyprland
 ```bash
-dotfiles status
+git clone -b hypr https://github.com/hieunx1024/dotfiles.git ~/.dotfiles-hypr
+cd ~/.dotfiles-hypr
+./setup.sh
 ```
 
-### Thêm tệp cấu hình mới
+`setup.sh` detects your package manager (`apt`, `dnf`, `pacman`), installs packages, sets up fonts, symlinks configs into `~/.config/`, and configures the polkit agent.
+
+Note: `.gitconfig` is kept machine-local. [`view-launcher`](https://github.com/hieunx1024/view-launcher) is an optional personal Rust project that can be built separately if needed.
+
+---
+
+## Dual Setup via Git Worktree
+
+To run both Sway and Hyprland side-by-side on the same machine:
+
 ```bash
-dotfiles add -f <đường_dẫn_tệp_hoặc_thư_mục>
+git clone -b sway https://github.com/hieunx1024/dotfiles.git ~/.dotfiles
+git -C ~/.dotfiles worktree add ~/.dotfiles-hypr hypr
+
+~/.dotfiles/setup.sh
+~/.dotfiles-hypr/setup.sh
 ```
 
-### Lưu thay đổi cục bộ
-```bash
-dotfiles commit -m "Mô tả thay đổi"
-```
+- Sway uses `~/.config/sway/` and default paths in `~/.config/`.
+- Hyprland keeps its configs isolated under `~/.config/hypr/` (`waybar`, `apps/`, `scripts/`).
+- Neovim, Tmux, Fcitx5, and shell configs (`.bashrc`, `.zshrc`) are shared and kept identical between both branches.
 
-### Đồng bộ lên GitHub
-```bash
-dotfiles push origin main
-```
+---
+
+## Management Aliases
+
+- `dotfiles`: Manage Sway worktree
+- `dotfiles-hypr`: Manage Hyprland worktree
