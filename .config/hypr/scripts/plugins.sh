@@ -16,13 +16,13 @@ for p in \
 done
 LOADED=$(hyprctl plugin list)
 
-if [ -f "$HYPRSPACE" ]; then
-    grep -q hyprexpo <<<"$LOADED" && hyprctl plugin unload "$HYPREXPO" >/dev/null
-    grep -q Hyprspace <<<"$LOADED" && exit 0
-    hyprctl plugin load "$HYPRSPACE" >/dev/null
-elif [ -f "$HYPREXPO" ]; then
+if [ -f "$HYPREXPO" ]; then
+    grep -q Hyprspace <<<"$LOADED" && hyprctl plugin unload "$HYPRSPACE" >/dev/null
     grep -q hyprexpo <<<"$LOADED" && exit 0
     hyprctl plugin load "$HYPREXPO" >/dev/null
+elif [ -f "$HYPRSPACE" ]; then
+    grep -q hyprexpo <<<"$LOADED" && exit 0
+    hyprctl plugin load "$HYPRSPACE" >/dev/null
 else
     exit 0
 fi
