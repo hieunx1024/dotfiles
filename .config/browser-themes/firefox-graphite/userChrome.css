@@ -1,0 +1,71 @@
+/* Graphite — đồng bộ Hyprland, Claude và ChatGPT. */
+:root {
+  color-scheme: dark !important;
+  --lwt-accent-color: #181818 !important;
+  --lwt-text-color: #dedcd1 !important;
+  --toolbar-bgcolor: #1c1c1c !important;
+  --toolbar-color: #dedcd1 !important;
+  --toolbar-field-background-color: #242424 !important;
+  --toolbar-field-color: #faf9f5 !important;
+  --toolbar-field-border-color: #2d2d2d !important;
+  --toolbar-field-focus-background-color: #181818 !important;
+  --toolbar-field-focus-color: #faf9f5 !important;
+  --toolbar-field-focus-border-color: #9c9a92 !important;
+  --tab-selected-bgcolor: #2d2d2d !important;
+  --tab-selected-textcolor: #faf9f5 !important;
+  --tab-loading-fill: #dedcd1 !important;
+  --focus-outline-color: #9c9a92 !important;
+  --arrowpanel-background: #1c1c1c !important;
+  --arrowpanel-color: #dedcd1 !important;
+  --arrowpanel-border-color: #2d2d2d !important;
+  --button-hover-bgcolor: rgba(255, 255, 255, 0.08) !important;
+  --button-active-bgcolor: rgba(255, 255, 255, 0.14) !important;
+}
+
+#navigator-toolbox {
+  background-color: #181818 !important;
+  color: #dedcd1 !important;
+  border-color: #2d2d2d !important;
+}
+
+#TabsToolbar {
+  background-color: #181818 !important;
+  color: #dedcd1 !important;
+  border-color: #2d2d2d !important;
+}
+
+#nav-bar,
+#PersonalToolbar {
+  background-color: #1c1c1c !important;
+  color: #dedcd1 !important;
+  border-color: #2d2d2d !important;
+}
+
+#urlbar-background,
+#searchbar {
+  background-color: #242424 !important;
+  border-color: #2d2d2d !important;
+  color: #faf9f5 !important;
+}
+
+#urlbar[focused] > #urlbar-background {
+  border-color: #9c9a92 !important;
+  box-shadow: 0 0 0 1px #9c9a92 !important;
+}
+
+.tabbrowser-tab[selected] .tab-background {
+  background-color: #2d2d2d !important;
+  box-shadow: none !important;
+}
+
+.tabbrowser-tab:not([selected]):hover .tab-background {
+  background-color: #242424 !important;
+}
+
+menupopup,
+panelview,
+.panel-arrowcontent {
+  --panel-background: #1c1c1c !important;
+  --panel-color: #dedcd1 !important;
+  --panel-border-color: #2d2d2d !important;
+}

@@ -1,0 +1,23 @@
+{
+  "manifest_version": 3,
+  "name": "Graphite — Claude & ChatGPT",
+  "description": "Graphite palette shared by the Hyprland, Claude and ChatGPT desktop setup.",
+  "version": "1.0.0",
+  "theme": {
+    "colors": {
+      "frame": [24, 24, 24],
+      "frame_inactive": [24, 24, 24],
+      "toolbar": [28, 28, 28],
+      "toolbar_text": [222, 220, 209],
+      "tab_text": [250, 249, 245],
+      "tab_background_text": [156, 154, 146],
+      "bookmark_text": [222, 220, 209],
+      "ntp_background": [24, 24, 24],
+      "ntp_text": [222, 220, 209],
+      "button_background": [45, 45, 45]
+    },
+    "tints": {
+      "buttons": [-1, -1, 0.82]
+    }
+  }
+}

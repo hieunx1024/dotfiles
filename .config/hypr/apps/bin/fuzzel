@@ -1,0 +1,5 @@
+#!/bin/sh
+# Hyprland đặt thư mục này đầu PATH: mọi lệnh fuzzel trong phiên Hyprland dùng cấu hình riêng.
+# Gọi thẳng /usr/bin/fuzzel nếu đã truyền --config.
+case " $* " in *" --config"*) exec /usr/bin/fuzzel "$@" ;; esac
+exec /usr/bin/fuzzel --config "$HOME/.config/hypr/apps/fuzzel/fuzzel.ini" "$@"

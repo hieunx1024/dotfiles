@@ -1,0 +1,5 @@
+#!/bin/sh
+# waypaper trong Hyprland: config + hình nền đang dùng (state.ini) riêng, không đổi hình nền của sway.
+case " $* " in *" --config-file"*|*" --state-file"*) exec "$HOME/.local/bin/waypaper" "$@" ;; esac
+exec "$HOME/.local/bin/waypaper" --config-file "$HOME/.config/hypr/apps/waypaper/config.ini" \
+    --state-file "$HOME/.config/hypr/apps/waypaper/state.ini" "$@"

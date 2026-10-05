@@ -1,0 +1,32 @@
+/* Giữ trang nội bộ của Firefox cùng palette Graphite; website thường vẫn dùng theme của chính nó. */
+@-moz-document url-prefix("about:"), url-prefix("chrome://") {
+  :root {
+    color-scheme: dark !important;
+    --in-content-page-background: #242424 !important;
+    --in-content-page-color: #dedcd1 !important;
+    --in-content-box-background: #2d2d2d !important;
+    --in-content-box-border-color: #3a3a3a !important;
+    --in-content-primary-button-background: #2d2d2d !important;
+    --in-content-primary-button-background-hover: #3a3a3a !important;
+    --in-content-focus-outline-color: #9c9a92 !important;
+    --in-content-link-color: #c2c0b6 !important;
+  }
+}
+
+@-moz-document url("about:newtab"), url("about:home"), url("about:privatebrowsing") {
+  :root {
+    --newtab-background-color: #242424 !important;
+    --newtab-background-color-secondary: #2d2d2d !important;
+    --newtab-text-primary-color: #dedcd1 !important;
+    --newtab-text-secondary-color: #9c9a92 !important;
+    --newtab-element-hover-color: #3a3a3a !important;
+  }
+
+  html,
+  body,
+  #root,
+  .outer-wrapper {
+    background-color: #242424 !important;
+    color: #dedcd1 !important;
+  }
+}

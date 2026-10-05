@@ -1,0 +1,319 @@
+/* =============================================================================
+ * WAYBAR MINIMAL RICE - FLOATING ISLAND CAPSULES (HYPRLAND)
+ * Thanh bar trong suốt, chỉ nổi các cụm viên thuốc (pill islands) độc lập
+ * ============================================================================= */
+
+@import url("colors.css");
+
+* {
+    font-family: "JetBrainsMono Nerd Font", "JetBrainsMono Nerd Font Propo", sans-serif;
+    font-size: 11.5px;
+    font-weight: 600;
+    border: none;
+    border-radius: 0;
+    min-height: 0;
+    box-shadow: none;
+    text-shadow: none;
+}
+
+/* Thanh bar nền hoàn toàn trong suốt ở các khoảng trống */
+window#waybar {
+    background-color: transparent;
+    background: transparent;
+    color: @fg;
+    border: none;
+    box-shadow: none;
+}
+
+window#waybar.hidden {
+    opacity: 0.2;
+}
+
+/* =============================================================================
+ * 1. LEFT ISLAND: WORKSPACES & SUBMAP
+ * ============================================================================= */
+#workspaces {
+    background-color: transparent;
+    background: transparent;
+    border: none;
+    padding: 0;
+    margin: 0;
+}
+
+/* Ô Workspace hình tròn xoe hoàn hảo, đơn lẻ, không lồng 2 lớp */
+#workspaces button {
+    padding: 0;
+    margin: 0 2px;
+    min-width: 20px;
+    min-height: 20px;
+    border-radius: 50%;
+    font-size: 10.5px;
+    font-weight: 700;
+    background-color: rgba(28, 28, 28, 0.75);
+    border: 1px solid rgba(222, 220, 209, 0.15);
+    color: #9c9a92;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#workspaces button:hover {
+    background-color: rgba(45, 45, 45, 0.95);
+    border-color: rgba(222, 220, 209, 0.3);
+    color: @fg;
+}
+
+#workspaces button.visible {
+    background-color: rgba(45, 45, 45, 0.85);
+    border: 1px solid rgba(222, 220, 209, 0.4);
+    color: @fg;
+    font-weight: 700;
+}
+
+#workspaces button.focused,
+#workspaces button.active {
+    background-color: rgba(65, 65, 65, 0.95);
+    border: 1.5px solid rgba(250, 249, 245, 0.9);
+    color: #ffffff;
+    font-weight: 800;
+}
+
+#workspaces button.urgent {
+    background-color: @red;
+    border-color: @red;
+    color: @bg0;
+}
+
+/* Hyprland Submap (Resize, v.v.) */
+#submap {
+    background-color: @orange;
+    color: @bg0;
+    font-weight: bold;
+    border-radius: 999px;
+    padding: 0 8px;
+    font-size: 10px;
+    margin-left: 4px;
+}
+
+/* Group Tabs Container & Discrete Buttons */
+#grouptabs {
+    background: transparent;
+    border: none;
+    padding: 0;
+    margin-left: 26px;
+}
+
+#custom-tab1,
+#custom-tab2,
+#custom-tab3,
+#custom-tab4,
+#custom-tab5 {
+    padding: 0 8px;
+    margin: 0 2px;
+    border-radius: 999px;
+    background-color: rgba(28, 28, 28, 0.75);
+    border: 1px solid rgba(222, 220, 209, 0.15);
+    color: #9c9a92;
+    font-size: 11px;
+    font-weight: 700;
+    transition: background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.2s cubic-bezier(0.4, 0, 0.2, 1), color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#custom-tab1:hover,
+#custom-tab2:hover,
+#custom-tab3:hover,
+#custom-tab4:hover,
+#custom-tab5:hover {
+    background-color: rgba(45, 45, 45, 0.95);
+    border-color: rgba(222, 220, 209, 0.3);
+    color: @fg;
+}
+
+/* Active Tab Highlight - Matching Workspace Active Style */
+#custom-tab1.active,
+#custom-tab2.active,
+#custom-tab3.active,
+#custom-tab4.active,
+#custom-tab5.active {
+    background-color: rgba(65, 65, 65, 0.95);
+    border-color: rgba(250, 249, 245, 0.9);
+    color: #ffffff;
+}
+
+/* Single Window (not in group) */
+#custom-tab1.single {
+    background-color: rgba(65, 65, 65, 0.95);
+    border-color: rgba(250, 249, 245, 0.9);
+    color: #ffffff;
+    font-weight: 800;
+    padding: 0 8px;
+}
+
+/* Empty Tab (hidden) */
+#custom-tab1.empty,
+#custom-tab2.empty,
+#custom-tab3.empty,
+#custom-tab4.empty,
+#custom-tab5.empty {
+    padding: 0;
+    margin: 0;
+    border: none;
+    background: transparent;
+}
+
+/* =============================================================================
+ * 2. CENTER ISLAND: CLOCK & NOTIFICATION
+ * ============================================================================= */
+#center,
+.group-center,
+.center {
+    background-color: rgba(28, 28, 28, 0.92);
+    border: 1px solid rgba(222, 220, 209, 0.12);
+    border-radius: 999px;
+    padding: 0 8px;
+    margin: 0;
+}
+
+#center #clock,
+.group-center #clock {
+    padding: 0 5px;
+    margin: 0;
+    font-weight: 700;
+    color: #ffffff;
+    background: transparent;
+    transition: all 0.2s ease;
+}
+
+#center #custom-notification,
+.group-center #custom-notification {
+    padding: 0 5px;
+    margin: 0;
+    border-radius: 999px;
+    background: transparent;
+    color: @fg;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#center #clock:hover,
+.group-center #clock:hover,
+#center #custom-notification:hover,
+.group-center #custom-notification:hover {
+    background-color: rgba(222, 220, 209, 0.15);
+}
+
+/* =============================================================================
+ * 3. RIGHT ISLAND: STATUS GROUP (Network, Audio, Battery, Tray)
+ * ============================================================================= */
+#status,
+.group-status,
+.status {
+    background-color: rgba(28, 28, 28, 0.92);
+    border: 1px solid rgba(222, 220, 209, 0.12);
+    border-radius: 999px;
+    padding: 0 8px;
+    margin: 0;
+}
+
+#status #custom-vpn,
+#status #network,
+#status #bluetooth,
+#status #pulseaudio,
+#status #custom-backlight,
+#status #battery,
+#status #tray,
+.group-status #custom-vpn,
+.group-status #network,
+.group-status #bluetooth,
+.group-status #pulseaudio,
+.group-status #custom-backlight,
+.group-status #battery,
+.group-status #tray {
+    padding: 0 6px;
+    margin: 0;
+    border-radius: 999px;
+    background: transparent;
+    color: #faf9f5;
+    font-weight: 600;
+    font-size: 11.5px;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#status #custom-vpn:hover,
+#status #network:hover,
+#status #bluetooth:hover,
+#status #pulseaudio:hover,
+#status #custom-backlight:hover,
+#status #battery:hover,
+.group-status #custom-vpn:hover,
+.group-status #network:hover,
+.group-status #bluetooth:hover,
+.group-status #pulseaudio:hover,
+.group-status #custom-backlight:hover,
+.group-status #battery:hover {
+    background-color: rgba(222, 220, 209, 0.15);
+    color: @fg;
+}
+
+#custom-backlight.nightlight {
+    color: @yellow;
+}
+
+#custom-vpn {
+    color: @green;
+}
+
+#custom-vpn.disconnected,
+#bluetooth:not(.connected) {
+    padding: 0;
+    margin: 0;
+}
+
+#pulseaudio.muted {
+    color: @gray;
+}
+
+#network.disconnected {
+    color: @red;
+}
+
+#battery.charging,
+#battery.plugged {
+    color: @green;
+}
+
+#battery.warning:not(.charging) {
+    color: @yellow;
+}
+
+#battery.critical:not(.charging) {
+    color: @red;
+    animation: blink 1s infinite alternate;
+}
+
+@keyframes blink {
+    to {
+        background-color: @red;
+        color: @bg0;
+    }
+}
+
+#tray > .passive {
+    -gtk-icon-effect: dim;
+}
+
+#tray > .needs-attention {
+    -gtk-icon-effect: highlight;
+    background-color: @red;
+}
+
+/* Tooltip */
+tooltip {
+    background: rgba(24, 24, 24, 0.95);
+    border: 1px solid rgba(222, 220, 209, 0.15);
+    border-radius: 8px;
+    padding: 6px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+tooltip label {
+    color: @fg;
+    font-size: 11px;
+}

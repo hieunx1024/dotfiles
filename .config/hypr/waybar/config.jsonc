@@ -1,0 +1,212 @@
+{
+  "layer": "top",
+  "position": "top",
+  "height": 22,
+  "margin-top": 2,
+  "margin-left": 6,
+  "margin-right": 6,
+  "margin-bottom": 1,
+  "spacing": 4,
+  "modules-left": ["hyprland/workspaces", "hyprland/submap", "group/grouptabs"],
+  "modules-center": ["group/center"],
+  "modules-right": ["group/status"],
+  "group/center": {
+    "orientation": "horizontal",
+    "modules": [
+      "clock",
+      "custom/notification"
+    ]
+  },
+  "group/status": {
+    "orientation": "horizontal",
+    "modules": [
+      "custom/vpn",
+      "network",
+      "bluetooth",
+      "pulseaudio",
+      "custom/backlight",
+      "battery",
+      "tray"
+    ]
+  },
+  "hyprland/workspaces": {
+    "disable-scroll": true,
+    "warp-on-scroll": false,
+    "on-scroll-up": "hyprctl dispatch workspace e-1",
+    "on-scroll-down": "hyprctl dispatch workspace e+1",
+    "format": "{name}"
+  },
+  "hyprland/submap": {
+    "format": "󰘳 {}",
+    "tooltip": false
+  },
+  "group/grouptabs": {
+    "orientation": "horizontal",
+    "modules": [
+      "custom/tab1",
+      "custom/tab2",
+      "custom/tab3",
+      "custom/tab4",
+      "custom/tab5"
+    ],
+    "on-scroll-up": "hyprctl dispatch changegroupactive b",
+    "on-scroll-down": "hyprctl dispatch changegroupactive f"
+  },
+  "custom/tab1": {
+    "format": "{}",
+    "return-type": "json",
+    "exec": "python3 ~/.config/hypr/scripts/group-tab.py 1",
+    "on-click": "hyprctl dispatch changegroupactive 1",
+    "on-scroll-up": "hyprctl dispatch changegroupactive b",
+    "on-scroll-down": "hyprctl dispatch changegroupactive f",
+    "tooltip": true
+  },
+  "custom/tab2": {
+    "format": "{}",
+    "return-type": "json",
+    "exec": "python3 ~/.config/hypr/scripts/group-tab.py 2",
+    "on-click": "hyprctl dispatch changegroupactive 2",
+    "on-scroll-up": "hyprctl dispatch changegroupactive b",
+    "on-scroll-down": "hyprctl dispatch changegroupactive f",
+    "tooltip": true
+  },
+  "custom/tab3": {
+    "format": "{}",
+    "return-type": "json",
+    "exec": "python3 ~/.config/hypr/scripts/group-tab.py 3",
+    "on-click": "hyprctl dispatch changegroupactive 3",
+    "on-scroll-up": "hyprctl dispatch changegroupactive b",
+    "on-scroll-down": "hyprctl dispatch changegroupactive f",
+    "tooltip": true
+  },
+  "custom/tab4": {
+    "format": "{}",
+    "return-type": "json",
+    "exec": "python3 ~/.config/hypr/scripts/group-tab.py 4",
+    "on-click": "hyprctl dispatch changegroupactive 4",
+    "on-scroll-up": "hyprctl dispatch changegroupactive b",
+    "on-scroll-down": "hyprctl dispatch changegroupactive f",
+    "tooltip": true
+  },
+  "custom/tab5": {
+    "format": "{}",
+    "return-type": "json",
+    "exec": "python3 ~/.config/hypr/scripts/group-tab.py 5",
+    "on-click": "hyprctl dispatch changegroupactive 5",
+    "on-scroll-up": "hyprctl dispatch changegroupactive b",
+    "on-scroll-down": "hyprctl dispatch changegroupactive f",
+    "tooltip": true
+  },
+  "clock": {
+    "interval": 60,
+    "format": "{:%H:%M}",
+    "format-alt": "{:%a, %d %b  %H:%M}",
+    "tooltip-format": "<tt><small>{calendar}</small></tt>",
+    "calendar": {
+      "mode": "month",
+      "format": {
+        "today": "<b><u>{}</u></b>"
+      }
+    }
+  },
+  "custom/vpn": {
+    "exec-if": "~/.config/hypr/scripts/vpn-status.sh --check",
+    "exec": "~/.config/hypr/scripts/vpn-status.sh",
+    "interval": 5,
+    "return-type": "json",
+    "format": "{}",
+    "tooltip": true,
+    "on-click": "kitty --app-id floating_network -e ~/.config/hypr/scripts/nmtui-themed.sh"
+  },
+  "network": {
+    "interval": 5,
+    "format-wifi": "󰖩",
+    "format-ethernet": "󰈀",
+    "format-disconnected": "󰖪",
+    "tooltip-format-wifi": "󰖩 {essid} ({signalStrength}%)\n󰩟 {ipaddr}\n󰁝 {bandwidthUpBytes}  󰁅 {bandwidthDownBytes}\nClick: Cài đặt mạng",
+    "tooltip-format-ethernet": "󰈀 {ipaddr}\n󰁝 {bandwidthUpBytes}  󰁅 {bandwidthDownBytes}\nClick: Cài đặt mạng",
+    "tooltip-format-disconnected": "󰖪 Không có kết nối mạng\nClick: Cài đặt mạng",
+    "on-click": "kitty --app-id floating_network -e ~/.config/hypr/scripts/nmtui-themed.sh"
+  },
+  "bluetooth": {
+    "format": "",
+    "format-disabled": "",
+    "format-off": "",
+    "format-on": "",
+    "format-connected": "󰂱",
+    "format-connected-battery": "󰂱 {device_battery_percentage}%",
+    "tooltip-format-connected": "󰂱 {device_alias} ({device_battery_percentage}%)\nClick: Quản lý Bluetooth",
+    "tooltip-format-enumerate-connected": "{device_alias}",
+    "tooltip-format-enumerate-connected-battery": "{device_alias}\t{device_battery_percentage}%",
+    "on-click": "blueman-manager"
+  },
+  "pulseaudio": {
+    "format": "{icon} {volume}%",
+    "format-bluetooth": "󰋋 {volume}%",
+    "format-muted": "󰖁 Muted",
+    "format-icons": {
+      "headphone": "󰋋",
+      "speaker": ["󰕿", "󰖀", "󰕾"],
+      "default": ["󰕿", "󰖀", "󰕾"]
+    },
+    "on-scroll-up": "~/.config/hypr/scripts/volume_up.sh",
+    "on-scroll-down": "~/.config/hypr/scripts/volume_down.sh",
+    "on-click": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle",
+    "on-click-right": "pavucontrol",
+    "tooltip": true,
+    "tooltip-format": "{desc}\n{volume}%"
+  },
+  "custom/backlight": {
+    "exec": "~/.config/hypr/scripts/brightness.sh",
+    "interval": "once",
+    "signal": 1,
+    "return-type": "json",
+    "on-click": "~/.config/hypr/scripts/night-mode.sh",
+    "on-click-right": "~/.config/hypr/scripts/night-mode.sh --menu",
+    "on-scroll-up": "brightnessctl set +5% && pkill -RTMIN+1 waybar",
+    "on-scroll-down": "brightnessctl set 5%- -n && pkill -RTMIN+1 waybar",
+    "tooltip": true
+  },
+  "battery": {
+    "interval": 10,
+    "states": {
+      "warning": 30,
+      "critical": 20
+    },
+    "format-icons": ["󰂎", "󰁺", "󰁻", "󰁼", "󰁽", "󰁾", "󰁿", "󰂀", "󰂁", "󰂂", "󰁹"],
+    "format": "{icon} {capacity}%",
+    "format-charging": "󰂄 {capacity}%",
+    "format-plugged": "󰂄 {capacity}%",
+    "format-full": "󰁹 {capacity}%",
+    "format-time": "{H}h{M}m",
+    "tooltip": true,
+    "tooltip-format": "󰁹 Dung lượng: {capacity}%\nThời gian: {time}\n󱐋 Công suất: {power:.1f}W\n󰋑 Sức khỏe pin: {health}%",
+    "tooltip-format-charging": "󰂄 Đang sạc: {capacity}%\n󱐋 Sạc đầy sau: {time}\n󰚥 Công suất sạc: {power:.1f}W\n󰋑 Sức khỏe pin: {health}%",
+    "tooltip-format-discharging": "󰁹 Đang dùng pin: {capacity}%\n󱐋 Thời gian còn lại: {time}\n󰚥 Công suất xả: {power:.1f}W\n󰋑 Sức khỏe pin: {health}%",
+    "tooltip-format-full": "󰁹 Pin đã sạc đầy (100%)\n󰚥 Đang cắm nguồn điện\n󰋑 Sức khỏe pin: {health}%",
+    "tooltip-format-plugged": "󰂄 Đã cắm nguồn: {capacity}%\n󰋑 Sức khỏe pin: {health}%"
+  },
+  "tray": {
+    "spacing": 8
+  },
+  "custom/notification": {
+    "tooltip": true,
+    "format": "{icon}",
+    "format-icons": {
+      "notification": "󱅫",
+      "none": "󰂚",
+      "dnd-notification": "󰂛",
+      "dnd-none": "󰂛",
+      "inhibited-notification": "󱅫",
+      "inhibited-none": "󰂜",
+      "dnd-inhibited-notification": "󰂛",
+      "dnd-inhibited-none": "󰂛"
+    },
+    "return-type": "json",
+    "exec-if": "which swaync-client",
+    "exec": "swaync-client -swb",
+    "on-click": "swaync-client -t -sw",
+    "on-click-right": "swaync-client -d -sw",
+    "escape": true
+  }
+}

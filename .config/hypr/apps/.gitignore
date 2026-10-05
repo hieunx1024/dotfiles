@@ -1,0 +1,7 @@
+# Sinh bởi scripts/theme-selector.sh theo theme đang chọn (current_theme)
+kitty/current-theme.conf
+fuzzel/theme.ini
+swaync/colors.css
+wlogout/colors.css
+# Hình nền đang dùng (waypaper ghi khi đổi)
+waypaper/state.ini
