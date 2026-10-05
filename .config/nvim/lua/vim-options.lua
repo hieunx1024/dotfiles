@@ -23,6 +23,8 @@ vim.opt.wrap = true
 vim.opt.linebreak = true
 vim.opt.scrolloff = 8
 vim.opt.signcolumn = "yes"
+-- Ẩn dòng command line trống ở đáy, đưa thanh mode/statusline xuống sát đáy
+vim.opt.cmdheight = 0
 -- fk llm-ls
 local notify_original = vim.notify
 vim.notify = function(msg, ...)
@@ -44,5 +46,5 @@ end
 vim.keymap.set("n", "H", ":bprevious<CR>", { silent = true, desc = "Previous Buffer" })
 vim.keymap.set("n", "L", ":bnext<CR>", { silent = true, desc = "Next Buffer" })
 
--- Space + b + d để đóng Buffer hiện tại
-vim.keymap.set("n", "<leader>bd", ":bdelete<CR>", { silent = true, desc = "Delete Buffer" })
+-- Space + b + d để đóng Buffer hiện tại (không làm vỡ split window)
+vim.keymap.set("n", "<leader>bd", ":bprevious | bdelete #<CR>", { silent = true, desc = "Delete Buffer (Preserve Window)" })

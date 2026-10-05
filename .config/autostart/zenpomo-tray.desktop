@@ -9,5 +9,5 @@ Terminal=false
 Type=Application
 Categories=Utility;Clock;
 X-GNOME-Autostart-enabled=false
-Hidden=false
+Hidden=true
 NoDisplay=false

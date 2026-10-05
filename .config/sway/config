@@ -14,7 +14,7 @@ set $browser MOZ_ENABLE_WAYLAND=1 firefox
 set $file nautilus
 
 ### Visuals
-font pango:JetBrainsMono Nerd Font 11
+font pango:JetBrainsMono Nerd Font 10
 
 gaps inner 5
 gaps outer 5
@@ -25,8 +25,8 @@ default_border pixel 2
 default_floating_border pixel 2
 hide_edge_borders smart
 titlebar_border_thickness 0
-titlebar_padding 8 2
-title_align left
+titlebar_padding 8 1
+title_align center
 
 include ~/.config/sway/theme.conf
 
@@ -34,6 +34,10 @@ include ~/.config/sway/theme.conf
 output * max_render_time 5
 output eDP-1 mode 1920x1080 position 0 0 adaptive_sync off
 output HDMI-A-1 mode 1920x1080@100Hz
+
+# Clamshell Mode (Gập máy khi cắm màn ngoài)
+bindswitch --reload --locked lid:on exec ~/.config/sway/scripts/clamshell.sh close
+bindswitch --reload --locked lid:off exec ~/.config/sway/scripts/clamshell.sh open
 
 ### Input Configuration
 input "type:touchpad" {
@@ -50,24 +54,71 @@ input "type:keyboard" {
 
 ### Autostart
 exec systemctl --user import-environment DISPLAY WAYLAND_DISPLAY SWAYSOCK XDG_CURRENT_DESKTOP _JAVA_AWT_WM_NONREPARENTING
+# Sau khi import env: restart các service systemd/dbus còn giữ env của phiên trước
+# (vừa ở Hyprland/KDE mà chưa reboot) -> portal timeout 25-120s, app GTK/swaync mở chậm cả phút.
+# swaync chạy dưới systemd (swaync.service) để chỉ có đúng 1 bản, không tranh với dbus-activation.
+# Xoá biến IBus GNOME để lại (GTK/QT_IM_MODULE=ibus, XMODIFIERS=@im=ibus): sway dùng fcitx5, app được
+# dbus/systemd khởi động mà nhận biến cũ sẽ tìm IBus (đã tắt) -> không gõ được tiếng Việt.
 exec hash dbus-update-activation-environment 2>/dev/null && \
-     dbus-update-activation-environment --systemd DISPLAY WAYLAND_DISPLAY SWAYSOCK XDG_CURRENT_DESKTOP _JAVA_AWT_WM_NONREPARENTING=1
+     dbus-update-activation-environment --systemd DISPLAY WAYLAND_DISPLAY SWAYSOCK XDG_CURRENT_DESKTOP _JAVA_AWT_WM_NONREPARENTING=1 && \
+     dbus-update-activation-environment GTK_IM_MODULE= QT_IM_MODULE= XMODIFIERS= IBUS_ENABLE_SYNC_MODE= && \
+     systemctl --user unset-environment GTK_IM_MODULE QT_IM_MODULE XMODIFIERS IBUS_ENABLE_SYNC_MODE && \
+     systemctl --user restart --no-block xdg-desktop-portal-gtk xdg-desktop-portal-wlr xdg-desktop-portal swaync
 
 exec wl-paste --watch cliphist store
-exec /usr/lib/policykit-1-gnome/polkit-gnome-authentication-agent-1
+exec wl-paste --type image --watch cliphist store
+exec ~/.config/sway/scripts/launch-polkit.sh
 exec fcitx5 -rd
 exec xhost +local:root
 
-exec_always "pkill swaync; swaync"
+exec_always systemctl --user restart swaync
 exec_always waypaper --restore
-exec_always "pkill waybar; waybar"
+exec_always ~/.config/sway/scripts/statusbar.sh
+# Canh phiên: khi phiên kết thúc gỡ SWAYSOCK khỏi env systemd/dbus + dừng portal/swaync (user service,
+# logind không dọn) -> GNOME/Hyprland/sway kế tiếp bắt đầu sạch. Tiến trình của phiên do logind dọn
+# (KillUserProcesses=yes). "exec" = 1 lần mỗi phiên.
+exec ~/.config/sway/scripts/session-exit.sh
+# Lúc đăng nhập: báo nếu còn tiến trình nền sót lại từ phiên trước (log ~/.local/state/session-check.log)
+exec ~/.config/sway/scripts/session-check.sh
 exec_always ~/.config/sway/scripts/auto-display.sh
 exec_always ~/.config/sway/scripts/audio-autoswitch.py
 exec_always ~/.config/sway/scripts/idle-manager.sh
-exec_always "swaymsg seat seat0 xcursor_theme $(grep gtk-cursor-theme-name ~/.config/gtk-3.0/settings.ini | cut -d= -f2) $(grep gtk-cursor-theme-size ~/.config/gtk-3.0/settings.ini | cut -d= -f2)"
+# Giao diện riêng của phiên sway (theme GTK, icon, cursor, font) - không lẫn với KDE/GNOME
+exec_always ~/.config/session-theme/session-theme.sh sway
 
 ### Window Rules & Workspace Assignments
 focus_on_window_activation focus
+
+### Window Title Format (Chỉ hiện tên app trên tab khi Super+M / Super+W / Super+S)
+for_window [app_id=".*"] title_format "%app_id"
+for_window [class=".*"] title_format "%class"
+for_window [app_id="(?i)kitty"] title_format "Kitty"
+for_window [app_id="(?i)firefox"] title_format "Firefox"
+for_window [app_id="(?i)google-chrome"] title_format "Google Chrome"
+for_window [app_id="(?i)brave-browser"] title_format "Brave"
+for_window [app_id="(?i)code"] title_format "VS Code"
+for_window [app_id="(?i)cursor"] title_format "Cursor"
+for_window [app_id="(?i)vscodium"] title_format "VSCodium"
+for_window [app_id="(?i)jetbrains-idea"] title_format "IntelliJ IDEA"
+for_window [class="(?i)jetbrains"] title_format "IntelliJ IDEA"
+for_window [app_id="(?i)jetbrains-datagrip"] title_format "DataGrip"
+for_window [app_id="(?i)dbeaver"] title_format "DBeaver"
+for_window [class="(?i)dbeaver"] title_format "DBeaver"
+for_window [app_id="(?i)antigravity"] title_format "Antigravity"
+for_window [app_id="(?i)(com\.anthropic\.claude|claude)"] title_format "Claude"
+for_window [app_id="(?i)chatgpt"] title_format "ChatGPT"
+for_window [app_id="(?i)obsidian"] title_format "Obsidian"
+for_window [class="(?i)obsidian"] title_format "Obsidian"
+for_window [app_id="(?i)(desktopeditors|onlyoffice)"] title_format "ONLYOFFICE"
+for_window [app_id="(?i)(nautilus|org\.gnome\.nautilus)"] title_format "Files"
+for_window [app_id="(?i)viber"] title_format "Viber"
+for_window [class="(?i)viber.*"] title_format "Viber"
+for_window [app_id="(?i)spotify"] title_format "Spotify"
+for_window [class="(?i)spotify"] title_format "Spotify"
+for_window [app_id="(?i)(discord|vesktop|webcord)"] title_format "Discord"
+for_window [class="(?i)(discord|vesktop|webcord)"] title_format "Discord"
+for_window [app_id="(?i)org\.telegram\.desktop"] title_format "Telegram"
+for_window [app_id="(?i)postman"] title_format "Postman"
 
 # WS1: Terminal
 assign [app_id="kitty"] workspace number 1
@@ -77,10 +128,12 @@ assign [app_id="(?i)(code|vscodium|cursor|jetbrains-idea)"] workspace number 2
 assign [class="(?i)(code|vscodium|cursor|jetbrains)"] workspace number 2
 for_window [class="(?i)jetbrains" window_type="dialog|menu"] floating enable
 for_window [class="(?i)jetbrains" title="win0|splash|Welcome to .*"] floating enable
-for_window [class="(?i)jetbrains" title=".*Edit.*"] floating enable
+# Chỉ dialog "Edit ..." (vd Edit Configurations); ".*Edit.*" làm float cả cửa sổ IDE khi mở file tên có "Edit"
+for_window [class="(?i)jetbrains" title="^Edit .*"] floating enable
 
 # WS3: Browsers
 assign [app_id="(?i)(firefox|google-chrome|brave-browser|tor browser)"] workspace number 3
+assign [class="(?i)(firefox|google-chrome|brave-browser|tor browser)"] workspace number 3
 
 # WS4: AI Agents & Chat
 assign [app_id="(?i)(com\.anthropic\.claude|claude|chatgpt|antigravity|org\.telegram\.desktop)"] workspace number 4
@@ -89,6 +142,7 @@ for_window [title="(?i)claude code"] move to workspace number 4
 
 # WS5: Notes
 assign [app_id="obsidian"] workspace number 5
+assign [class="(?i)obsidian"] workspace number 5
 
 # WS6: Database (DBeaver, DataGrip)
 assign [app_id="(?i)(dbeaver|jetbrains-datagrip)"] workspace number 6
@@ -96,7 +150,7 @@ assign [class="(?i)(dbeaver|jetbrains-datagrip)"] workspace number 6
 for_window [class="(?i)dbeaver" window_type="dialog"] floating enable
 
 # Floating Helper Rules
-for_window [app_id="view-launcher"] floating enable, border none, move position center
+for_window [app_id="view-launcher"] floating enable, border none, sticky enable, move position center
 for_window [app_id="floating_shortcut"] floating enable, resize set 1000 700, move position center
 for_window [app_id="floating_network"] floating enable, resize set 800 600, move position center
 for_window [app_id="floating_btop"] floating enable, resize set 1150 750, move position center
@@ -107,13 +161,16 @@ for_window [app_id="gamescope"] floating disable
 for_window [class="^steam_app_.*"] floating disable
 
 # Scratchpad Rules & Toggles
-for_window [class="(?i)discord"] floating enable, resize set 1200 800, move position center, move scratchpad
+for_window [app_id="(?i)(discord|vesktop|webcord)"] floating enable, resize set 1200 800, move position center, move scratchpad
+for_window [class="(?i)(discord|vesktop|webcord)"] floating enable, resize set 1200 800, move position center, move scratchpad
+for_window [app_id="(?i)spotify"] floating enable, resize set 1200 800, move position center, move scratchpad
 for_window [class="(?i)spotify"] floating enable, resize set 1200 800, move position center, move scratchpad
-for_window [app_id="(?i)viber" class="(?i)viber.*"] floating enable, resize set 1200 800, move position center, move scratchpad
+for_window [app_id="(?i)viber"] floating enable, resize set 1200 800, move position center, move scratchpad
+for_window [class="(?i)viber.*"] floating enable, resize set 1200 800, move position center, move scratchpad
 
 bindsym $mod+Ctrl+d [class="(?i)discord"] scratchpad show
 bindsym $mod+Ctrl+s [class="(?i)spotify"] scratchpad show
-bindsym $mod+Ctrl+v [app_id="(?i)viber" class="(?i)viber.*"] scratchpad show
+bindsym $mod+Ctrl+v [app_id="(?i)viber"] scratchpad show
 
 bindsym $mod+Shift+minus move scratchpad
 bindsym $mod+minus scratchpad show
@@ -123,8 +180,9 @@ bindsym $mod+Ctrl+minus move container to workspace current; floating disable
 # Applications
 bindsym $mod+Return exec $term
 bindsym $mod+q kill
+bindsym $mod+Shift+q exec ~/.config/sway/scripts/force-kill.sh
 bindsym $mod+d exec $menu
-bindsym Alt+z exec view-launcher
+bindsym Ctrl+Alt+space exec view-launcher
 bindsym $mod+b exec $browser
 bindsym $mod+e exec $file
 bindsym $mod+v exec ~/.config/sway/scripts/clipboard.sh
@@ -136,12 +194,13 @@ bindsym $mod+Tab exec ~/.config/sway/scripts/window-switcher.sh
 floating_modifier $mod normal
 bindsym $mod+Shift+c reload
 bindsym $mod+Ctrl+b exec pkill -USR1 waybar
+bindsym $mod+Shift+b exec ~/.config/waybar/scripts/toggle-mode.sh
 bindsym $mod+Shift+t exec ~/.config/sway/scripts/theme-selector.sh
 bindsym $mod+Shift+u exec ~/.config/sway/scripts/theme-toggle.sh
 bindsym $mod+Shift+e exec ~/.config/sway/scripts/powermenu.sh
 bindsym $mod+Shift+p exec ~/.config/sway/scripts/display-mode.sh
 bindsym $mod+Ctrl+l exec ~/.config/sway/scripts/lock.sh
-bindsym $mod+Alt+s exec ~/.config/sway/scripts/lock.sh && systemctl suspend
+bindsym $mod+Alt+s exec ~/.config/sway/scripts/suspend.sh
 
 # Focus (hjkl & arrows)
 bindsym $mod+$left focus left
@@ -208,10 +267,11 @@ bindsym --locked XF86AudioMicMute exec wpctl set-mute @DEFAULT_AUDIO_SOURCE@ tog
 bindsym --locked XF86MonBrightnessDown exec brightnessctl set 5%- && pkill -RTMIN+1 waybar
 bindsym --locked XF86MonBrightnessUp exec brightnessctl set 5%+ && pkill -RTMIN+1 waybar
 bindsym $mod+Shift+n exec ~/.config/sway/scripts/night-mode.sh
+bindsym $mod+Ctrl+n exec ~/.config/sway/scripts/night-mode.sh --menu
 bindsym $mod+Shift+a exec ~/.config/sway/scripts/toggle_audio.sh
 
 # Screenshots
-bindsym $mod+Shift+s exec grim -g "$(slurp)" - | wl-copy
+bindsym $mod+Shift+s exec bash -c 'GEOM=$(slurp) && [ -n "$GEOM" ] && grim -g "$GEOM" - | wl-copy'
 bindsym Print exec grim - | swappy -f -
 
 ### Resize Mode

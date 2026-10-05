@@ -18,10 +18,15 @@ return {
         })
         vim.keymap.set("n", "<leader>gf", vim.lsp.buf.format, {})
 
-        -- Tự động format khi lưu file (Format on Save)
+        -- Tự động format khi lưu file (Format on Save an toàn)
+        local format_augroup = vim.api.nvim_create_augroup("LspFormatOnSave", { clear = true })
         vim.api.nvim_create_autocmd("BufWritePre", {
-            callback = function()
-                vim.lsp.buf.format({ async = false })
+            group = format_augroup,
+            callback = function(args)
+                local clients = vim.lsp.get_clients({ bufnr = args.buf, method = "textDocument/formatting" })
+                if #clients > 0 then
+                    vim.lsp.buf.format({ bufnr = args.buf, async = false })
+                end
             end,
         })
     end,

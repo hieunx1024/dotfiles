@@ -6,11 +6,77 @@ Chỉ phản ứng khi có sự kiện KẾT NỐI MỚI - không ép lại mỗ
 
 import json
 import os
+import re
 import signal
 import subprocess
 import time
 
 PID_FILE = "/tmp/sway-audio-autoswitch.pid"
+
+
+# Mặc định Ubuntu không dọn tiến trình khi logout (KillUserProcesses=no; máy này đã bật =yes, đây là lớp dự phòng): bản sót lại sẽ chạy song song với
+# phiên sau (GNOME/Hyprland/sway) và tranh nhau đổi audio. Theo dõi compositor đã khởi chạy mình
+# (đi ngược cây tiến trình; dự phòng: sway = chủ socket $SWAYSOCK, Hyprland = dòng 1 hyprland.lock) - nó chết thì thoát.
+# Kiểm tra qua /proc, không mở IPC (mở/đóng IPC mỗi 2s làm sway log lỗi liên tục).
+def _compositor_pid():
+    sock = os.environ.get("SWAYSOCK")
+    if sock:
+        # KHÔNG suy PID từ tên socket: sway dùng lại SWAYSOCK sót trong env làm tên socket, số trong tên có
+        # thể là PID của sway cũ đã chết. Đi ngược cây tiến trình, không thấy thì hỏi ai đang giữ socket.
+        pid = os.getppid()
+        while pid > 1:
+            try:
+                with open(f"/proc/{pid}/comm") as f:
+                    if f.read().strip() == "sway":
+                        return pid, "sway"
+                with open(f"/proc/{pid}/status") as f:
+                    pid = int(next(l for l in f if l.startswith("PPid:")).split()[1])
+            except (OSError, StopIteration, ValueError):
+                break
+        try:
+            out = subprocess.run(["ss", "-xlpH"], capture_output=True, text=True).stdout
+            for line in out.splitlines():
+                parts = line.split()
+                if len(parts) > 4 and parts[4] == sock:
+                    m = re.search(r"pid=(\d+)", line)
+                    if m:
+                        return int(m.group(1)), "sway"
+        except OSError:
+            pass
+        return None, None
+    sig = os.environ.get("HYPRLAND_INSTANCE_SIGNATURE")
+    if sig:
+        # exec-once chạy TRƯỚC khi Hyprland tạo hyprland.lock -> tìm Hyprland trong cây tiến trình trước
+        pid = os.getppid()
+        while pid > 1:
+            try:
+                with open(f"/proc/{pid}/comm") as f:
+                    if f.read().strip() == "Hyprland":
+                        return pid, "Hyprland"
+                with open(f"/proc/{pid}/status") as f:
+                    pid = int(next(l for l in f if l.startswith("PPid:")).split()[1])
+            except (OSError, StopIteration, ValueError):
+                break
+        runtime = os.environ.get("XDG_RUNTIME_DIR", f"/run/user/{os.getuid()}")
+        try:
+            with open(os.path.join(runtime, "hypr", sig, "hyprland.lock")) as f:
+                return int(f.readline().strip()), "Hyprland"
+        except (OSError, ValueError):
+            pass
+    return None, None
+
+
+COMPOSITOR_PID, COMPOSITOR_NAME = _compositor_pid()
+
+
+def compositor_alive():
+    if COMPOSITOR_PID is None:
+        return True  # chạy tay ngoài phiên đồ hoạ -> không ràng buộc
+    try:
+        with open(f"/proc/{COMPOSITOR_PID}/comm") as f:
+            return f.read().strip().startswith(COMPOSITOR_NAME)
+    except OSError:
+        return False
 
 
 def ensure_single_instance():
@@ -98,6 +164,8 @@ def main():
     prev_bt_names = None
 
     while True:
+        if not compositor_alive():
+            break
         try:
             state = get_state()
         except Exception:

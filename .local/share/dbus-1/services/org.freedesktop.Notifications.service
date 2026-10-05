@@ -1,0 +1,9 @@
+# Ghi đè 2 file hệ thống cùng tranh tên org.freedesktop.Notifications: swaync và
+# KDE (plasma_waitforname). dbus chọn ngẫu nhiên giữa 2 file -> ở sway/Hyprland có lúc
+# rơi vào bản KDE, treo 60s chờ plasmashell không bao giờ chạy => thông báo lúc đăng nhập
+# kẹt cả phút. File trong ~/.local/share được ưu tiên hơn /usr/share.
+# KDE -> giữ hành vi gốc; GNOME -> chờ gnome-shell tự nhận tên (không bật swaync tranh việc);
+# còn lại (sway/Hyprland) -> swaync.service rồi chờ tên xuất hiện trên bus.
+[D-BUS Service]
+Name=org.freedesktop.Notifications
+Exec=/bin/sh -c 'case "$XDG_CURRENT_DESKTOP" in *KDE*) exec /usr/bin/plasma_waitforname org.freedesktop.Notifications ;; *GNOME*) exec gdbus wait --session --timeout 30 org.freedesktop.Notifications ;; esac; systemctl --user start swaync.service; exec gdbus wait --session --timeout 30 org.freedesktop.Notifications'

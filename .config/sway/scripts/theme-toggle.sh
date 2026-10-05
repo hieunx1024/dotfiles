@@ -46,7 +46,7 @@ if [ -L "$WAYBAR_DIR/style.css" ]; then
     ln -s "$TARGET_CSS" "$WAYBAR_DIR/style.css"
     pkill waybar 2>/dev/null
     sleep 0.3
-    nohup waybar >/dev/null 2>&1 &
+    nohup ~/.config/sway/scripts/statusbar.sh >/dev/null 2>&1 &
     disown
 fi
 

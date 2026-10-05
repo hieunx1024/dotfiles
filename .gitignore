@@ -5,3 +5,8 @@
 .config/waybar/backup_*
 .config/gtk-3.0/bookmarks
 .bashrc_local
+.config/sway/nightlight_temp
+__pycache__/
+.agents/
+AGENTS.md
+GEMINI.md

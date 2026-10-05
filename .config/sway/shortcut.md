@@ -3,8 +3,9 @@
 ## Cơ bản
 - `Super+Return` — mở terminal (kitty)
 - `Super+Q` — đóng cửa sổ
+- `Super+Shift+Q` — ép đóng cửa sổ bị treo (force kill -9)
 - `Super+D` — app launcher (fuzzel)
-- `Ctrl+Space` — view-launcher (tự về gõ tiếng Anh)
+- `Ctrl+Alt+Space` — view-launcher
 - `Super+B` — mở Firefox
 - `Super+E` — mở Nautilus (file manager)
 - `Super+V` — mở lịch sử Clipboard (cliphist + fuzzel)
@@ -19,6 +20,8 @@
 - `Super+Ctrl+L` — khóa màn hình
 - `Super+Alt+S` — khóa màn hình rồi suspend
 - `Super+Ctrl+B` — reload waybar
+- `Super+Shift+B` — bật/tắt chế độ minimal của waybar (giống swaybar mặc định)
+- Gập máy khi cắm màn ngoài: Chế độ Clamshell (tắt màn laptop, dồn workspace sang màn ngoài; mở máy tự phục hồi)
 
 ## Focus & di chuyển cửa sổ
 - `Super+h/j/k/l` hoặc `Super+←/↓/↑/→` — focus theo hướng
@@ -46,7 +49,7 @@
 - `Super+Ctrl+-` — đưa cửa sổ ra khỏi scratchpad hẳn (về workspace hiện tại)
 - `Super+Ctrl+D` — toggle Discord (scratchpad)
 - `Super+Ctrl+S` — toggle Spotify (scratchpad)
-- Viber cũng auto floating + scratchpad — dùng `Super+-` để gọi ra
+- `Super+Ctrl+V` — toggle Viber (scratchpad)
 
 ## Cửa sổ & Overview
 - `Super+Tab` — window switcher (nhóm theo workspace, có icon)
@@ -59,8 +62,24 @@
 ## Âm thanh / Độ sáng / Night mode
 - Phím vật lý Volume Up/Down/Mute, Mic Mute — chuẩn
 - Phím vật lý Brightness Up/Down — chuẩn
-- `Super+Shift+N` — toggle night mode (wlsunset)
+- `Super+Shift+N` — toggle night mode (bật/tắt lọc ánh sáng xanh wlsunset)
+- `Super+Ctrl+N` — menu chọn nhiệt độ màu Night Light (fuzzel)
 - `Super+Shift+A` — toggle audio output/input
+
+## Neovim (Leader key: `Space`)
+- `Space + ?` — mở full bảng tra cứu phím tắt Neovim (`KEYBINDINGS.md`)
+- `H` / `L` — chuyển nhanh tab/buffer trước / sau
+- `Space + bd` — đóng buffer hiện tại (giữ nguyên layout split)
+- `Space + ff` — tìm file trong project (FZF) · `Space + pf` — tìm file Git
+- `Space + fg` — tìm kiếm nội dung (Live Grep) · `Space + fb` — danh sách buffer
+- `Space + vv` / `Space + vf` — mở trình quản lý file Oil (toàn màn hình / popup nổi)
+- `Space + T` / `Ctrl+t` — bật / ẩn Terminal nổi (Floating Terminal)
+- `Ctrl+h/j/k/l` — di chuyển mượt mà giữa các split Neovim & pane Tmux
+- `gd` — nhảy tới định nghĩa hàm/biến · `K` — xem tài liệu hover
+- `Space + ca` — gợi ý sửa lỗi / Code Actions · `Space + rn` — đổi tên biến (Rename)
+- `Space + e` — xem popup chi tiết lỗi LSP · `Space + ce` — copy thông báo lỗi
+- `J` / `K` (Visual mode) — kéo trượt khối code lên / xuống
+- `Space + p` (Visual mode) — dán đè mà không bị mất dữ liệu trong clipboard
 
 ## Máy ảo Windows 11 (KVM/virsh)
 - `virsh start win11 && virt-manager --show-domain-console win11 &` — Bật & mở thẳng màn hình Win 11

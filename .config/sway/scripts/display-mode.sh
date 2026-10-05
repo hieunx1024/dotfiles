@@ -84,6 +84,10 @@ case "$CHOICE" in
         notify-send "Cấu hình Màn hình" "Mở rộng: Màn ngoài ($SECONDARY) ở TRÊN, Màn laptop ($PRIMARY) ở DƯỚI"
         ;;
     *"Phản chiếu màn hình"*)
+        if ! command -v wl-mirror >/dev/null 2>&1; then
+            notify-send -u critical "Cấu hình Màn hình" "Chưa cài đặt wl-mirror!\nVui lòng chạy: sudo apt install wl-mirror"
+            exit 1
+        fi
         cleanup_mirror
         # Bật màn hình laptop tại (0, 0)
         swaymsg output "$PRIMARY" enable position 0 0

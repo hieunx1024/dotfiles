@@ -6,22 +6,26 @@
 WALLPAPER=$(sed -n 's/^wallpaper[[:space:]]*=[[:space:]]*//p' ~/.config/waypaper/config.ini 2>/dev/null | head -n 1 | sed "s|^~|$HOME|")
 
 if [ -f "$WALLPAPER" ]; then
-    echo "Current wallpaper: $WALLPAPER"
-    
     # Target file
     TARGET="/var/tmp/sddm_wallpaper.jpg"
-    
+
+    # Nếu ảnh đích đã tồn tại và giống hệt ảnh hiện tại (chưa hề đổi hình nền), thoát ngay
+    if [ -f "$TARGET" ] && cmp -s "$WALLPAPER" "$TARGET"; then
+        exit 0
+    fi
+
+    echo "Current wallpaper: $WALLPAPER"
     echo "Updating SDDM wallpaper..."
     cp "$WALLPAPER" "$TARGET"
     
     if [ $? -eq 0 ]; then
-        notify-send "SDDM Wallpaper" "Đã cập nhật ảnh nền SDDM thành công!" -i image-x-generic
+        # notify-send "SDDM Wallpaper" "Đã cập nhật ảnh nền SDDM thành công!" -i image-x-generic
         echo "Success!"
     else
-        notify-send "SDDM Wallpaper" "Lỗi khi cập nhật ảnh nền SDDM!" -i dialog-error
+        # notify-send "SDDM Wallpaper" "Lỗi khi cập nhật ảnh nền SDDM!" -i dialog-error
         echo "Failed to copy files."
     fi
 else
     echo "Error: Wallpaper file not found: $WALLPAPER"
-    notify-send "SDDM Wallpaper" "Không tìm thấy file ảnh nền!" -i dialog-error
+    # notify-send "SDDM Wallpaper" "Không tìm thấy file ảnh nền!" -i dialog-error
 fi
