@@ -122,7 +122,7 @@ button:hover {
 }
 
 #pulseaudio.muted {
-    color: @red;
+    color: @gray;
 }
 
 #pulseaudio.bluetooth {
@@ -180,7 +180,7 @@ button:hover {
 
 #battery.charging, 
 #battery.plugged {
-    color: @green;
+    color: @fg;
 }
 
 @keyframes blink {
@@ -221,7 +221,8 @@ button:hover {
 }
 
 #idle_inhibitor.activated {
-    color: @yellow;
+    color: @purple;
+    font-weight: bold;
 }
 
 #idle_inhibitor:hover {
@@ -257,10 +258,8 @@ button:hover {
     background-color: @red;
 }
 
-
-
 #custom-vpn {
-    color: @green;
+    color: @aqua;
     font-weight: normal;
 }
 
@@ -270,7 +269,8 @@ button:hover {
 }
 
 #custom-notification.notification {
-    color: @yellow;
+    color: @blue;
+    font-weight: bold;
 }
 
 #custom-notification.dnd-notification,
@@ -283,7 +283,7 @@ button:hover {
 }
 
 #custom-power {
-    color: @red;
+    color: @gray;
     padding: 0 10px;
     margin: 3px 6px 3px 2px;
     border-radius: 6px;

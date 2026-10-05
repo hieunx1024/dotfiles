@@ -122,7 +122,7 @@ button:hover {
 }
 
 #pulseaudio.muted {
-    color: @red;
+    color: @gray;
 }
 
 #pulseaudio.bluetooth {
@@ -136,7 +136,7 @@ button:hover {
 #cpu:hover,
 #memory:hover,
 #idle_inhibitor:hover {
-    color: @yellow; /* Brighten/pop on hover */
+    color: @fg; /* Clean white highlight on hover */
 }
 
 #network.disconnected {
@@ -157,7 +157,7 @@ button:hover {
 
 #power-profiles-daemon:hover,
 #custom-power-profile:hover {
-    color: @yellow;
+    color: @fg;
 }
 
 #power-profiles-daemon.performance,
@@ -167,19 +167,19 @@ button:hover {
 
 #power-profiles-daemon.balanced,
 #custom-power-profile.balanced {
-    color: @blue;
+    color: @fg;
 }
 
 #power-profiles-daemon.power-saver,
 #custom-power-profile.power-saver {
-    color: @green;
+    color: @gray;
 }
 
 /* ================= BATTERY STATES ================= */
 
 #battery.charging, 
 #battery.plugged {
-    color: @green;
+    color: @fg;
 }
 
 @keyframes blink {
@@ -220,11 +220,12 @@ button:hover {
 }
 
 #idle_inhibitor.activated {
-    color: @yellow;
+    color: @fg;
+    font-weight: bold;
 }
 
 #idle_inhibitor:hover {
-    color: @yellow;
+    color: @fg;
 }
 
 #hardware #cpu,
@@ -257,7 +258,7 @@ button:hover {
 }
 
 #custom-vpn {
-    color: @green;
+    color: @fg;
     font-weight: normal;
 }
 
@@ -267,7 +268,8 @@ button:hover {
 }
 
 #custom-notification.notification {
-    color: @yellow;
+    color: @fg;
+    font-weight: bold;
 }
 
 #custom-notification.dnd-notification,
@@ -276,11 +278,11 @@ button:hover {
 }
 
 #custom-notification:hover {
-    color: @yellow;
+    color: @fg;
 }
 
 #custom-power {
-    color: @red;
+    color: @gray;
     padding: 0 10px;
     margin: 3px 6px 3px 2px;
     border-radius: 6px;

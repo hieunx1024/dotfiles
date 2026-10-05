@@ -1,0 +1,40 @@
+/* Graphite - Neutral Gray & Ivory.
+ * Kế thừa layout Waybar đầy đủ rồi thay toàn bộ palette bằng màu Graphite. */
+/* Waybar mở file qua ~/.config/waybar/style.css, nên import tính từ thư mục waybar. */
+@import url("themes/gruvbox/style.css");
+
+@define-color bg0         #181818;
+@define-color bg1         #1c1c1c;
+@define-color bg2         #2d2d2d;
+@define-color fg          #dedcd1;
+@define-color red         #dd5353;
+@define-color green       #65bb30;
+@define-color yellow      #e5b567;
+@define-color blue        #dedcd1;
+@define-color purple      #9b87f5;
+@define-color aqua        #74abe2;
+@define-color orange      #c2c0b6;
+@define-color gray        #9c9a92;
+@define-color darkgray    #2d2d2d;
+
+/* Giữ tổng thể trung tính; điểm nhấn dùng trắng ngà. */
+#clock {
+    color: @fg;
+}
+
+#pulseaudio:hover,
+#custom-backlight:hover,
+#network:hover,
+#bluetooth:hover,
+#cpu:hover,
+#memory:hover,
+#idle_inhibitor:hover,
+#power-profiles-daemon:hover,
+#custom-power-profile:hover {
+    color: @fg;
+}
+
+#power-profiles-daemon.balanced,
+#custom-power-profile.balanced {
+    color: @fg;
+}

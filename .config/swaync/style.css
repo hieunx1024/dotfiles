@@ -1,6 +1,6 @@
 /* =============================================================================
- * SWAYNC – GRUVBOX DARK THEME
- * Synchronized with sway/waybar/kitty color palette.
+ * SWAYNC – SHARED THEME LAYOUT
+ * Màu được nạp động từ palette của theme đang chọn.
  * Font: JetBrainsMono Nerd Font  •  Style: Minimalist, flat, clean
  * ============================================================================= */
 
@@ -26,9 +26,9 @@
   --notification-group-icon-size: 32px;
 
   --border: 1px solid var(--noti-border-color);
-  --border-radius: 8px;
+  --border-radius: 10px;
 
-  --notification-shadow: 0 2px 8px alpha(black, 0.4);
+  --notification-shadow: 0 4px 16px alpha(black, 0.4);
   --font-size-body: 14px;
   --font-size-summary: 15px;
 
@@ -95,16 +95,9 @@ blankwindow {
   background: var(--noti-bg);
 }
 
-/* Priority visual accents (left border highlight) */
-.notification-row .notification-background .notification.low {
-  border-left: 3px solid @gray;
-}
-
-.notification-row .notification-background .notification.normal {
-  border-left: 3px solid @blue;
-}
-
+/* Priority visual accents */
 .notification-row .notification-background .notification.critical {
+  border: 1px solid @red;
   border-left: 3px solid @red;
   background: alpha(@red, 0.08);
 }
@@ -319,8 +312,9 @@ blankwindow {
 .control-center {
   background: var(--cc-bg);
   color: var(--text-color);
-  border-radius: 0;
-  border-left: 2px solid @bg3;
+  border-radius: 12px;
+  border: 1px solid @bg3;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
   padding: 8px 0;
 }
 
@@ -365,8 +359,13 @@ blankwindow {
   background: transparent;
 }
 
+.floating-notifications .notification-row {
+  margin-top: 26px;
+  margin-right: 10px;
+}
+
 .floating-notifications .notification {
-  box-shadow: var(--notification-shadow);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
 }
 
 /* ═══════════════════════════════════════════════════════════════════
@@ -425,18 +424,24 @@ blankwindow {
   margin-left: 8px;
   background: @bg3;
   border: 1px solid @bg4;
+  box-shadow: none;
 }
 
 .widget-dnd switch:checked {
-  background: @blue;
-  border-color: @blue;
+  background: @fg;
+  border-color: @fg;
 }
 
 .widget-dnd switch slider {
   border-radius: 100%;
-  background: @fg;
+  background: @gray;
   min-width: 20px;
   min-height: 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
+.widget-dnd switch:checked slider {
+  background: @bg0;
 }
 
 /* ── Label Widget ── */

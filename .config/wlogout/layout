@@ -12,9 +12,15 @@
 }
 {
     "label" : "suspend",
-    "action" : "~/.config/sway/scripts/lock.sh && systemctl suspend",
+    "action" : "~/.config/sway/scripts/suspend.sh",
     "text" : "Ngủ",
     "keybind" : "u"
+}
+{
+    "label" : "hibernate",
+    "action" : "~/.config/sway/scripts/hibernate.sh",
+    "text" : "Ngủ đông",
+    "keybind" : "h"
 }
 {
     "label" : "reboot",
