@@ -1,0 +1,207 @@
+diff --git a/src/Globals.hpp b/src/Globals.hpp
+index 24b722d..770c7b6 100644
+--- a/src/Globals.hpp
++++ b/src/Globals.hpp
+@@ -63,3 +63,6 @@ namespace Config {
+ }
+ 
+ extern int numWorkspaces;
++
++// Đóng overview trên tất cả màn hình (giữ các màn đồng bộ khi thoát bằng click)
++void hideAllOverviews();
+diff --git a/src/Input.cpp b/src/Input.cpp
+index 49f2a05..4f4ab74 100644
+--- a/src/Input.cpp
++++ b/src/Input.cpp
+@@ -56,7 +56,7 @@ bool CHyprspaceWidget::buttonEvent(bool pressed, Vector2D coords) {
+         }
+         if (Config::switchOnDrop) {
+             g_pCompositor->getMonitorFromID(targetWorkspace->m_monitor->m_id)->changeWorkspace(targetWorkspace->m_id);
+-            if (Config::exitOnSwitch && active) hide();
++            if (Config::exitOnSwitch && active) hideAllOverviews();
+         }
+         updateLayout();
+     }
+@@ -67,10 +67,10 @@ bool CHyprspaceWidget::buttonEvent(bool pressed, Vector2D coords) {
+         else {
+             g_pCompositor->getMonitorFromID(targetWorkspace->m_monitor->m_id)->changeWorkspace(targetWorkspace->m_id);
+         }
+-        if (Config::exitOnSwitch && active) hide();
++        if (Config::exitOnSwitch && active) hideAllOverviews();
+     }
+     // click elsewhere to exit overview
+-    else if (Config::exitOnClick && targetWorkspace == nullptr && active && couldExit && !pressed) hide();
++    else if (Config::exitOnClick && targetWorkspace == nullptr && active && couldExit && !pressed) hideAllOverviews();
+ 
+     return Return;
+ }
+@@ -122,7 +122,9 @@ bool CHyprspaceWidget::beginSwipe(IPointer::SSwipeBeginEvent e) {
+ }
+ 
+ bool CHyprspaceWidget::updateSwipe(IPointer::SSwipeUpdateEvent e) {
+-    int fingers = std::any_cast<Hyprlang::INT>(HyprlandAPI::getConfigValue(pHandle, "gestures:workspace_swipe_fingers")->getValue());
++    // Backport 700f613: 0.53 đã bỏ gestures:workspace_swipe_fingers -> getConfigValue trả null,
++    // deref là segfault ngay khi vuốt touchpad. Cố định 3 ngón như upstream.
++    constexpr int fingers = 3;
+     int distance = std::any_cast<Hyprlang::INT>(HyprlandAPI::getConfigValue(pHandle, "gestures:workspace_swipe_distance")->getValue());
+ 
+     // restrict swipe to a axis with the most significant movement to prevent misinput
+diff --git a/src/Layout.cpp b/src/Layout.cpp
+index 263a9c5..bc0839f 100644
+--- a/src/Layout.cpp
++++ b/src/Layout.cpp
+@@ -8,8 +8,22 @@ void CHyprspaceWidget::updateLayout() {
+ 
+     const auto currentHeight = Config::panelHeight + Config::reservedArea;
+     const auto pMonitor = getOwner();
++    if (!pMonitor) return;
+ 
+-    // reset reserved areas
++    // Backport dac99cb: đặt reservation của panel làm giá trị gốc TRƯỚC khi arrange layers,
++    // để arrangeLayersForMonitor cộng reservation của layer (waybar...) dạng dynamic lên trên.
++    // Bản cũ đọc top() (đã gồm LS) rồi cộng panel -> dồn tích mỗi lần mở/đóng tới khi
++    // vùng usable rỗng -> ASSERT trong CReservedArea abort Hyprland.
++    if (active) {
++        if (!Config::onBottom)
++            pMonitor->m_reservedArea = Desktop::CReservedArea(currentHeight, 0, 0, 0);
++        else
++            pMonitor->m_reservedArea = Desktop::CReservedArea(0, 0, currentHeight, 0);
++    } else {
++        pMonitor->m_reservedArea = Desktop::CReservedArea();
++    }
++
++    // arrange layers adds LS dynamic reservations on top of our initial values
+     g_pHyprRenderer->arrangeLayersForMonitor(ownerID);
+ 
+     static auto PGAPSINDATA = CConfigValue<Hyprlang::CUSTOMTYPE>("general:gaps_in");
+@@ -35,22 +49,6 @@ void CHyprspaceWidget::updateLayout() {
+         }
+         pMonitor->m_activeWorkspace = oActiveWorkspace;
+         
+-        if (!Config::onBottom) {
+-            pMonitor->m_reservedArea = Desktop::CReservedArea(
+-                pMonitor->m_reservedArea.top() + currentHeight,
+-                pMonitor->m_reservedArea.right(),
+-                pMonitor->m_reservedArea.bottom(),
+-                pMonitor->m_reservedArea.left()
+-            );
+-        } else {
+-            pMonitor->m_reservedArea = Desktop::CReservedArea(
+-                pMonitor->m_reservedArea.top(),
+-                pMonitor->m_reservedArea.right(),
+-                pMonitor->m_reservedArea.bottom() + currentHeight,
+-                pMonitor->m_reservedArea.left()
+-            );
+-        }
+-        
+         const auto curRules = std::to_string(pMonitor->activeWorkspaceID()) + ", gapsin:" + std::to_string(Config::gapsIn) + ", gapsout:" + std::to_string(Config::gapsOut);
+         if (Config::overrideGaps) g_pConfigManager->handleWorkspaceRules("", curRules);
+         g_pLayoutManager->getCurrentLayout()->recalculateMonitor(ownerID);
+diff --git a/src/Render.cpp b/src/Render.cpp
+index a6aca0f..7827bff 100644
+--- a/src/Render.cpp
++++ b/src/Render.cpp
+@@ -103,8 +103,16 @@ void renderWindowStub(PHLWINDOW pWindow, PHLMONITOR pMonitor, PHLWORKSPACE pWork
+ 
+     g_pHyprRenderer->damageWindow(pWindow);
+ 
++    // CSurfacePassElement::opaqueRegion() bỏ qua render modif (dịch/thu nhỏ) nên thumbnail bị
++    // tính là phủ đục đúng vị trí cửa sổ thật -> CRenderPass::simplify() loại luôn cửa sổ thật
++    // của workspace active (vùng dưới panel trống). Alpha < 1 => opaqueRegion rỗng, không che ai.
++    const float oActiveInactiveAlpha = pWindow->m_activeInactiveAlpha->value();
++    pWindow->m_activeInactiveAlpha->setValueAndWarp(std::min(oActiveInactiveAlpha, 0.999F));
++
+     (*(tRenderWindow)pRenderWindow)(g_pHyprRenderer.get(), pWindow, pMonitor, time, true, RENDER_PASS_ALL, false, false);
+ 
++    pWindow->m_activeInactiveAlpha->setValueAndWarp(oActiveInactiveAlpha);
++
+     // restore values for normal window render
+     pWindow->m_workspace = oWorkspace;
+     pWindow->m_fullscreenState = oFullscreen;
+diff --git a/src/main.cpp b/src/main.cpp
+index 6853264..e374ad2 100644
+--- a/src/main.cpp
++++ b/src/main.cpp
+@@ -261,6 +261,52 @@ void onKeyPress(void* thisptr, SCallbackInfo& info, std::any args) {
+     const auto keycode = e.keycode + 8; // Because to xkbcommon it's +8 from libinput
+     const xkb_keysym_t keysym = xkb_state_key_get_one_sym(k->m_xkbSymState, keycode);
+ 
++    // Điều hướng bằng phím khi overview đang mở: ←/→ hoặc h/l đổi workspace trên màn có chuột
++    // (xem trước ngay dưới panel), Enter đóng overview trên mọi màn. Chặn cả press lẫn release
++    // của các phím này để app bên dưới không nhận; overview đóng thì phím đi bình thường.
++    bool anyActive = false;
++    for (auto& widget : g_overviewWidgets) {
++        if (widget != nullptr && widget->isActive())
++            anyActive = true;
++    }
++    if (anyActive) {
++        const bool pressed = e.state == WL_KEYBOARD_KEY_STATE_PRESSED;
++        int        dir     = 0;
++        if (keysym == XKB_KEY_Left || keysym == XKB_KEY_h)
++            dir = -1;
++        else if (keysym == XKB_KEY_Right || keysym == XKB_KEY_l)
++            dir = 1;
++
++        if (dir != 0) {
++            info.cancelled = true;
++            if (!pressed)
++                return;
++            const auto pMonitor = g_pCompositor->getMonitorFromCursor();
++            if (!pMonitor)
++                return;
++            std::vector<WORKSPACEID> ids;
++            for (auto& ws : g_pCompositor->getWorkspaces()) {
++                if (ws->m_monitor && ws->m_monitor->m_id == pMonitor->m_id && !ws->m_isSpecialWorkspace && ws->m_id > 0)
++                    ids.push_back(ws->m_id);
++            }
++            if (ids.size() < 2)
++                return;
++            std::ranges::sort(ids);
++            const auto cur = std::ranges::find(ids, pMonitor->activeWorkspaceID());
++            size_t     idx = cur == ids.end() ? 0 : cur - ids.begin();
++            idx            = (idx + ids.size() + dir) % ids.size();
++            pMonitor->changeWorkspace(ids[idx]);
++            return;
++        }
++
++        if (keysym == XKB_KEY_Return || keysym == XKB_KEY_KP_Enter) {
++            info.cancelled = true;
++            if (pressed)
++                hideAllOverviews();
++            return;
++        }
++    }
++
+     // Get configured exit key (default to Escape if not configured)
+     const auto cfgExitKey = std::any_cast<Hyprlang::STRING>(HyprlandAPI::getConfigValue(pHandle, "plugin:overview:exitKey")->getValue());
+     const xkb_keysym_t cfgExitKeysym = xkb_keysym_from_name(cfgExitKey, XKB_KEYSYM_CASE_INSENSITIVE);
+@@ -322,6 +368,13 @@ void onTouchUp(void* thisptr, SCallbackInfo& info, std::any args) {
+     g_pTouchedMonitor = nullptr;
+ }
+ 
++void hideAllOverviews() {
++    for (auto& widget : g_overviewWidgets) {
++        if (widget != nullptr && widget->isActive())
++            widget->hide();
++    }
++}
++
+ static SDispatchResult dispatchToggleOverview(std::string arg) {
+     auto currentMonitor = g_pCompositor->getMonitorFromCursor();
+     auto widget = getWidgetForMonitor(currentMonitor);
+@@ -465,6 +518,15 @@ void registerMonitors() {
+ APICALL EXPORT PLUGIN_DESCRIPTION_INFO PLUGIN_INIT(HANDLE inHandle) {
+     pHandle = inHandle;
+ 
++    // Từ chối nạp nếu Hyprland đã đổi bản (apt upgrade) mà plugin chưa build lại:
++    // lệch ABI sẽ crash ngay lúc đăng nhập. Throw ở đây Hyprland bắt được và unload êm.
++    const std::string HASH        = __hyprland_api_get_hash();
++    const std::string CLIENT_HASH = __hyprland_api_get_client_hash();
++    if (HASH != CLIENT_HASH) {
++        HyprlandAPI::addNotification(pHandle, "[Hyprspace] Hyprland đã đổi phiên bản - chạy lại build-hyprspace.sh", CHyprColor{1.0, 0.2, 0.2, 1.0}, 10000);
++        throw std::runtime_error("[Hyprspace] Version mismatch");
++    }
++
+     Log::logger->log(Log::DEBUG, "Loading overview plugin");
+ 
+     HyprlandAPI::addConfigValue(pHandle, "plugin:overview:panelColor", Hyprlang::INT{CHyprColor(0, 0, 0, 0).getAsHex()});
