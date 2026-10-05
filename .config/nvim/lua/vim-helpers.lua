@@ -12,8 +12,12 @@ vim.keymap.set("n", "<leader>ce", function()
 end, { noremap = true, silent = true })
 
 -- go to errors in a file :/
-vim.keymap.set("n", "<leader>ne", vim.diagnostic.goto_next) -- next err
-vim.keymap.set("n", "<leader>pe", vim.diagnostic.goto_prev) -- previous err
+vim.keymap.set("n", "<leader>ne", function()
+    vim.diagnostic.jump({ count = 1, float = true })
+end, { desc = "Next diagnostic" })
+vim.keymap.set("n", "<leader>pe", function()
+    vim.diagnostic.jump({ count = -1, float = true })
+end, { desc = "Previous diagnostic" })
 vim.keymap.set("n", "<leader>e", vim.diagnostic.open_float)
 -- copy current file path (absolute) into clipboard
 vim.keymap.set("n", "<leader>cp", function()
@@ -52,7 +56,7 @@ end, { desc = "Open current file in browser" })
 -- set language based on vim mode
 -- requires macism https://github.com/laishulu/macism
 -- recommend installing it by brew
-local sysname = vim.loop.os_uname().sysname
+local sysname = (vim.uv or vim.loop).os_uname().sysname
 local is_mac = sysname == "Darwin"
 local is_linux = sysname == "Linux"
 
@@ -231,7 +235,7 @@ vim.api.nvim_create_user_command("ShowTree", function()
     if vim.fn.executable("tree") == 0 then
         vim.api.nvim_buf_set_lines(tree_buf, 0, -1, false, {
             "Lỗi: Không tìm thấy lệnh 'tree' trên hệ thống.",
-            "Vui lòng cài đặt bằng lệnh: sudo pacman -S tree"
+            "Vui lòng cài đặt qua package manager (apt / dnf / pacman)."
         })
         return
     end

@@ -58,17 +58,9 @@ return {
                 sources = cmp.config.sources({
                     { name = "nvim_lsp" },
                     { name = "luasnip" },
-                    { name = "zls" },
-                    { name = "buffer" },
                     { name = "path" },
-                    { name = "pylsp" },
-                    { name = "gci" },
-                    { name = "ts_ls" },
-                    { name = "gopls" },
-                    { name = "nix" },
-                    { name = "buf_ls" },
+                    { name = "buffer" },
                     { name = "render-markdown" },
-                    { name = "cobol_ls" },
                 }),
             })
         end,

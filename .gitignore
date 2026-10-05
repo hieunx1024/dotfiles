@@ -5,3 +5,6 @@
 .config/waybar/backup_*
 .config/gtk-3.0/bookmarks
 .bashrc_local
+.agents/
+AGENTS.md
+GEMINI.md
