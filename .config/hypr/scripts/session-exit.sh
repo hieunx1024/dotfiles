@@ -47,6 +47,9 @@ cleanup() {
             run dbus-update-activation-environment XMODIFIERS=   # trước: dbus đồng bộ ngược sang systemd
             run systemctl --user unset-environment XMODIFIERS
         fi
+        if [ -x "$HOME/.config/session-theme/session-theme.sh" ]; then
+            run "$HOME/.config/session-theme/session-theme.sh" gnome
+        fi
         run systemctl --user stop $SERVICES
         # App đóng muộn có thể gọi portal/swaync lên lại trong khoảng trống giữa 2 phiên -> canh thêm 15s
         for _ in 1 2 3 4 5; do
