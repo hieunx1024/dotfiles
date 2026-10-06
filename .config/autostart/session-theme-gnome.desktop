@@ -2,6 +2,6 @@
 Type=Application
 Name=Session Theme (GNOME)
 Comment=Nạp giao diện riêng của phiên GNOME (xem ~/.config/session-theme)
-Exec=sh -c "\\$HOME/.config/session-theme/session-theme.sh gnome"
+Exec=/bin/sh -c 'exec "$HOME/.config/session-theme/session-theme.sh" gnome'
 OnlyShowIn=GNOME;
 NoDisplay=true

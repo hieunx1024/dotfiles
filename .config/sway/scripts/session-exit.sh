@@ -50,6 +50,9 @@ cleanup() {
     fi
     others=$(other_sessions)
     if [ -z "$others" ]; then
+        if [ -x "$HOME/.config/session-theme/session-theme.sh" ]; then
+            run "$HOME/.config/session-theme/session-theme.sh" gnome
+        fi
         run systemctl --user stop $SERVICES
         # App đóng muộn có thể gọi portal/swaync lên lại trong khoảng trống giữa 2 phiên (03/10: IntelliJ
         # làm portal treo 90s ở phiên GNOME sau) -> canh thêm 15s, dừng lại nếu chưa có phiên mới.
