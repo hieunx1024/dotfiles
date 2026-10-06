@@ -15,15 +15,10 @@ if [ -f "$PATCH" ]; then
     git -C "$TMP/src" apply "$PATCH"
 fi
 
+EXTRA_INCLUDES=""
 # 1. Nếu hệ thống đã có sẵn hyprland headers (Arch Linux, Fedora có hyprland-devel, v.v.)
 if pkg-config --exists hyprland 2>/dev/null; then
     echo "Tìm thấy hyprland development headers trên hệ thống (Arch / Fedora / Debian)..."
-    CFLAGS=$(pkg-config --cflags pixman-1 libdrm hyprland pangocairo libinput libudev wayland-server xkbcommon)
-    SOURCES=$(find "$TMP/src/src" -name "*.cpp")
-    g++ -shared -fPIC --no-gnu-unique -std=c++23 -O2 -Wno-narrowing \
-        $CFLAGS \
-        $SOURCES \
-        -o "$TMP/hyprtasking.so"
 # 2. Nếu là Ubuntu/Debian chưa cài sẵn gói -dev toàn cục: tải deb về thư mục tạm (không cần sudo)
 elif command -v apt-get &>/dev/null && command -v dpkg-deb &>/dev/null; then
     echo "Phát hiện Ubuntu/Debian: Đang tải headers tạm thời (không cần quyền sudo)..."
@@ -48,18 +43,19 @@ elif command -v apt-get &>/dev/null && command -v dpkg-deb &>/dev/null; then
         "s#^(prefix|exec_prefix|libdir|includedir|sharedlibdir)=/usr#\1=$SYSROOT/usr#" {} +
 
     export PKG_CONFIG_PATH=$SYSROOT/usr/lib/x86_64-linux-gnu/pkgconfig:$SYSROOT/usr/share/pkgconfig
-    CFLAGS=$(pkg-config --cflags pixman-1 libdrm hyprland pangocairo libinput libudev wayland-server xkbcommon)
-
-    SOURCES=$(find "$TMP/src/src" -name "*.cpp")
-    g++ -shared -fPIC --no-gnu-unique -std=c++23 -O2 -Wno-narrowing \
-        $CFLAGS -I$SYSROOT/usr/include \
-        $SOURCES \
-        -o "$TMP/hyprtasking.so"
+    EXTRA_INCLUDES="-I$SYSROOT/usr/include"
 else
     echo "Lỗi: Không tìm thấy hyprland headers và không có apt-get để tự động tải."
     echo "Vui lòng cài đặt gói headers của Hyprland (ví dụ: hyprland trên Arch, hyprland-devel trên Fedora) rồi thử lại."
     exit 1
 fi
+
+CFLAGS=$(pkg-config --cflags pixman-1 libdrm hyprland pangocairo libinput libudev wayland-server xkbcommon)
+SOURCES=$(find "$TMP/src/src" -name "*.cpp")
+g++ -shared -fPIC --no-gnu-unique -std=c++23 -O2 -Wno-narrowing \
+    $CFLAGS $EXTRA_INCLUDES \
+    $SOURCES \
+    -o "$TMP/hyprtasking.so"
 
 install -D -m 0755 "$TMP/hyprtasking.so" "$OUT"
 echo "Đã cài $OUT - chạy 'hyprctl reload' để nạp."
