@@ -39,7 +39,7 @@ if [[ "$DISTRO_LIKE" == *"debian"* ]] || [[ "$DISTRO_LIKE" == *"ubuntu"* ]]; the
         pipx curl tar fonts-font-awesome
 elif [[ "$DISTRO_LIKE" == *"fedora"* ]] || [[ "$DISTRO_ID" == "fedora" ]]; then
     sudo dnf install -y \
-        gcc-c++ git \
+        gcc-c++ git hyprland-devel \
         hyprland hypridle hyprlock waybar kitty nautilus nwg-look \
         fuzzel wlogout \
         fcitx5 fcitx5-configtool fcitx5-bamboo fcitx5-gtk fcitx5-qt \
@@ -225,12 +225,8 @@ fi
 # 8. Build plugin hyprtasking (Overview 3x3 kéo thả cửa sổ)
 echo -e "${YELLOW}[8/8]${NC} Kiểm tra/Build plugin hyprtasking (Overview 3x3)..."
 if [ ! -f "$HOME/.local/lib/hyprland/hyprtasking.so" ]; then
-    if [[ "$DISTRO_LIKE" == *"debian"* ]] || [[ "$DISTRO_LIKE" == *"ubuntu"* ]]; then
-        echo "  -> Đang tự động build hyprtasking.so..."
-        bash "$DOTFILES_DIR/.config/hypr/scripts/build-hyprtasking.sh" || echo -e "${YELLOW}Chưa thể tự động build hyprtasking. Bạn có thể tự chạy sau: ~/.config/hypr/scripts/build-hyprtasking.sh${NC}"
-    else
-        echo -e "${YELLOW}Lưu ý: Trên $DISTRO_ID, vui lòng build plugin hyprtasking bằng ~/.config/hypr/scripts/build-hyprtasking.sh hoặc hyprpm.${NC}"
-    fi
+    echo "  -> Đang tự động build hyprtasking.so..."
+    bash "$DOTFILES_DIR/.config/hypr/scripts/build-hyprtasking.sh" || echo -e "${YELLOW}Chưa thể tự động build hyprtasking. Bạn có thể tự chạy sau: ~/.config/hypr/scripts/build-hyprtasking.sh${NC}"
 else
     echo "  -> Plugin hyprtasking.so đã có sẵn."
 fi
