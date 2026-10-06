@@ -39,10 +39,20 @@ index 8800b29..d55ce32 100644
      // floating windows to be unfocused properly
      return false;
 diff --git a/src/layout/grid.cpp b/src/layout/grid.cpp
-index f75d2cb..1af469e 100644
+index f75d2cb..10c62a8 100644
 --- a/src/layout/grid.cpp
 +++ b/src/layout/grid.cpp
-@@ -192,6 +192,9 @@ bool HTLayoutGrid::should_render_window(PHLWINDOW window) {
+@@ -179,6 +179,9 @@ void HTLayoutGrid::on_move(WORKSPACEID old_id, WORKSPACEID new_id, CallbackFun o
+ }
+ 
+ bool HTLayoutGrid::should_render_window(PHLWINDOW window) {
++    if (m_rendering_empty_workspace)
++        return false;
++
+     bool ori_result = HTLayoutBase::should_render_window(window);
+ 
+     const PHLMONITOR monitor = get_monitor();
+@@ -192,6 +195,9 @@ bool HTLayoutGrid::should_render_window(PHLWINDOW window) {
      if (workspace == nullptr)
          return false;
  
@@ -52,7 +62,7 @@ index f75d2cb..1af469e 100644
      CBox window_box = get_global_window_box(window, window->workspaceID());
      if (window_box.empty())
          return false;
-@@ -318,10 +321,20 @@ void HTLayoutGrid::render() {
+@@ -318,10 +324,20 @@ void HTLayoutGrid::render() {
      g_pHyprOpenGL->m_renderData.pCurrentMonData->blurFBShouldRender = true;
      CBox monitor_box = {{0, 0}, monitor->m_transformedSize};
  
@@ -77,7 +87,7 @@ index f75d2cb..1af469e 100644
  
      // Do a dance with active workspaces: Hyprland will only properly render the
      // current active one so make the workspace active before rendering it, etc
-@@ -364,10 +377,17 @@ void HTLayoutGrid::render() {
+@@ -364,13 +380,21 @@ void HTLayoutGrid::render() {
              monitor->m_activeWorkspace->m_id == ws_id ? *ACTIVECOL : *INACTIVECOL;
          CBox border_box = ws_layout.box;
  
@@ -95,23 +105,33 @@ index f75d2cb..1af469e 100644
          g_pHyprRenderer->m_renderPass.add(makeUnique<CBorderPassElement>(data));
  
          if (workspace != nullptr) {
-@@ -395,15 +415,6 @@ void HTLayoutGrid::render() {
-                 true
++            m_rendering_empty_workspace = false;
+             monitor->m_activeWorkspace = workspace;
+             g_pDesktopAnimationManager->startAnimation(
+                 workspace,
+@@ -396,17 +420,19 @@ void HTLayoutGrid::render() {
              );
              workspace->m_visible = false;
--        } else {
+         } else {
 -            // If pWorkspace is null, then just render the layers
--            ((render_workspace_t)(render_workspace_hook->m_original))(
--                g_pHyprRenderer.get(),
--                monitor,
++            m_rendering_empty_workspace = true;
+             ((render_workspace_t)(render_workspace_hook->m_original))(
+                 g_pHyprRenderer.get(),
+                 monitor,
 -                workspace,
--                &time,
--                render_box
--            );
++                nullptr,
+                 &time,
+                 render_box
+             );
++            m_rendering_empty_workspace = false;
          }
      }
  
-@@ -432,10 +443,17 @@ void HTLayoutGrid::render() {
++    m_rendering_empty_workspace = false;
+     monitor->m_activeWorkspace = start_workspace;
+     g_pDesktopAnimationManager->startAnimation(
+         start_workspace,
+@@ -432,10 +458,17 @@ void HTLayoutGrid::render() {
                                                                            : *INACTIVECOL;
              CBox border_box = ws_box;
  
@@ -159,26 +179,54 @@ index f9b6adb..64a6ebd 100644
  }
  
  PHLMONITOR HTLayoutBase::get_monitor() {
+diff --git a/src/layout/layout_base.hpp b/src/layout/layout_base.hpp
+index 7c78b10..8872b13 100644
+--- a/src/layout/layout_base.hpp
++++ b/src/layout/layout_base.hpp
+@@ -35,6 +35,7 @@ class HTLayoutBase {
+ 
+     virtual CBox calculate_ws_box(int x, int y, HTViewStage stage) = 0;
+     std::unordered_map<WORKSPACEID, HTWorkspace> overview_layout;
++    bool m_rendering_empty_workspace = false;
+ 
+     // Warp the show/hide animations to perc (from closed to open)
+     virtual void close_open_lerp(float perc) = 0;
 diff --git a/src/layout/linear.cpp b/src/layout/linear.cpp
-index 86cf59a..383cc4f 100644
+index 86cf59a..ea8d41c 100644
 --- a/src/layout/linear.cpp
 +++ b/src/layout/linear.cpp
-@@ -428,15 +428,6 @@ void HTLayoutLinear::render() {
-                 true
+@@ -186,6 +186,9 @@ bool HTLayoutLinear::should_manage_mouse() {
+ }
+ 
+ bool HTLayoutLinear::should_render_window(PHLWINDOW window) {
++    if (m_rendering_empty_workspace)
++        return false;
++
+     bool ori_result = HTLayoutBase::should_render_window(window);
+ 
+     const PHLMONITOR monitor = get_monitor();
+@@ -429,17 +432,19 @@ void HTLayoutLinear::render() {
              );
              workspace->m_visible = false;
--        } else {
+         } else {
 -            // If pWorkspace is null, then just render the layers
--            ((render_workspace_t)(render_workspace_hook->m_original))(
--                g_pHyprRenderer.get(),
--                monitor,
++            m_rendering_empty_workspace = true;
+             ((render_workspace_t)(render_workspace_hook->m_original))(
+                 g_pHyprRenderer.get(),
+                 monitor,
 -                workspace,
--                &time,
--                render_box
--            );
++                nullptr,
+                 &time,
+                 render_box
+             );
++            m_rendering_empty_workspace = false;
          }
      }
  
++    m_rendering_empty_workspace = false;
+     monitor->m_activeWorkspace = start_workspace;
+     g_pDesktopAnimationManager->startAnimation(
+         start_workspace,
 diff --git a/src/manager.hpp b/src/manager.hpp
 index 4c8eb32..62d725c 100644
 --- a/src/manager.hpp
