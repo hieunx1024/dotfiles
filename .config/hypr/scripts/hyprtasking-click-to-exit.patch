@@ -39,7 +39,7 @@ index 8800b29..d55ce32 100644
      // floating windows to be unfocused properly
      return false;
 diff --git a/src/layout/grid.cpp b/src/layout/grid.cpp
-index f75d2cb..7bbcbd6 100644
+index f75d2cb..1af469e 100644
 --- a/src/layout/grid.cpp
 +++ b/src/layout/grid.cpp
 @@ -192,6 +192,9 @@ bool HTLayoutGrid::should_render_window(PHLWINDOW window) {
@@ -52,7 +52,50 @@ index f75d2cb..7bbcbd6 100644
      CBox window_box = get_global_window_box(window, window->workspaceID());
      if (window_box.empty())
          return false;
-@@ -395,15 +398,6 @@ void HTLayoutGrid::render() {
+@@ -318,10 +321,20 @@ void HTLayoutGrid::render() {
+     g_pHyprOpenGL->m_renderData.pCurrentMonData->blurFBShouldRender = true;
+     CBox monitor_box = {{0, 0}, monitor->m_transformedSize};
+ 
+-    CRectPassElement::SRectData data;
+-    data.color = CHyprColor {HTConfig::value<Hyprlang::INT>("bg_color")}.stripA();
+-    data.box = monitor_box;
+-    g_pHyprRenderer->m_renderPass.add(makeUnique<CRectPassElement>(data));
++    const int64_t raw_bg = HTConfig::value<Hyprlang::INT>("bg_color");
++    CHyprColor bg_col;
++    if (raw_bg == 0 || raw_bg == 0x000000FF || raw_bg == 0x181818ff) {
++        bg_col = CHyprColor(0.0f, 0.0f, 0.0f, 0.30f);
++    } else {
++        bg_col = CHyprColor((uint64_t)raw_bg);
++    }
++
++    if (bg_col.a > 0.01f) {
++        CRectPassElement::SRectData dim_data;
++        dim_data.color = bg_col;
++        dim_data.box = monitor_box;
++        g_pHyprRenderer->m_renderPass.add(makeUnique<CRectPassElement>(dim_data));
++    }
+ 
+     // Do a dance with active workspaces: Hyprland will only properly render the
+     // current active one so make the workspace active before rendering it, etc
+@@ -364,10 +377,17 @@ void HTLayoutGrid::render() {
+             monitor->m_activeWorkspace->m_id == ws_id ? *ACTIVECOL : *INACTIVECOL;
+         CBox border_box = ws_layout.box;
+ 
++        CRectPassElement::SRectData tile_bg;
++        tile_bg.color = CHyprColor(0.0f, 0.0f, 0.0f, 0.35f);
++        tile_bg.box = border_box;
++        tile_bg.round = 6;
++        g_pHyprRenderer->m_renderPass.add(makeUnique<CRectPassElement>(tile_bg));
++
+         CBorderPassElement::SBorderData data;
+         data.box = border_box;
+         data.grad1 = border_col;
+         data.borderSize = BORDERSIZE;
++        data.round = 6;
+         g_pHyprRenderer->m_renderPass.add(makeUnique<CBorderPassElement>(data));
+ 
+         if (workspace != nullptr) {
+@@ -395,15 +415,6 @@ void HTLayoutGrid::render() {
                  true
              );
              workspace->m_visible = false;
@@ -68,6 +111,54 @@ index f75d2cb..7bbcbd6 100644
          }
      }
  
+@@ -432,10 +443,17 @@ void HTLayoutGrid::render() {
+                                                                           : *INACTIVECOL;
+             CBox border_box = ws_box;
+ 
++            CRectPassElement::SRectData tile_bg;
++            tile_bg.color = CHyprColor(0.0f, 0.0f, 0.0f, 0.35f);
++            tile_bg.box = border_box;
++            tile_bg.round = 6;
++            g_pHyprRenderer->m_renderPass.add(makeUnique<CRectPassElement>(tile_bg));
++
+             CBorderPassElement::SBorderData data;
+             data.box = border_box;
+             data.grad1 = border_col;
+             data.borderSize = BORDERSIZE;
++            data.round = 6;
+             g_pHyprRenderer->m_renderPass.add(makeUnique<CBorderPassElement>(data));
+ 
+             ((render_workspace_t)(render_workspace_hook->m_original))(
+diff --git a/src/layout/layout_base.cpp b/src/layout/layout_base.cpp
+index f9b6adb..64a6ebd 100644
+--- a/src/layout/layout_base.cpp
++++ b/src/layout/layout_base.cpp
+@@ -74,22 +74,16 @@ void HTLayoutBase::build_overview_layout(HTViewStage stage) {
+ }
+ 
+ void HTLayoutBase::render() {
+-    CClearPassElement::SClearData data;
+-    data.color = CHyprColor {0};
+-    g_pHyprRenderer->m_renderPass.add(makeUnique<CClearPassElement>(data));
++    // Preserve desktop wallpaper
+ }
+ 
+ const std::string CLEAR_PASS_ELEMENT_NAME = "CClearPassElement";
+ 
+ void HTLayoutBase::post_render() {
+-    bool first = true;
+-    std::erase_if(g_pHyprRenderer->m_renderPass.m_passElements, [&first](const auto& e) {
+-        bool res = e->element->passName() == CLEAR_PASS_ELEMENT_NAME && !first;
+-        first = false;
+-        return res;
++    std::erase_if(g_pHyprRenderer->m_renderPass.m_passElements, [](const auto& e) {
++        return e->element->passName() == CLEAR_PASS_ELEMENT_NAME;
+     });
+     g_pHyprRenderer->m_renderPass.add(makeUnique<HTPassElement>());
+-    // g_pHyprOpenGL->setDamage(CRegion {CBox {0, 0, INT32_MAX, INT32_MAX}});
+ }
+ 
+ PHLMONITOR HTLayoutBase::get_monitor() {
 diff --git a/src/layout/linear.cpp b/src/layout/linear.cpp
 index 86cf59a..383cc4f 100644
 --- a/src/layout/linear.cpp
