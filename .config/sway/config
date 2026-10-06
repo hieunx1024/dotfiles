@@ -189,7 +189,6 @@ bindsym $mod+v exec ~/.config/sway/scripts/clipboard.sh
 bindsym $mod+i exec $term --app-id floating_shortcut -e nvim -R ~/.config/sway/shortcut.md
 bindsym $mod+n exec swaync-client -t -sw
 bindsym $mod+Tab exec ~/.config/sway/scripts/window-switcher.sh
-bindsym --release Super_L exec ~/.config/sway/scripts/window-switcher.sh
 
 # System Controls
 floating_modifier $mod normal
