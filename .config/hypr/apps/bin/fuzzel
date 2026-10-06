@@ -1,4 +1,14 @@
 #!/bin/sh
+# Đảm bảo fuzzel luôn quét cả ứng dụng Flatpak (hệ thống và người dùng)
+case ":$XDG_DATA_DIRS:" in
+    *":/var/lib/flatpak/exports/share:"*) ;;
+    *) export XDG_DATA_DIRS="$HOME/.local/share/flatpak/exports/share:/var/lib/flatpak/exports/share:${XDG_DATA_DIRS:-/usr/local/share:/usr/share:/var/lib/snapd/desktop}" ;;
+esac
+case ":$PATH:" in
+    *":/var/lib/flatpak/exports/bin:"*) ;;
+    *) export PATH="$PATH:/var/lib/flatpak/exports/bin:$HOME/.local/share/flatpak/exports/bin" ;;
+esac
+
 # Hyprland đặt thư mục này đầu PATH: mọi lệnh fuzzel trong phiên Hyprland dùng cấu hình riêng.
 # Gọi thẳng /usr/bin/fuzzel nếu đã truyền --config.
 case " $* " in *" --config"*) exec /usr/bin/fuzzel "$@" ;; esac
