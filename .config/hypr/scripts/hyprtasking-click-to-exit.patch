@@ -1,0 +1,53 @@
+diff --git a/src/input.cpp b/src/input.cpp
+index 8800b29..d55ce32 100644
+--- a/src/input.cpp
++++ b/src/input.cpp
+@@ -26,6 +26,10 @@ bool HTManager::start_window_drag() {
+ 
+     const Vector2D mouse_coords = g_pInputManager->getMouseCoordsInternal();
+     const WORKSPACEID workspace_id = cursor_view->layout->get_ws_id_from_global(mouse_coords);
++    m_drag_start_coords = mouse_coords;
++    m_drag_start_ws = workspace_id;
++    m_drag_started = true;
++
+     PHLWORKSPACE cursor_workspace = g_pCompositor->getWorkspaceByID(workspace_id);
+ 
+     // If left click on non-workspace workspace, do nothing
+@@ -97,6 +101,10 @@ bool HTManager::end_window_drag() {
+     const PHLWINDOW dragged_window = g_pInputManager->m_currentlyDraggedWindow.lock();
+     if (dragged_window == nullptr || g_pInputManager->m_dragMode != MBIND_MOVE) {
+         g_pKeybindManager->changeMouseBindMode(MBIND_INVALID);
++        if (m_drag_started) {
++            m_drag_started = false;
++            return exit_to_workspace();
++        }
+         return false;
+     }
+ 
+@@ -159,6 +167,13 @@ bool HTManager::end_window_drag() {
+     // if (o_workspace != nullptr)
+     //     cursor_monitor->changeWorkspace(o_workspace.lock(), true);
+ 
++    const bool was_simple_click =
++        (m_drag_started && (mouse_coords - m_drag_start_coords).size() < 10.0 && workspace_id == m_drag_start_ws);
++    m_drag_started = false;
++    if (was_simple_click) {
++        exit_to_workspace();
++    }
++
+     // Do not return true and cancel the event! Mouse release requires some stuff to be done for
+     // floating windows to be unfocused properly
+     return false;
+diff --git a/src/manager.hpp b/src/manager.hpp
+index 4c8eb32..62d725c 100644
+--- a/src/manager.hpp
++++ b/src/manager.hpp
+@@ -43,4 +43,8 @@ class HTManager {
+ 
+     bool has_active_view();
+     bool cursor_view_active();
++
++    Vector2D m_drag_start_coords;
++    WORKSPACEID m_drag_start_ws = WORKSPACE_INVALID;
++    bool m_drag_started = false;
+ };
