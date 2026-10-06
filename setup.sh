@@ -21,10 +21,11 @@ echo -e "${BLUE}${BOLD}=== Cài đặt dotfiles Hyprland từ $DOTFILES_DIR ===$
 echo -e "${BLUE}${BOLD}=== Phát hiện hệ điều hành: ${NAME:-$DISTRO_ID} ($DISTRO_ID) ===${NC}"
 
 # 1. Cài đặt các gói hệ thống theo distro
-echo -e "${YELLOW}[1/7]${NC} Cài đặt gói hệ thống..."
+echo -e "${YELLOW}[1/8]${NC} Cài đặt gói hệ thống..."
 if [[ "$DISTRO_LIKE" == *"debian"* ]] || [[ "$DISTRO_LIKE" == *"ubuntu"* ]]; then
     sudo apt update
     sudo apt install -y \
+        build-essential \
         hyprland hypridle hyprlock waybar sway-notification-center kitty nautilus nwg-look \
         fuzzel wlogout \
         fcitx5 fcitx5-config-qt fcitx5-bamboo fcitx5-frontend-gtk3 fcitx5-frontend-gtk4 fcitx5-frontend-qt5 fcitx5-frontend-qt6 \
@@ -38,6 +39,7 @@ if [[ "$DISTRO_LIKE" == *"debian"* ]] || [[ "$DISTRO_LIKE" == *"ubuntu"* ]]; the
         pipx curl tar fonts-font-awesome
 elif [[ "$DISTRO_LIKE" == *"fedora"* ]] || [[ "$DISTRO_ID" == "fedora" ]]; then
     sudo dnf install -y \
+        gcc-c++ \
         hyprland hypridle hyprlock waybar kitty nautilus nwg-look \
         fuzzel wlogout \
         fcitx5 fcitx5-configtool fcitx5-bamboo fcitx5-gtk fcitx5-qt \
@@ -56,6 +58,7 @@ elif [[ "$DISTRO_LIKE" == *"fedora"* ]] || [[ "$DISTRO_ID" == "fedora" ]]; then
     fi
 elif [[ "$DISTRO_LIKE" == *"arch"* ]] || [[ "$DISTRO_ID" == "arch" ]]; then
     sudo pacman -S --needed --noconfirm \
+        base-devel \
         hyprland hypridle hyprlock waybar swaync kitty nautilus nwg-look \
         fuzzel wlogout \
         fcitx5 fcitx5-configtool fcitx5-bamboo fcitx5-gtk fcitx5-qt \
@@ -72,7 +75,7 @@ else
 fi
 
 # 2. Cài app qua pipx (không có trong repo chính thức hoặc cần bản mới nhất)
-echo -e "${YELLOW}[2/7]${NC} Cài waypaper qua pipx..."
+echo -e "${YELLOW}[2/8]${NC} Cài waypaper qua pipx..."
 pipx ensurepath
 pipx install waypaper || pipx upgrade waypaper
 
@@ -85,7 +88,7 @@ if [ -d "$WAYPAPER_VENV" ]; then
 fi
 
 # 3. Cài JetBrainsMono Nerd Font (để hiển thị icon Waybar, SwayNC, Terminal)
-echo -e "${YELLOW}[3/7]${NC} Kiểm tra JetBrainsMono Nerd Font..."
+echo -e "${YELLOW}[3/8]${NC} Kiểm tra JetBrainsMono Nerd Font..."
 if ! fc-list : family | grep -iq "JetBrainsMono Nerd Font"; then
     echo "  -> Đang tải JetBrainsMono Nerd Font..."
     FONT_DIR="$HOME/.local/share/fonts/JetBrainsMono"
@@ -100,7 +103,7 @@ else
 fi
 
 # 4. Sao chép hình nền mẫu và cài đặt tmux plugin manager (tpm)
-echo -e "${YELLOW}[4/7]${NC} Thiết lập tài nguyên bổ trợ (wallpapers, tmux tpm)..."
+echo -e "${YELLOW}[4/8]${NC} Thiết lập tài nguyên bổ trợ (wallpapers, tmux tpm)..."
 if [ -d "$DOTFILES_DIR/wallpapers" ]; then
     mkdir -p "$HOME/Pictures/wallpapers"
     cp -n "$DOTFILES_DIR/wallpapers/"* "$HOME/Pictures/wallpapers/" 2>/dev/null || true
@@ -113,7 +116,7 @@ fi
 echo -e "${YELLOW}${BOLD}Lưu ý:${NC} 'view-launcher' (https://github.com/hieunx1024/view-launcher) là project riêng — tự build/cài nếu cần."
 
 # 5. Symlink các thư mục .config vào repo
-echo -e "${YELLOW}[5/7]${NC} Tạo symlink .config..."
+echo -e "${YELLOW}[5/8]${NC} Tạo symlink .config..."
 # Thư mục thuộc sở hữu riêng của dotfiles hypr - symlink nguyên thư mục
 CONFIG_DIRS=(fcitx fcitx5 hypr browser-themes nwg-look nvim gtk-3.0 gtk-4.0 tmux)
 # Thư mục dùng chung với app khác (XDG autostart/environment.d) - chỉ symlink từng file bên trong,
@@ -174,7 +177,7 @@ for d in "${SHARED_DIRS[@]}"; do
 done
 
 # 6. Symlink các dotfile ở top-level $HOME (trừ .gitconfig)
-echo -e "${YELLOW}[6/7]${NC} Tạo symlink dotfile top-level..."
+echo -e "${YELLOW}[6/8]${NC} Tạo symlink dotfile top-level..."
 TOP_FILES=(.bashrc .zshrc .gtkrc-2.0 .Xresources)
 for f in "${TOP_FILES[@]}"; do
     SRC="$DOTFILES_DIR/$f"
@@ -208,7 +211,7 @@ done
 
 # 7. Cấu hình quyền phần cứng (chỉ cần thiết trên Ubuntu/Debian)
 if [[ "$DISTRO_LIKE" == *"debian"* ]] || [[ "$DISTRO_LIKE" == *"ubuntu"* ]]; then
-    echo -e "${YELLOW}[7/7]${NC} Kiểm tra group 'video' (Ubuntu/Debian)..."
+    echo -e "${YELLOW}[7/8]${NC} Kiểm tra group 'video' (Ubuntu/Debian)..."
     if ! groups "$USER" | grep -q '\bvideo\b'; then
         sudo usermod -aG video "$USER"
         echo -e "${YELLOW}Cần đăng xuất/đăng nhập lại (hoặc reboot) để group 'video' có hiệu lực.${NC}"
@@ -216,9 +219,23 @@ if [[ "$DISTRO_LIKE" == *"debian"* ]] || [[ "$DISTRO_LIKE" == *"ubuntu"* ]]; the
         echo "  -> Đã có sẵn trong group video."
     fi
 else
-    echo -e "${YELLOW}[7/7]${NC} Bỏ qua group 'video' ($DISTRO_ID quản lý quyền thiết bị qua systemd-logind/seat tự động)."
+    echo -e "${YELLOW}[7/8]${NC} Bỏ qua group 'video' ($DISTRO_ID quản lý quyền thiết bị qua systemd-logind/seat tự động)."
+fi
+
+# 8. Build plugin hyprtasking (Overview 3x3 kéo thả cửa sổ)
+echo -e "${YELLOW}[8/8]${NC} Kiểm tra/Build plugin hyprtasking (Overview 3x3)..."
+if [ ! -f "$HOME/.local/lib/hyprland/hyprtasking.so" ]; then
+    if [[ "$DISTRO_LIKE" == *"debian"* ]] || [[ "$DISTRO_LIKE" == *"ubuntu"* ]]; then
+        echo "  -> Đang tự động build hyprtasking.so..."
+        bash "$DOTFILES_DIR/.config/hypr/scripts/build-hyprtasking.sh" || echo -e "${YELLOW}Chưa thể tự động build hyprtasking. Bạn có thể tự chạy sau: ~/.config/hypr/scripts/build-hyprtasking.sh${NC}"
+    else
+        echo -e "${YELLOW}Lưu ý: Trên $DISTRO_ID, vui lòng build plugin hyprtasking bằng ~/.config/hypr/scripts/build-hyprtasking.sh hoặc hyprpm.${NC}"
+    fi
+else
+    echo "  -> Plugin hyprtasking.so đã có sẵn."
 fi
 
 echo -e "${GREEN}${BOLD}=== Hoàn tất! ===${NC}"
 echo "Đăng xuất và đăng nhập lại vào phiên Hyprland để áp dụng đầy đủ (PATH, group video, autostart)."
 [ -d "$BACKUP_DIR" ] && echo -e "${YELLOW}Các file/thư mục bị trùng đã backup vào: $BACKUP_DIR${NC}"
+
