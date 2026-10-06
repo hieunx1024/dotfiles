@@ -224,6 +224,8 @@ fi
 
 # 8. Build plugin hyprtasking (Overview 3x3 kéo thả cửa sổ)
 echo -e "${YELLOW}[8/8]${NC} Kiểm tra/Build plugin hyprtasking (Overview 3x3)..."
+# Tối ưu blueman: tắt TransferService (OBEX/Evolution) tránh lỗi timeout 25s khi mở Bluetooth
+gsettings set org.blueman.general plugin-list "['!TransferService', '!GameControllerWakelock']" 2>/dev/null || true
 if [ ! -f "$HOME/.local/lib/hyprland/hyprtasking.so" ]; then
     echo "  -> Đang tự động build hyprtasking.so..."
     bash "$DOTFILES_DIR/.config/hypr/scripts/build-hyprtasking.sh" || echo -e "${YELLOW}Chưa thể tự động build hyprtasking. Bạn có thể tự chạy sau: ~/.config/hypr/scripts/build-hyprtasking.sh${NC}"
