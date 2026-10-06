@@ -38,6 +38,56 @@ index 8800b29..d55ce32 100644
      // Do not return true and cancel the event! Mouse release requires some stuff to be done for
      // floating windows to be unfocused properly
      return false;
+diff --git a/src/layout/grid.cpp b/src/layout/grid.cpp
+index f75d2cb..7bbcbd6 100644
+--- a/src/layout/grid.cpp
++++ b/src/layout/grid.cpp
+@@ -192,6 +192,9 @@ bool HTLayoutGrid::should_render_window(PHLWINDOW window) {
+     if (workspace == nullptr)
+         return false;
+ 
++    if (workspace != monitor->m_activeWorkspace)
++        return false;
++
+     CBox window_box = get_global_window_box(window, window->workspaceID());
+     if (window_box.empty())
+         return false;
+@@ -395,15 +398,6 @@ void HTLayoutGrid::render() {
+                 true
+             );
+             workspace->m_visible = false;
+-        } else {
+-            // If pWorkspace is null, then just render the layers
+-            ((render_workspace_t)(render_workspace_hook->m_original))(
+-                g_pHyprRenderer.get(),
+-                monitor,
+-                workspace,
+-                &time,
+-                render_box
+-            );
+         }
+     }
+ 
+diff --git a/src/layout/linear.cpp b/src/layout/linear.cpp
+index 86cf59a..383cc4f 100644
+--- a/src/layout/linear.cpp
++++ b/src/layout/linear.cpp
+@@ -428,15 +428,6 @@ void HTLayoutLinear::render() {
+                 true
+             );
+             workspace->m_visible = false;
+-        } else {
+-            // If pWorkspace is null, then just render the layers
+-            ((render_workspace_t)(render_workspace_hook->m_original))(
+-                g_pHyprRenderer.get(),
+-                monitor,
+-                workspace,
+-                &time,
+-                render_box
+-            );
+         }
+     }
+ 
 diff --git a/src/manager.hpp b/src/manager.hpp
 index 4c8eb32..62d725c 100644
 --- a/src/manager.hpp
