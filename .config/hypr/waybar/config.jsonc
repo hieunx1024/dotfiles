@@ -32,8 +32,8 @@
   "hyprland/workspaces": {
     "disable-scroll": true,
     "warp-on-scroll": false,
-    "on-scroll-up": "hyprctl dispatch workspace e-1",
-    "on-scroll-down": "hyprctl dispatch workspace e+1",
+    "on-scroll-up": "python3 ~/.config/hypr/scripts/cycle-workspace.py prev",
+    "on-scroll-down": "python3 ~/.config/hypr/scripts/cycle-workspace.py next",
     "format": "{name}"
   },
   "hyprland/submap": {
