@@ -5,7 +5,7 @@
 - `Super+D` — launcher (fuzzel)
 - `Super+B` — firefox · `Super+E` — nautilus
 - `Super+V` — lịch sử clipboard
-- `Super+Tab` — overview mọi workspace trên mọi màn (Hyprspace) · vuốt 3 ngón dọc
+- `Super+Tab` — overview mọi workspace (hyprtasking) · vuốt 3 ngón lên (mở) / xuống (đóng)
   - trong overview: `←/→` hoặc `h/l` đổi workspace (màn có chuột), `Enter`/`Esc` thoát; click workspace để chuyển, kéo cửa sổ thả sang workspace khác
 - `Super+N` — trung tâm thông báo
 - `Super+I` — xem file này
@@ -15,7 +15,7 @@
 - `Super+H/J/K/L` hoặc mũi tên — đổi focus; khi ở trong group, `H/L` hoặc `←/→` chuyển tab trước
 - `Super+Shift+H/J/K/L` — di chuyển cửa sổ
 - `Super+1..0` — sang workspace · `Super+Shift+1..0` — chuyển cửa sổ sang workspace
-- `Super+Ctrl+←/→` — workspace trước/sau · vuốt 3 ngón ngang
+- `Super+Ctrl+←/→` hoặc cuộn chuột trên Waybar — workspace trước/sau · vuốt 3 ngón ngang (chuyển workspace)
 - `Super+F` — fullscreen · `Super+M` — maximize
 - `Super+W` — gộp nhóm (tab) · `Super+X` — đổi hướng chia
 - `Super+Shift+Space` — floating

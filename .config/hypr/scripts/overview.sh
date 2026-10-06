@@ -1,13 +1,29 @@
 #!/bin/bash
-# Super+Tab: overview mọi workspace. Hyprspace mở trên tất cả màn cùng lúc;
-# không có thì hyprexpo (màn đang focus); không có plugin nào thì switcher fuzzel.
+# Super+Tab / Cử chỉ touchpad: overview mọi workspace.
+# Hỗ trợ action: toggle (mặc định), open, close.
+ACTION=${1:-toggle}
 LOADED=$(hyprctl plugin list)
+
 if grep -qi hyprtasking <<<"$LOADED"; then
-    hyprctl dispatch hyprtasking:toggle cursor
+    case "$ACTION" in
+        open)  hyprctl dispatch hyprtasking:if_not_active "hyprtasking:toggle cursor" ;;
+        close) hyprctl dispatch hyprtasking:if_active "hyprtasking:toggle cursor" ;;
+        *)     hyprctl dispatch hyprtasking:toggle cursor ;;
+    esac
 elif grep -q hyprexpo <<<"$LOADED"; then
-    hyprctl dispatch hyprexpo:expo toggle
+    case "$ACTION" in
+        open)  hyprctl dispatch hyprexpo:expo on ;;
+        close) hyprctl dispatch hyprexpo:expo off ;;
+        *)     hyprctl dispatch hyprexpo:expo toggle ;;
+    esac
 elif grep -q Hyprspace <<<"$LOADED"; then
-    hyprctl dispatch overview:toggle all
+    case "$ACTION" in
+        open)  hyprctl dispatch overview:open all ;;
+        close) hyprctl dispatch overview:close all ;;
+        *)     hyprctl dispatch overview:toggle all ;;
+    esac
 else
-    exec "$(dirname "$0")/window-switcher.sh"
+    if [ "$ACTION" != "close" ]; then
+        exec "$(dirname "$0")/window-switcher.sh"
+    fi
 fi
