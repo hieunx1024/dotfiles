@@ -37,16 +37,6 @@ elif [ -f "$HYPREXPO" ]; then
     grep -q hyprexpo <<<"$LOADED" && exit 0
     hyprctl plugin load "$HYPREXPO" >/dev/null
 else
-    # Nếu chưa có plugin nào mà có script build và g++, tự động build ngầm 1 lần
-    BUILD_SCRIPT="$(dirname "$0")/build-hyprtasking.sh"
-    if [ ! -f "$HYPRTASKING" ] && [ -x "$BUILD_SCRIPT" ]; then
-        if command -v g++ &>/dev/null && command -v apt-get &>/dev/null; then
-            (
-                flock -n 9 || exit 0
-                "$BUILD_SCRIPT" && hyprctl reload
-            ) 9>/tmp/hyprtasking_autobuild.lock >/tmp/hyprtasking_autobuild.log 2>&1 &
-        fi
-    fi
     exit 0
 fi
 

@@ -25,7 +25,7 @@ echo -e "${YELLOW}[1/8]${NC} Cài đặt gói hệ thống..."
 if [[ "$DISTRO_LIKE" == *"debian"* ]] || [[ "$DISTRO_LIKE" == *"ubuntu"* ]]; then
     sudo apt update
     sudo apt install -y \
-        build-essential \
+        build-essential git \
         hyprland hypridle hyprlock waybar sway-notification-center kitty nautilus nwg-look \
         fuzzel wlogout \
         fcitx5 fcitx5-config-qt fcitx5-bamboo fcitx5-frontend-gtk3 fcitx5-frontend-gtk4 fcitx5-frontend-qt5 fcitx5-frontend-qt6 \
@@ -39,7 +39,7 @@ if [[ "$DISTRO_LIKE" == *"debian"* ]] || [[ "$DISTRO_LIKE" == *"ubuntu"* ]]; the
         pipx curl tar fonts-font-awesome
 elif [[ "$DISTRO_LIKE" == *"fedora"* ]] || [[ "$DISTRO_ID" == "fedora" ]]; then
     sudo dnf install -y \
-        gcc-c++ \
+        gcc-c++ git \
         hyprland hypridle hyprlock waybar kitty nautilus nwg-look \
         fuzzel wlogout \
         fcitx5 fcitx5-configtool fcitx5-bamboo fcitx5-gtk fcitx5-qt \
@@ -58,7 +58,7 @@ elif [[ "$DISTRO_LIKE" == *"fedora"* ]] || [[ "$DISTRO_ID" == "fedora" ]]; then
     fi
 elif [[ "$DISTRO_LIKE" == *"arch"* ]] || [[ "$DISTRO_ID" == "arch" ]]; then
     sudo pacman -S --needed --noconfirm \
-        base-devel \
+        base-devel git \
         hyprland hypridle hyprlock waybar swaync kitty nautilus nwg-look \
         fuzzel wlogout \
         fcitx5 fcitx5-configtool fcitx5-bamboo fcitx5-gtk fcitx5-qt \
