@@ -22,6 +22,7 @@ LOOKUP = {
     'google-chrome': 'Chrome',
     'chromium': 'Chromium',
     'firefox': 'Firefox',
+    'firefox_firefox': 'Firefox',
     'brave-browser': 'Brave',
     'brave': 'Brave',
     'microsoft-edge': 'Edge',
