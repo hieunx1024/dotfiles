@@ -26,8 +26,14 @@ jq '{
 }' <<<"$client" >"$state_file.tmp"
 mv -f "$state_file.tmp" "$state_file"
 
-# Mỗi cửa sổ thường có workspace ẩn riêng để lúc gọi lại không hiện cả chồng cửa sổ.
-workspace="scratch-${address#0x}"
+# App chuyên dụng (viber, spotify, discord) vào workspace cố định; các cửa sổ khác có workspace ẩn riêng.
+cls="$(jq -r '.class // ""' <<<"$client")"
+case "$cls" in
+    [Vv]iber|[Vv]iberpc) workspace="viber" ;;
+    [Ss]potify) workspace="spotify" ;;
+    [Dd]iscord|[Vv]esktop|[Ww]ebcord) workspace="discord" ;;
+    *) workspace="scratch-${address#0x}" ;;
+esac
 hyprctl dispatch setfloating "address:$address" >/dev/null
 hyprctl dispatch resizewindowpixel "exact 1200 800,address:$address" >/dev/null
 hyprctl dispatch movetoworkspacesilent "special:$workspace,address:$address" >/dev/null

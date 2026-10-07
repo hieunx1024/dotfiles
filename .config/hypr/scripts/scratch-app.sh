@@ -2,36 +2,47 @@
 
 set -u
 
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 class_regex="${1:?usage: scratch-app.sh CLASS_REGEX WORKSPACE [--show|--toggle]}"
 workspace="${2:?usage: scratch-app.sh CLASS_REGEX WORKSPACE [--show|--toggle]}"
 mode="${3:---toggle}"
 
-client_exists() {
-    hyprctl clients -j 2>/dev/null \
-        | jq -e --arg regex "$class_regex" 'any(.[]; .class | test($regex))' >/dev/null
-}
+# 1. Tìm thông tin cửa sổ khớp với class_regex
+client_json="$(hyprctl clients -j 2>/dev/null \
+    | jq -c --arg regex "$class_regex" '[.[] | select(.class | test($regex))][0] // empty')"
 
-workspace_visible() {
-    hyprctl monitors -j 2>/dev/null \
-        | jq -e --arg workspace "special:$workspace" \
-            'any(.[]; .specialWorkspace.name == $workspace)' >/dev/null
-}
+[[ -n "$client_json" ]] || exit 0
 
-active_matches() {
-    hyprctl activewindow -j 2>/dev/null \
-        | jq -e --arg regex "$class_regex" '.class | test($regex)' >/dev/null
-}
+client_ws="$(jq -r '.workspace.name // ""' <<<"$client_json")"
+client_addr="$(jq -r '.address // ""' <<<"$client_json")"
 
-client_exists || exit 0
+# 2. Lấy special workspace đang hiển thị trên màn hình hiện tại
+visible_special="$(hyprctl monitors -j 2>/dev/null \
+    | jq -r '[.[] | select(.focused)][0].specialWorkspace.name // ""')"
 
-if [[ "$mode" == "--toggle" ]] && workspace_visible && active_matches; then
-    hyprctl dispatch togglespecialworkspace "$workspace" >/dev/null
-    exit 0
+# 3. Nếu app đang ở trong một special workspace VÀ workspace đó đang hiển thị trên màn hình:
+if [[ "$client_ws" == special:* && "$visible_special" == "$client_ws" ]]; then
+    if [[ "$mode" == "--toggle" ]]; then
+        # Đang hiển thị mà bấm toggle -> cất đi ngay lập tức
+        special_name="${client_ws#special:}"
+        hyprctl dispatch togglespecialworkspace "$special_name" >/dev/null
+        exit 0
+    fi
 fi
 
-if ! workspace_visible; then
+# 4. Đảm bảo app nằm ở đúng special workspace chuyên dụng ($workspace)
+if [[ "$client_ws" != "special:$workspace" ]]; then
+    hyprctl dispatch setfloating "address:$client_addr" >/dev/null
+    hyprctl dispatch resizewindowpixel "exact 1200 800,address:$client_addr" >/dev/null
+    hyprctl dispatch movetoworkspacesilent "special:$workspace,address:$client_addr" >/dev/null
+    sleep 0.05
+    "$SCRIPT_DIR/recenter-scratchpads.sh"
+fi
+
+# 5. Nếu special workspace chưa hiển thị -> mở ra
+if [[ "$visible_special" != "special:$workspace" ]]; then
     hyprctl dispatch togglespecialworkspace "$workspace" >/dev/null
     sleep 0.05
 fi
 
-hyprctl dispatch focuswindow "class:$class_regex" >/dev/null
+hyprctl dispatch focuswindow "address:$client_addr" >/dev/null
