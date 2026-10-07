@@ -93,7 +93,8 @@ focus_on_window_activation focus
 for_window [app_id=".*"] title_format "%app_id"
 for_window [class=".*"] title_format "%class"
 for_window [app_id="(?i)kitty"] title_format "Kitty"
-for_window [app_id="(?i)firefox"] title_format "Firefox"
+for_window [app_id="(?i).*firefox.*"] title_format "Firefox"
+for_window [class="(?i).*firefox.*"] title_format "Firefox"
 for_window [app_id="(?i)google-chrome"] title_format "Google Chrome"
 for_window [app_id="(?i)brave-browser"] title_format "Brave"
 for_window [app_id="(?i)code"] title_format "VS Code"
@@ -132,8 +133,8 @@ for_window [class="(?i)jetbrains" title="win0|splash|Welcome to .*"] floating en
 for_window [class="(?i)jetbrains" title="^Edit .*"] floating enable
 
 # WS3: Browsers
-assign [app_id="(?i)(firefox|google-chrome|brave-browser|tor browser)"] workspace number 3
-assign [class="(?i)(firefox|google-chrome|brave-browser|tor browser)"] workspace number 3
+assign [app_id="(?i)(.*firefox.*|google-chrome|brave-browser|tor browser|chromium|zen-browser)"] workspace number 3
+assign [class="(?i)(.*firefox.*|google-chrome|brave-browser|tor browser|chromium|zen-browser)"] workspace number 3
 
 # WS4: AI Agents & Chat
 assign [app_id="(?i)(com\.anthropic\.claude|claude|chatgpt|antigravity|org\.telegram\.desktop)"] workspace number 4
