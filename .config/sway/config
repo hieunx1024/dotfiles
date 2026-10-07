@@ -166,8 +166,10 @@ for_window [app_id="(?i)(discord|vesktop|webcord)"] floating enable, resize set 
 for_window [class="(?i)(discord|vesktop|webcord)"] floating enable, resize set 1200 800, move position center, move scratchpad
 for_window [app_id="(?i)spotify"] floating enable, resize set 1200 800, move position center, move scratchpad
 for_window [class="(?i)spotify"] floating enable, resize set 1200 800, move position center, move scratchpad
-for_window [app_id="(?i)viber"] floating enable, resize set 1200 800, move position center, move scratchpad
-for_window [class="(?i)viber.*"] floating enable, resize set 1200 800, move position center, move scratchpad
+for_window [app_id="(?i)viber"] floating enable
+for_window [class="(?i)viber.*"] floating enable
+for_window [app_id="(?i)viber" title="(?i).*Rakuten Viber.*"] resize set 1200 800, move position center, move scratchpad
+for_window [class="(?i)viber.*" title="(?i).*Rakuten Viber.*"] resize set 1200 800, move position center, move scratchpad
 
 bindsym $mod+Ctrl+d [class="(?i)discord"] scratchpad show
 bindsym $mod+Ctrl+s [class="(?i)spotify"] scratchpad show
