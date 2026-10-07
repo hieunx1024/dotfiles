@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """scratch-rescue.py: Tự động cứu các cửa sổ tài liệu / app con (file Excel, Word,
 PDF, ảnh, link web...) được mở từ trong scratchpad (Viber, Discord, Spotify).
-Khi click mở file trong Viber (đang ở special:viber), app con (như ONLYOFFICE, Loupe,
+Khi click mở file trong Viber (dù ở special:viber hay special:scratch-*), app con (như ONLYOFFICE, Loupe,
 Papers, Chrome...) không bị kẹt trong special workspace nữa, mà được tự động chuyển
 về workspace thông thường đang hiển thị trên màn hình.
 """
@@ -26,14 +26,32 @@ if not os.path.exists(SOCKET2_PATH):
     SOCKET2_PATH = f'/tmp/hypr/{HIS}/.socket2.sock'
 
 PID_FILE = os.path.join(XRD, "hypr-scratch-rescue.pid")
+LOG_FILE = "/tmp/scratch-rescue.log"
 
-# Chỉ định app nào ĐƯỢC PHÉP nằm trong special workspace tương ứng.
-# Mọi app/cửa sổ khác mở ra trong special workspace này sẽ được tự động giải cứu ra workspace chính.
+def log(msg):
+    try:
+        with open(LOG_FILE, "a", encoding="utf-8") as f:
+            f.write(f"[{time.strftime('%Y-%m-%d %H:%M:%S')}] {msg}\n")
+    except Exception:
+        pass
+
+# 1. Các app chuyên dụng ĐƯỢC PHÉP nằm trong special workspace tương ứng
 SPECIAL_ALLOW = {
     'special:viber': re.compile(r'^(viber|viberpc)$', re.IGNORECASE),
     'special:discord': re.compile(r'^(discord|vesktop|webcord)$', re.IGNORECASE),
     'special:spotify': re.compile(r'^spotify$', re.IGNORECASE),
 }
+
+# 2. Danh sách các app tài liệu / trình duyệt / media KHÔNG BAO GIỜ được kẹt trong special workspace
+ALWAYS_RESCUE_CLASSES = re.compile(
+    r'^(ONLYOFFICE|desktopeditors|soffice\.bin|libreoffice.*|'
+    r'org\.gnome\.Evince|evince|org\.gnome\.Papers|papers|okular|atril|xreader|'
+    r'google-chrome.*|firefox.*|brave-browser.*|chromium.*|microsoft-edge.*|'
+    r'loupe|org\.gnome\.Loupe|eog|imv|feh|mpv|vlc|totem|'
+    r'org\.gnome\.Nautilus|nautilus|thunar|dolphin|'
+    r'gedit|gnome-text-editor|code.*|vscodium.*|cursor.*)$',
+    re.IGNORECASE
+)
 
 def query_hypr(cmd):
     try:
@@ -68,6 +86,60 @@ def get_active_workspace():
         return monitors[0].get('activeWorkspace', {}).get('name', '1')
     return '1'
 
+def should_rescue(ws, cls, raw_addr):
+    if not ws or not ws.startswith('special:'):
+        return False
+
+    # 1. Nếu là app tài liệu / văn phòng / trình duyệt / media -> luôn cứu ra ngoài!
+    if ALWAYS_RESCUE_CLASSES.match(cls):
+        return True
+
+    # 2. Nếu là special workspace cố định (special:viber, special:discord, special:spotify)
+    pattern = SPECIAL_ALLOW.get(ws)
+    if pattern is not None:
+        return not bool(pattern.match(cls))
+
+    # 3. Nếu là scratchpad do stash (special:scratch-<stashed_addr>)
+    if ws.startswith('special:scratch-'):
+        stashed_addr = ws[len('special:scratch-'):].lower()
+        # Nếu cửa sổ mới mở có address khác với cửa sổ ban đầu được stash:
+        if raw_addr.lower() != stashed_addr:
+            # Tra cứu class của cửa sổ được stash ban đầu
+            clients = query_hypr('j/clients')
+            if clients:
+                for c in clients:
+                    c_addr = c.get('address', '').lower()
+                    if c_addr in [f'0x{stashed_addr}', stashed_addr]:
+                        stashed_cls = c.get('class', '')
+                        # Nếu class khác với app được stash -> chắc chắn là app con mở thêm -> cứu!
+                        if stashed_cls and cls.lower() != stashed_cls.lower():
+                            return True
+                        break
+            else:
+                # Nếu không tìm thấy thông tin, nhưng class khác -> cứu
+                return True
+
+    return False
+
+def rescue_window(addr, ws, cls):
+    time.sleep(0.05)
+    target_ws = get_active_workspace()
+    log(f"Rescuing window {cls} ({addr}) from {ws} to workspace {target_ws}")
+    
+    cmd_hypr(f'dispatch movetoworkspacesilent {target_ws},address:{addr}')
+    cmd_hypr(f'dispatch focuswindow address:{addr}')
+
+    # Đóng overlay special workspace nếu đang hiển thị đè lên màn hình
+    monitors = query_hypr('j/monitors')
+    if monitors:
+        for m in monitors:
+            if m.get('focused'):
+                sp = m.get('specialWorkspace', {}).get('name', '')
+                if sp and sp.startswith('special:'):
+                    sp_name = sp[len('special:'):]
+                    cmd_hypr(f'dispatch togglespecialworkspace {sp_name}')
+                break
+
 def handle_openwindow(line):
     # Format Hyprland socket2: openwindow>>WINDOWADDRESS,WORKSPACE,CLASS,TITLE
     content = line[12:].strip()
@@ -78,13 +150,20 @@ def handle_openwindow(line):
     raw_addr, ws, cls = parts[0], parts[1], parts[2]
     addr = '0x' + raw_addr
 
-    pattern = SPECIAL_ALLOW.get(ws)
-    if pattern is not None:
-        # Nếu class KHÔNG khớp với app chuyên dụng của scratchpad này -> cứu ngay!
-        if not pattern.match(cls):
-            target_ws = get_active_workspace()
-            cmd_hypr(f'dispatch movetoworkspacesilent {target_ws},address:{addr}')
-            cmd_hypr(f'dispatch focuswindow address:{addr}')
+    if should_rescue(ws, cls, raw_addr):
+        rescue_window(addr, ws, cls)
+
+def scan_and_rescue_existing():
+    clients = query_hypr('j/clients')
+    if not clients:
+        return
+    for c in clients:
+        ws = c.get('workspace', {}).get('name', '')
+        cls = c.get('class', '')
+        addr = c.get('address', '')
+        raw_addr = addr[2:] if addr.startswith('0x') else addr
+        if should_rescue(ws, cls, raw_addr):
+            rescue_window(addr, ws, cls)
 
 def ensure_single_instance():
     if os.path.exists(PID_FILE):
@@ -103,6 +182,8 @@ def ensure_single_instance():
 
 def main():
     ensure_single_instance()
+    log("scratch-rescue daemon started")
+    scan_and_rescue_existing()
 
     while True:
         try:
@@ -119,7 +200,8 @@ def main():
                         break
                     if line.startswith('openwindow>>'):
                         handle_openwindow(line)
-        except Exception:
+        except Exception as e:
+            log(f"Error in event loop: {e}")
             time.sleep(1)
 
 if __name__ == '__main__':
