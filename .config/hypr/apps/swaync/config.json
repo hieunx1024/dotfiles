@@ -32,6 +32,23 @@
   "hide-on-action": true,
   "text-empty": "  No Notifications",
   "script-fail-notify": true,
+  "scripts": {
+    "open-viber": {
+      "app-name": "(?i).*viber.*",
+      "run-on": "action",
+      "exec": "/home/hieunx/.config/hypr/scripts/scratch-notification.sh viber"
+    },
+    "open-discord": {
+      "app-name": "(?i).*(discord|vesktop|webcord).*",
+      "run-on": "action",
+      "exec": "/home/hieunx/.config/hypr/scripts/scratch-notification.sh discord"
+    },
+    "open-spotify": {
+      "app-name": "(?i).*spotify.*",
+      "run-on": "action",
+      "exec": "/home/hieunx/.config/hypr/scripts/scratch-notification.sh spotify"
+    }
+  },
   "widgets": [
     "inhibitors",
     "title",
