@@ -198,6 +198,8 @@ def main():
                     line = f.readline()
                     if not line:
                         break
+                    if line.startswith('openwindow>>') or line.startswith('closewindow>>'):
+                        log(f"EVENT: {line.strip()}")
                     if line.startswith('openwindow>>'):
                         handle_openwindow(line)
         except Exception as e:
