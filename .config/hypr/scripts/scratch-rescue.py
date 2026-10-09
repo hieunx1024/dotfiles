@@ -48,8 +48,8 @@ ALWAYS_RESCUE_CLASSES = re.compile(
     r'org\.gnome\.Evince|evince|org\.gnome\.Papers|papers|okular|atril|xreader|'
     r'google-chrome.*|firefox.*|brave-browser.*|chromium.*|microsoft-edge.*|'
     r'loupe|org\.gnome\.Loupe|eog|imv|feh|mpv|vlc|totem|'
-    r'org\.gnome\.Nautilus|nautilus|thunar|dolphin|'
-    r'gedit|gnome-text-editor|code.*|vscodium.*|cursor.*)$',
+    r'org\.gnome\.Nautilus|nautilus|thunar|dolphin|file-roller|org\.gnome\.FileRoller|'
+    r'gedit|gnome-text-editor|org\.gnome\.TextEditor|code.*|vscodium.*|cursor.*)$',
     re.IGNORECASE
 )
 
