@@ -44,7 +44,7 @@ SPECIAL_ALLOW = {
 
 # 2. Danh sách các app tài liệu / trình duyệt / media KHÔNG BAO GIỜ được kẹt trong special workspace
 ALWAYS_RESCUE_CLASSES = re.compile(
-    r'^(ONLYOFFICE|desktopeditors|soffice\.bin|libreoffice.*|'
+    r'^(xdg-desktop-portal-gtk|ONLYOFFICE|desktopeditors|soffice\.bin|libreoffice.*|'
     r'org\.gnome\.Evince|evince|org\.gnome\.Papers|papers|okular|atril|xreader|'
     r'google-chrome.*|firefox.*|brave-browser.*|chromium.*|microsoft-edge.*|'
     r'loupe|org\.gnome\.Loupe|eog|imv|feh|mpv|vlc|totem|'
@@ -56,6 +56,7 @@ ALWAYS_RESCUE_CLASSES = re.compile(
 def query_hypr(cmd):
     try:
         with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as s:
+            s.settimeout(0.5)
             s.connect(SOCKET_PATH)
             s.sendall(cmd.encode('utf-8'))
             resp = b''
@@ -71,6 +72,7 @@ def query_hypr(cmd):
 def cmd_hypr(cmd):
     try:
         with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as s:
+            s.settimeout(0.5)
             s.connect(SOCKET_PATH)
             s.sendall(cmd.encode('utf-8'))
             return s.recv(4096).decode('utf-8')

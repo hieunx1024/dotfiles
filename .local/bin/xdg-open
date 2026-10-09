@@ -1,0 +1,23 @@
+#!/bin/bash
+# Wrapper for xdg-open in Wayland/Hyprland environment.
+# Avoids blocking caller applications when launching files/URLs.
+
+if [ $# -eq 0 ]; then
+    exec /usr/bin/xdg-open
+fi
+
+case "$1" in
+    --help|--manual|--version)
+        exec /usr/bin/xdg-open "$@"
+        ;;
+esac
+
+# Try gio open first (asynchronous, non-blocking via D-Bus)
+if command -v gio >/dev/null 2>&1; then
+    gio open "$@" >/dev/null 2>&1 &
+    exit 0
+fi
+
+# Fallback: run system xdg-open in background
+nohup /usr/bin/xdg-open "$@" >/dev/null 2>&1 &
+exit 0

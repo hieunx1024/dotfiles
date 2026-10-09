@@ -168,7 +168,7 @@
     "tooltip": true
   },
   "battery": {
-    "interval": 10,
+    "interval": 30,
     "states": {
       "warning": 30,
       "critical": 20

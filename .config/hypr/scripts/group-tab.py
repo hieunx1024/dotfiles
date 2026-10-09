@@ -83,9 +83,12 @@ def clean_name(cls):
         return last if not last.islower() else last.capitalize()
     return cls if not cls.islower() else cls.capitalize()
 
+CACHE_FILE = f'/dev/shm/hypr_grouptab_{UID}.json'
+
 def query_hypr(cmd):
     try:
         with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as s:
+            s.settimeout(0.4)
             s.connect(SOCKET_PATH)
             s.sendall(cmd.encode('utf-8'))
             resp = b''
@@ -102,38 +105,55 @@ current_state = {'type': 'none', 'active_addr': '', 'tabs': []}
 
 def refresh_state():
     global current_state
+    # Check if another tab recently queried and cached the state (within 60ms)
+    try:
+        if os.path.exists(CACHE_FILE):
+            st = os.stat(CACHE_FILE)
+            if time.time() - st.st_mtime < 0.06:
+                with open(CACHE_FILE, 'r', encoding='utf-8') as f:
+                    current_state = json.load(f)
+                    return
+    except Exception:
+        pass
+
     act = query_hypr('j/activewindow')
     if not act or not act.get('address'):
         current_state = {'type': 'none', 'active_addr': '', 'tabs': []}
-        return
-
-    act_addr = act.get('address')
-    grouped = act.get('grouped', [])
-
-    if grouped and len(grouped) > 1:
-        clients = query_hypr('j/clients') or []
-        addr_map = {c['address']: c for c in clients}
-        tabs = []
-        for addr in grouped:
-            c = addr_map.get(addr)
-            if c:
-                tabs.append({
-                    'addr': addr,
-                    'name': clean_name(c.get('class', '')),
-                    'title': c.get('title', '')
-                })
-        current_state = {
-            'type': 'grouped',
-            'active_addr': act_addr,
-            'tabs': tabs
-        }
     else:
-        name = clean_name(act.get('class', ''))
-        current_state = {
-            'type': 'single',
-            'active_addr': act_addr,
-            'tabs': [{'addr': act_addr, 'name': name, 'title': act.get('title', '')}]
-        }
+        act_addr = act.get('address')
+        grouped = act.get('grouped', [])
+
+        if grouped and len(grouped) > 1:
+            clients = query_hypr('j/clients') or []
+            addr_map = {c['address']: c for c in clients}
+            tabs = []
+            for addr in grouped:
+                c = addr_map.get(addr)
+                if c:
+                    tabs.append({
+                        'addr': addr,
+                        'name': clean_name(c.get('class', '')),
+                        'title': c.get('title', '')
+                    })
+            current_state = {
+                'type': 'grouped',
+                'active_addr': act_addr,
+                'tabs': tabs
+            }
+        else:
+            name = clean_name(act.get('class', ''))
+            current_state = {
+                'type': 'single',
+                'active_addr': act_addr,
+                'tabs': [{'addr': act_addr, 'name': name, 'title': act.get('title', '')}]
+            }
+
+    # Save to shared RAM cache for sibling tabs
+    try:
+        with open(CACHE_FILE, 'w', encoding='utf-8') as f:
+            json.dump(current_state, f)
+    except Exception:
+        pass
 
 def format_tab(tab_idx):
     stype = current_state.get('type', 'none')
@@ -208,10 +228,18 @@ def main():
                     ]):
                         refresh_state()
                         print(format_tab(INDEX), flush=True)
+        except BrokenPipeError:
+            sys.exit(0)
         except Exception:
             time.sleep(1)
-            refresh_state()
-            print(format_tab(INDEX), flush=True)
+            try:
+                refresh_state()
+                print(format_tab(INDEX), flush=True)
+            except (BrokenPipeError, Exception):
+                sys.exit(0)
 
 if __name__ == '__main__':
-    main()
+    try:
+        main()
+    except BrokenPipeError:
+        sys.exit(0)

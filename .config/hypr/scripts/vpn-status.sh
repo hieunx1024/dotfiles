@@ -3,21 +3,21 @@
 
 # Fast check mode for exec-if
 if [ "$1" = "--check" ]; then
-    if ip -o link show up 2>/dev/null | grep -qE ': (tun|tap|wg|tailscale|ppp)[0-9a-zA-Z_-]*:'; then
+    if timeout 1.5s ip -o link show up 2>/dev/null | grep -qE ': (tun|tap|wg|tailscale|ppp)[0-9a-zA-Z_-]*:'; then
         exit 0
     fi
-    if nmcli -t -f TYPE connection show --active 2>/dev/null | grep -qE '^(vpn|wireguard)'; then
+    if timeout 1.5s nmcli -t -f TYPE connection show --active 2>/dev/null | grep -qE '^(vpn|wireguard)'; then
         exit 0
     fi
     exit 1
 fi
 
 # Query active VPN interface & IP for exec
-vpn_dev=$(ip -o link show up 2>/dev/null | awk -F': ' '{print $2}' | grep -E '^(tun|tap|wg|tailscale|ppp)' | head -n1)
+vpn_dev=$(timeout 1.5s ip -o link show up 2>/dev/null | awk -F': ' '{print $2}' | grep -E '^(tun|tap|wg|tailscale|ppp)' | head -n1)
 vpn_name="$vpn_dev"
 
 if [ -z "$vpn_dev" ]; then
-    vpn_nm=$(nmcli -t -f NAME,TYPE,DEVICE connection show --active 2>/dev/null | grep -E ':(vpn|wireguard):' | head -n1)
+    vpn_nm=$(timeout 1.5s nmcli -t -f NAME,TYPE,DEVICE connection show --active 2>/dev/null | grep -E ':(vpn|wireguard):' | head -n1)
     if [ -n "$vpn_nm" ]; then
         vpn_name=$(echo "$vpn_nm" | cut -d: -f1)
         vpn_dev=$(echo "$vpn_nm" | cut -d: -f3)

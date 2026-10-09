@@ -5,6 +5,20 @@
 # (Glib::Dispatcher khi libplayerctl báo player mới) -> mất thanh bar giữa chừng.
 # Chỉ restart khi chết vì SIGSEGV(139)/SIGABRT(134); pkill/thoát thường thì dừng hẳn.
 # Compositor đã chết (logout/crash) thì không restart nữa - tránh vòng lặp mỗi giây khi không còn màn hình
+
+if [ "$1" = "restart" ] || [ "$1" = "--restart" ]; then
+    killall -q waybar
+    pkill -u "$(id -u)" -f 'group-tab.py'
+    pkill -u "$(id -u)" -f '^swaync-client -swb'
+    for p in $(pgrep -u "$(id -u)" -f 'scripts/statusbar.sh'); do
+        [ "$p" != "$$" ] && kill "$p" 2>/dev/null
+    done
+    sleep 0.2
+    SCRIPT_PATH="$(realpath "$0")"
+    setsid -f "$SCRIPT_PATH" >/dev/null 2>&1
+    exit 0
+fi
+
 # PID Hyprland: đi ngược cây tiến trình (exec-once chạy TRƯỚC khi Hyprland tạo hyprland.lock, nên
 # đọc lock lúc khởi động sẽ rỗng); không thấy mới đọc lock.
 hypr_pid() {
