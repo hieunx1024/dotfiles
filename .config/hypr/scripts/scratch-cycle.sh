@@ -51,12 +51,13 @@ scratch_apps="$(jq -c --arg active_ws "$active_ws" '
             is_on_active_ws: ($ws == $active_ws)
           }
     ]
+    | unique_by(.home_ws)
 ' <<<"$clients")"
 
 total_count="$(jq 'length' <<<"$scratch_apps")"
 ((total_count > 0)) || exit 0
 
-# 3. Kiểm tra xem có app nào đang hiển thị trên active_ws không
+# 3. Kiểm tra xem có app scratchpad nào đang hiển thị trên active_ws không
 current_index="$(jq -r '[.[] | .is_on_active_ws] | index(true) // -1' <<<"$scratch_apps")"
 
 if ((current_index >= 0)); then
@@ -64,26 +65,39 @@ if ((current_index >= 0)); then
     curr_home="$(jq -r ".[$current_index].home_ws" <<<"$scratch_apps")"
     curr_cls="$(jq -r ".[$current_index].class" <<<"$scratch_apps")"
     
-    # Cất tất cả cửa sổ của app này trên active_ws (cửa sổ chính + cửa sổ popup/xem ảnh nếu có)
+    # Cất tất cả cửa sổ của app này trên active_ws (cửa sổ chính + popup/xem ảnh nếu có)
     hyprctl clients -j 2>/dev/null \
         | jq -r --arg cls "$curr_cls" --arg ws "$active_ws" \
-            '.[] | select(.class == $cls and .workspace.name == $ws) | .address' \
+            '.[] | select((.class | ascii_downcase) == ($cls | ascii_downcase) and .workspace.name == $ws) | .address' \
         | while read -r a; do
             [[ -n "$a" ]] && hyprctl dispatch movetoworkspacesilent "special:$curr_home,address:$a" >/dev/null
         done
     
-    # Nếu đây là app cuối cùng trong vòng lặp (hoặc chỉ có duy nhất 1 app), kết thúc (đã ẩn hết)
-    if ((current_index == total_count - 1)); then
-        exit 0
-    fi
-    next_index=$((current_index + 1))
-else
-    # Chưa có app nào trên active_ws: lấy app đầu tiên
-    next_index=0
+    # Lưu app tiếp theo cho lần bấm sau
+    mkdir -p "$STATE_DIR"
+    echo "$(( (current_index + 1) % total_count ))" > "$STATE_DIR/cycle_index"
+    
+    # Khi đã đóng app vào sp thì dừng lại, KHÔNG tự ý bung app khác ra!
+    exit 0
 fi
 
-# 4. Hiển thị app tại next_index ra active_ws (regular workspace)
-next_addr="$(jq -r ".[$next_index].address" <<<"$scratch_apps")"
+# 4. Khi chưa có app nào trên active_ws: hiển thị app được chọn
+target_index=0
+if [[ -f "$STATE_DIR/cycle_index" ]]; then
+    saved_idx="$(cat "$STATE_DIR/cycle_index" 2>/dev/null || echo 0)"
+    if [[ "$saved_idx" =~ ^[0-9]+$ ]] && ((saved_idx < total_count)); then
+        target_index="$saved_idx"
+    fi
+else
+    # Ưu tiên Viber nếu chưa có trạng thái lưu
+    viber_idx="$(jq -r '[.[] | .home_ws == "viber"] | index(true) // -1' <<<"$scratch_apps")"
+    if ((viber_idx >= 0)); then
+        target_index="$viber_idx"
+    fi
+fi
+
+# Hiển thị app tại target_index ra active_ws (regular workspace)
+next_addr="$(jq -r ".[$target_index].address" <<<"$scratch_apps")"
 hyprctl dispatch movetoworkspace "$active_ws,address:$next_addr" >/dev/null
 hyprctl dispatch setfloating "address:$next_addr" >/dev/null
 hyprctl dispatch resizewindowpixel "exact 1200 800,address:$next_addr" >/dev/null
