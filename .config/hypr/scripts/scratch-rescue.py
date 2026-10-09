@@ -177,6 +177,63 @@ def scan_and_rescue_existing():
         if should_rescue(ws, cls, raw_addr):
             rescue_window(addr, ws, cls)
 
+def handle_workspace_change(new_ws):
+    if not new_ws or new_ws.startswith('special:'):
+        return
+
+    try:
+        monitors = query_hypr('j/monitors')
+        visible_workspaces = set()
+        if monitors:
+            for m in monitors:
+                ws_id = m.get('activeWorkspace', {}).get('name')
+                if ws_id:
+                    visible_workspaces.add(str(ws_id))
+
+        clients = query_hypr('j/clients')
+        if not clients:
+            return
+
+        state_dir = os.path.join(XRD, "hypr-scratch-state")
+        stashed_addrs = set()
+        if os.path.exists(state_dir):
+            try:
+                for fname in os.listdir(state_dir):
+                    if fname.endswith('.json') and fname != 'cycle_index':
+                        stashed_addrs.add(fname[:-5].lower())
+            except Exception:
+                pass
+
+        for c in clients:
+            ws_name = str(c.get('workspace', {}).get('name', ''))
+            # Bỏ qua nếu đã ở special workspace hoặc workspace đó vẫn đang hiển thị trên màn hình
+            if not ws_name or ws_name.startswith('special:') or ws_name in visible_workspaces:
+                continue
+
+            # Chỉ áp dụng cho cửa sổ floating
+            if not c.get('floating'):
+                continue
+
+            cls = c.get('class', '')
+            addr = c.get('address', '')
+            raw_addr = addr[2:].lower() if addr.startswith('0x') else addr.lower()
+
+            home_ws = None
+            if re.match(r'^(viber|viberpc)$', cls, re.IGNORECASE):
+                home_ws = 'special:viber'
+            elif re.match(r'^spotify$', cls, re.IGNORECASE):
+                home_ws = 'special:spotify'
+            elif re.match(r'^(discord|vesktop|webcord)$', cls, re.IGNORECASE):
+                home_ws = 'special:discord'
+            elif raw_addr in stashed_addrs:
+                home_ws = f'special:scratch-{raw_addr}'
+
+            if home_ws:
+                log(f"Auto-tucking scratchpad {cls} ({addr}) from workspace {ws_name} into {home_ws}")
+                cmd_hypr(f"dispatch movetoworkspacesilent {home_ws},address:{addr}")
+    except Exception as e:
+        log(f"Error in handle_workspace_change: {e}")
+
 def ensure_single_instance():
     if os.path.exists(PID_FILE):
         try:
@@ -214,6 +271,9 @@ def main():
                         log(f"EVENT: {line.strip()}")
                     if line.startswith('openwindow>>'):
                         handle_openwindow(line)
+                    elif line.startswith('workspace>>'):
+                        new_ws = line[len('workspace>>'):].strip()
+                        handle_workspace_change(new_ws)
         except Exception as e:
             log(f"Error in event loop: {e}")
             time.sleep(1)

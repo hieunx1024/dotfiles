@@ -52,7 +52,7 @@ scratch_apps="$(jq -c --arg active_ws "$active_ws" --arg stashed_regex "$stashed
         | select(
             ($ws | startswith("special:"))
             or (
-                ($ws == $active_ws) and $c.floating and (
+                $c.floating and (
                     ($cls | test("^(viber|viberpc|spotify|discord|vesktop|webcord)$"))
                     or ($raw_addr | test($stashed_regex))
                 )
@@ -128,7 +128,7 @@ target_cls="$(jq -r ".[$target_index].class" <<<"$scratch_apps")"
 target_ws="$(jq -r ".[$target_index].current_ws" <<<"$scratch_apps")"
 
 # Nếu app có nhiều cửa sổ ở target_ws (ví dụ Viber chính + popup/xem ảnh), đưa tất cả ra active_ws
-if [[ "$target_ws" =~ ^special: ]]; then
+if [[ "$target_ws" != "$active_ws" ]]; then
     hyprctl clients -j 2>/dev/null \
         | jq -r --arg cls "$target_cls" --arg ws "$target_ws" \
             '.[] | select((.class | ascii_downcase) == ($cls | ascii_downcase) and .workspace.name == $ws) | .address' \
