@@ -99,6 +99,16 @@ def should_rescue(ws, cls, raw_addr):
     # 2. Nếu là special workspace cố định (special:viber, special:discord, special:spotify)
     pattern = SPECIAL_ALLOW.get(ws)
     if pattern is not None:
+        if ws == 'special:viber' and pattern.match(cls):
+            # Nếu là cửa sổ con (xem ảnh / MediaPreview / popup) của Viber
+            clients = query_hypr('j/clients')
+            if clients:
+                viber_windows = [c for c in clients if pattern.match(c.get('class', ''))]
+                # Nếu đã có cửa sổ Viber khác đang mở, cửa sổ mới này là cửa sổ con -> cứu ra active workspace!
+                for c in viber_windows:
+                    c_addr = c.get('address', '').lower()
+                    if c_addr not in [f'0x{raw_addr.lower()}', raw_addr.lower()]:
+                        return True
         return not bool(pattern.match(cls))
 
     # 3. Nếu là scratchpad do stash (special:scratch-<stashed_addr>)

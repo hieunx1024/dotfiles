@@ -53,12 +53,15 @@ scratch_apps="$(jq -c --arg active_ws "$active_ws" '
         | {
             address: $c.address,
             class: $c.class,
+            title: $c.title,
             current_ws: $ws,
             home_ws: $home_ws,
             is_on_active_ws: ($ws == $active_ws),
-            priority: $priority
+            priority: $priority,
+            is_main: (if ($cls | test("^(viber|viberpc)$")) then (if ($c.title | test("(?i)Rakuten Viber")) then 0 else 1 end) else 0 end)
           }
     ]
+    | sort_by(.is_main)
     | unique_by(.home_ws)
     | sort_by(.priority, .home_ws)
 ' <<<"$clients")"
@@ -107,6 +110,19 @@ fi
 
 # Hiển thị app tại target_index ra active_ws (regular workspace)
 next_addr="$(jq -r ".[$target_index].address" <<<"$scratch_apps")"
+target_cls="$(jq -r ".[$target_index].class" <<<"$scratch_apps")"
+target_ws="$(jq -r ".[$target_index].current_ws" <<<"$scratch_apps")"
+
+# Nếu app có nhiều cửa sổ ở target_ws (ví dụ Viber chính + popup/xem ảnh), đưa tất cả ra active_ws
+if [[ "$target_ws" =~ ^special: ]]; then
+    hyprctl clients -j 2>/dev/null \
+        | jq -r --arg cls "$target_cls" --arg ws "$target_ws" \
+            '.[] | select((.class | ascii_downcase) == ($cls | ascii_downcase) and .workspace.name == $ws) | .address' \
+        | while read -r a; do
+            [[ -n "$a" ]] && hyprctl dispatch movetoworkspace "$active_ws,address:$a" >/dev/null
+        done
+fi
+
 hyprctl dispatch movetoworkspace "$active_ws,address:$next_addr" >/dev/null
 hyprctl dispatch setfloating "address:$next_addr" >/dev/null
 hyprctl dispatch resizewindowpixel "exact 1200 800,address:$next_addr" >/dev/null

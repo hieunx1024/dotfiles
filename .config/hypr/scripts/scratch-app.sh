@@ -6,9 +6,13 @@ class_regex="${1:?usage: scratch-app.sh CLASS_REGEX WORKSPACE [--show|--toggle]}
 workspace="${2:?usage: scratch-app.sh CLASS_REGEX WORKSPACE [--show|--toggle]}"
 mode="${3:---toggle}"
 
-# 1. Tìm thông tin cửa sổ khớp với class_regex
+# 1. Tìm thông tin cửa sổ khớp với class_regex (ưu tiên cửa sổ chính nếu có nhiều cửa sổ như xem ảnh/popup)
 client_json="$(hyprctl clients -j 2>/dev/null \
-    | jq -c --arg regex "$class_regex" '[.[] | select(.class | test($regex))][0] // empty')"
+    | jq -c --arg regex "$class_regex" '
+        [.[] | select(.class | test($regex))]
+        | sort_by(if (.title | test("(?i)Rakuten Viber")) then 0 else 1 end)
+        | .[0] // empty
+    ')"
 
 [[ -n "$client_json" ]] || exit 0
 
@@ -42,6 +46,15 @@ fi
 
 # 4. Khi cần hiển thị: Đưa app về NGAY WORKSPACE HIỆN TẠI (regular workspace)
 # Nhờ chạy trên workspace thường, mọi tính năng xem ảnh, popup, menu, call của Qt/Wayland hoạt động 100% không bị xung đột overlay
+if [[ "$client_ws" =~ ^special: ]]; then
+    hyprctl clients -j 2>/dev/null \
+        | jq -r --arg regex "$class_regex" --arg ws "$client_ws" \
+            '.[] | select(.class | test($regex)) | select(.workspace.name == $ws) | .address' \
+        | while read -r addr; do
+            [[ -n "$addr" ]] && hyprctl dispatch movetoworkspace "$active_ws,address:$addr" >/dev/null
+        done
+fi
+
 hyprctl dispatch movetoworkspace "$active_ws,address:$client_addr" >/dev/null
 hyprctl dispatch setfloating "address:$client_addr" >/dev/null
 hyprctl dispatch resizewindowpixel "exact 1200 800,address:$client_addr" >/dev/null
