@@ -20,13 +20,20 @@ fi
 clients="$(hyprctl clients -j 2>/dev/null)" || exit 0
 
 # 2. Tìm danh sách tất cả các ứng dụng scratchpad (bao gồm app trong special:* hoặc app scratchpad đang mở trên active_ws)
-scratch_apps="$(jq -c --arg active_ws "$active_ws" '
+stashed_list="$(find "$STATE_DIR" -name "*.json" 2>/dev/null | sed -E 's|.*/([0-9a-fA-F]+)\.json$|\1|' | tr '[:upper:]' '[:lower:]' | tr '\n' '|' | sed 's/|$//')"
+if [[ -n "$stashed_list" ]]; then
+    stashed_regex="^(${stashed_list})$"
+else
+    stashed_regex="^$"
+fi
+
+scratch_apps="$(jq -c --arg active_ws "$active_ws" --arg stashed_regex "$stashed_regex" '
     [
         .[]
         | . as $c
         | ($c.workspace.name) as $ws
         | ($c.class | ascii_downcase) as $cls
-        | ($c.address | ltrimstr("0x")) as $raw_addr
+        | ($c.address | ltrimstr("0x") | ascii_downcase) as $raw_addr
         | (
             if ($cls | test("^(viber|viberpc)$")) then "viber"
             elif ($cls | test("^(spotify)$")) then "spotify"
@@ -47,6 +54,7 @@ scratch_apps="$(jq -c --arg active_ws "$active_ws" '
             or (
                 ($ws == $active_ws) and $c.floating and (
                     ($cls | test("^(viber|viberpc|spotify|discord|vesktop|webcord)$"))
+                    or ($raw_addr | test($stashed_regex))
                 )
             )
           )
@@ -76,14 +84,20 @@ if ((current_index >= 0)); then
     # Đang có 1 app hiển thị trên active_ws: cất app này về home_ws của nó
     curr_home="$(jq -r ".[$current_index].home_ws" <<<"$scratch_apps")"
     curr_cls="$(jq -r ".[$current_index].class" <<<"$scratch_apps")"
+    curr_addr="$(jq -r ".[$current_index].address" <<<"$scratch_apps")"
     
-    # Cất tất cả cửa sổ của app này trên active_ws (cửa sổ chính + popup/xem ảnh nếu có)
-    hyprctl clients -j 2>/dev/null \
-        | jq -r --arg cls "$curr_cls" --arg ws "$active_ws" \
-            '.[] | select((.class | ascii_downcase) == ($cls | ascii_downcase) and .workspace.name == $ws) | .address' \
-        | while read -r a; do
-            [[ -n "$a" ]] && hyprctl dispatch movetoworkspacesilent "special:$curr_home,address:$a" >/dev/null
-        done
+    if [[ "$curr_home" =~ ^scratch- ]]; then
+        # Cửa sổ động stashed: chỉ cất đúng cửa sổ này về special workspace riêng của nó
+        hyprctl dispatch movetoworkspacesilent "special:$curr_home,address:$curr_addr" >/dev/null
+    else
+        # App cố định (viber, spotify, discord): cất tất cả cửa sổ của app này trên active_ws
+        hyprctl clients -j 2>/dev/null \
+            | jq -r --arg cls "$curr_cls" --arg ws "$active_ws" \
+                '.[] | select((.class | ascii_downcase) == ($cls | ascii_downcase) and .workspace.name == $ws) | .address' \
+            | while read -r a; do
+                [[ -n "$a" ]] && hyprctl dispatch movetoworkspacesilent "special:$curr_home,address:$a" >/dev/null
+            done
+    fi
     
     # Lưu app tiếp theo cho lần bấm sau
     mkdir -p "$STATE_DIR"
