@@ -35,6 +35,13 @@ scratch_apps="$(jq -c --arg active_ws "$active_ws" '
             else ("scratch-" + $raw_addr)
             end
           ) as $home_ws
+        | (
+            if ($cls | test("^(viber|viberpc)$")) then 1
+            elif ($cls | test("^(spotify)$")) then 2
+            elif ($cls | test("^(discord|vesktop|webcord)$")) then 3
+            else 4
+            end
+          ) as $priority
         | select(
             ($ws | startswith("special:"))
             or (
@@ -48,10 +55,12 @@ scratch_apps="$(jq -c --arg active_ws "$active_ws" '
             class: $c.class,
             current_ws: $ws,
             home_ws: $home_ws,
-            is_on_active_ws: ($ws == $active_ws)
+            is_on_active_ws: ($ws == $active_ws),
+            priority: $priority
           }
     ]
     | unique_by(.home_ws)
+    | sort_by(.priority, .home_ws)
 ' <<<"$clients")"
 
 total_count="$(jq 'length' <<<"$scratch_apps")"
